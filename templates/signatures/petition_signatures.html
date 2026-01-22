@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Assinaturas - {{ petition.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Assinaturas da Petição</h1>
+        <p class="text-lg text-gray-700">{{ petition.title }}</p>
+        <a href="{% url 'petitions:detail' uuid=petition.uuid slug=petition.slug %}" class="text-blue-600 hover:underline text-sm">
+            ← Voltar para a petição
+        </a>
+    </div>
+
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-3xl font-bold text-blue-600">{{ total_signatures }}</div>
+            <div class="text-sm text-gray-600">Total de Assinaturas</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-3xl font-bold text-green-600">{{ approved_signatures }}</div>
+            <div class="text-sm text-gray-600">Aprovadas</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-3xl font-bold text-yellow-600">{{ pending_signatures }}</div>
+            <div class="text-sm text-gray-600">Pendentes</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+            <div class="text-3xl font-bold text-red-600">{{ rejected_signatures }}</div>
+            <div class="text-sm text-gray-600">Rejeitadas</div>
+        </div>
+    </div>
+
+    <!-- Signatures List -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b">
+            <h2 class="text-xl font-bold text-gray-900">Lista de Assinaturas</h2>
+        </div>
+        
+        {% if signatures %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nome
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Localização
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Data
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Verificado
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for signature in signatures %}
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        {{ signature.display_name }}
+                                    </div>
+                                    {% if signature.email %}
+                                        <div class="text-sm text-gray-500">{{ signature.email }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    {{ signature.city }}, {{ signature.state }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                                    {{ signature.created_at|date:"d/m/Y H:i" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if signature.status == 'approved' %}
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Aprovada
+                                        </span>
+                                    {% elif signature.status == 'pending' %}
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            Pendente
+                                        </span>
+                                    {% elif signature.status == 'rejected' %}
+                                        <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            Rejeitada
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                    {% if signature.verified %}
+                                        <span class="text-green-600">✓ Sim</span>
+                                    {% else %}
+                                        <span class="text-gray-400">✗ Não</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <div class="px-6 py-4 bg-gray-50 border-t flex justify-center">
+                    <nav class="flex space-x-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1" class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">Primeira</a>
+                            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">Anterior</a>
+                        {% endif %}
+                        
+                        <span class="px-3 py-2">
+                            Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                        </span>
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">Próxima</a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-3 py-2 bg-white border rounded-lg hover:bg-gray-50">Última</a>
+                        {% endif %}
+                    </nav>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="px-6 py-12 text-center text-gray-500">
+                Nenhuma assinatura encontrada para esta petição.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object.pk %}Editar{% else %}Criar{% endif %} Petição - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">
+            {% if object.pk %}Editar Petição{% else %}Criar Nova Petição{% endif %}
+        </h1>
+        
+        <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 class="font-semibold text-blue-900 mb-2">📝 Dicas para uma boa petição:</h3>
+            <ul class="text-sm text-blue-800 space-y-1">
+                <li>• Seja claro e específico no título</li>
+                <li>• Explique detalhadamente a causa e seus objetivos</li>
+                <li>• Defina uma meta realista de assinaturas</li>
+                <li>• Inclua dados e fatos que apoiem sua causa</li>
+            </ul>
+        </div>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <div>
+                <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.title.label }} <span class="text-red-500">*</span>
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                {% elif form.title.help_text %}
+                    <p class="mt-1 text-xs text-gray-500">{{ form.title.help_text }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.category.label }} <span class="text-red-500">*</span>
+                </label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.category.errors.0 }}</p>
+                {% elif form.category.help_text %}
+                    <p class="mt-1 text-xs text-gray-500">{{ form.category.help_text }}</p>
+                {% endif %}
+            </div>
+            
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                    {{ form.description.label }} <span class="text-red-500">*</span>
+                </label>
+                {{ form.description }}
+                <p class="mt-1 text-xs text-gray-500">
+                    <span id="char-count">0</span> / 10.000 caracteres
+                </p>
+                {% if form.description.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                {% elif form.description.help_text %}
+                    <p class="mt-1 text-xs text-gray-500">{{ form.description.help_text }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.signature_goal.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.signature_goal.label }} <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.signature_goal }}
+                    {% if form.signature_goal.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.signature_goal.errors.0 }}</p>
+                    {% elif form.signature_goal.help_text %}
+                        <p class="mt-1 text-xs text-gray-500">{{ form.signature_goal.help_text }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.deadline.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ form.deadline.label }}
+                    </label>
+                    {{ form.deadline }}
+                    {% if form.deadline.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.deadline.errors.0 }}</p>
+                    {% elif form.deadline.help_text %}
+                        <p class="mt-1 text-xs text-gray-500">{{ form.deadline.help_text }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center pt-6 border-t">
+                <a href="{% url 'petitions:home' %}" class="text-gray-600 hover:text-gray-800">
+                    Cancelar
+                </a>
+                <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                    {% if object.pk %}Atualizar Petição{% else %}Criar Petição{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Character counter for description
+    const descriptionField = document.querySelector('#{{ form.description.id_for_label }}');
+    const charCount = document.querySelector('#char-count');
+    
+    if (descriptionField && charCount) {
+        descriptionField.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+        // Initialize count
+        charCount.textContent = descriptionField.value.length;
+    }
+</script>
+{% endblock %}

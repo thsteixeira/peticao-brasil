@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}{{ SITE_NAME }} - Petições que fazem a diferença{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20 mb-12">
+    <div class="container mx-auto text-center">
+        <h1 class="text-5xl font-bold mb-4">Sua voz importa</h1>
+        <p class="text-xl mb-8">Crie e assine petições que transformam o Brasil</p>
+        <div class="flex justify-center space-x-4">
+            {% if user.is_authenticated %}
+                <a href="{% url 'petitions:create' %}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    Criar Petição
+                </a>
+            {% else %}
+                <a href="{% url 'accounts:register' %}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    Começar Agora
+                </a>
+            {% endif %}
+            <a href="{% url 'petitions:list' %}" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                Ver Petições
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+    <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <p class="text-4xl font-bold text-blue-600">{{ total_petitions }}</p>
+        <p class="text-gray-600 mt-2">Petições Ativas</p>
+    </div>
+    <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <p class="text-4xl font-bold text-green-600">{{ total_signatures }}</p>
+        <p class="text-gray-600 mt-2">Assinaturas Coletadas</p>
+    </div>
+    <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <p class="text-4xl font-bold text-purple-600">100%</p>
+        <p class="text-gray-600 mt-2">Assinatura Digital Gov.br</p>
+    </div>
+</div>
+
+<!-- Featured Petitions -->
+<div class="mb-12">
+    <h2 class="text-3xl font-bold text-gray-900 mb-6">Petições em Destaque</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for petition in featured_petitions %}
+            {% include 'petitions/partials/petition_card.html' %}
+        {% empty %}
+            <div class="col-span-3 text-center py-12">
+                <p class="text-gray-500">Nenhuma petição em destaque no momento.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Recent Petitions -->
+<div class="mb-12">
+    <h2 class="text-3xl font-bold text-gray-900 mb-6">Petições Recentes</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for petition in recent_petitions %}
+            {% include 'petitions/partials/petition_card.html' %}
+        {% empty %}
+            <div class="col-span-3 text-center py-12">
+                <p class="text-gray-500">Nenhuma petição recente.</p>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="text-center mt-8">
+        <a href="{% url 'petitions:list' %}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+            Ver Todas as Petições
+        </a>
+    </div>
+</div>
+
+<!-- Categories -->
+<div class="mb-12">
+    <h2 class="text-3xl font-bold text-gray-900 mb-6">Categorias</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {% for category in categories %}
+            <a href="{% url 'petitions:list' %}?category={{ category.slug }}" 
+               class="bg-white rounded-lg shadow-md p-6 text-center hover:shadow-lg transition-shadow">
+                <div class="text-3xl mb-2">📋</div>
+                <h3 class="font-semibold text-gray-900">{{ category.name }}</h3>
+                <p class="text-sm text-gray-600 mt-1">{{ category.petition_count }} petições</p>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}Assinar Petição - {{ petition.title }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Breadcrumb -->
+    <div class="mb-6">
+        <nav class="text-sm text-gray-600">
+            <a href="{% url 'petitions:home' %}" class="hover:text-blue-600">Início</a>
+            <span class="mx-2">›</span>
+            <a href="{% url 'petitions:detail' uuid=petition.uuid slug=petition.slug %}" class="hover:text-blue-600">{{ petition.title|truncatewords:5 }}</a>
+            <span class="mx-2">›</span>
+            <span class="text-gray-900">Assinar Petição</span>
+        </nav>
+    </div>
+
+    <!-- Petition Info -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">Assinar Petição</h1>
+        <p class="text-lg text-gray-700 mb-4">{{ petition.title }}</p>
+        <div class="flex items-center space-x-4 text-sm text-gray-600">
+            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full">{{ petition.category.name }}</span>
+            <span>📊 {{ petition.current_signatures|default:0 }} de {{ petition.signature_goal }} assinaturas</span>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <h2 class="text-xl font-bold text-blue-900 mb-4">📋 Instruções Importantes</h2>
+        <ol class="space-y-2 text-gray-700">
+            <li><strong>1.</strong> Certifique-se de que baixou o PDF oficial da petição</li>
+            <li><strong>2.</strong> Assine o PDF usando sua assinatura digital Gov.br (certificado ICP-Brasil)</li>
+            <li><strong>3.</strong> Faça o upload do arquivo PDF assinado neste formulário</li>
+            <li><strong>4.</strong> Aguarde a verificação automática do certificado digital</li>
+        </ol>
+        <div class="mt-4 p-4 bg-white rounded border border-blue-300">
+            <p class="text-sm text-gray-600">
+                <strong>⚠️ ATENÇÃO:</strong> O CPF informado deve ser o mesmo associado ao certificado digital utilizado para assinar o PDF.
+                Não modifique o conteúdo do PDF após o download, pois isso invalidará a verificação.
+            </p>
+        </div>
+    </div>
+
+    <!-- Signature Form -->
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">Enviar Assinatura Digital</h2>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            <!-- CPF Field -->
+            <div>
+                <label for="{{ form.cpf.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                    {{ form.cpf.label }}
+                    <span class="text-red-500">*</span>
+                </label>
+                {{ form.cpf }}
+                {% if form.cpf.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.cpf.help_text }}</p>
+                {% endif %}
+                {% if form.cpf.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.cpf.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Full Name Field -->
+            <div>
+                <label for="{{ form.full_name.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                    {{ form.full_name.label }}
+                    <span class="text-red-500">*</span>
+                </label>
+                {{ form.full_name }}
+                {% if form.full_name.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.full_name.help_text }}</p>
+                {% endif %}
+                {% if form.full_name.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.full_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Email Field -->
+            <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                    {{ form.email.label }}
+                </label>
+                {{ form.email }}
+                {% if form.email.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.email.help_text }}</p>
+                {% endif %}
+                {% if form.email.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Location Fields -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="{{ form.city.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        {{ form.city.label }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.city }}
+                    {% if form.city.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.city.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.state.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        {{ form.state.label }}
+                        <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.state }}
+                    {% if form.state.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.state.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- PDF Upload Field -->
+            <div>
+                <label for="{{ form.signed_pdf.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                    {{ form.signed_pdf.label }}
+                    <span class="text-red-500">*</span>
+                </label>
+                {{ form.signed_pdf }}
+                {% if form.signed_pdf.help_text %}
+                    <p class="mt-1 text-sm text-gray-500">{{ form.signed_pdf.help_text }}</p>
+                {% endif %}
+                {% if form.signed_pdf.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.signed_pdf.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Privacy Notice -->
+            <div class="bg-gray-50 border border-gray-200 rounded p-4">
+                <p class="text-xs text-gray-600">
+                    <strong>🔒 Privacidade e Segurança:</strong> Seus dados pessoais (CPF e IP) são armazenados 
+                    de forma criptografada (hash SHA-256) em conformidade com a LGPD. O PDF assinado será 
+                    verificado automaticamente e armazenado de forma segura. Seus dados não serão 
+                    compartilhados com terceiros.
+                </p>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex space-x-4">
+                <button type="submit" class="flex-1 bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 font-semibold transition-colors">
+                    ✍️ Enviar Assinatura
+                </button>
+                <a href="{% url 'petitions:detail' uuid=petition.uuid slug=petition.slug %}" 
+                   class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-center">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// CPF mask
+document.addEventListener('DOMContentLoaded', function() {
+    const cpfInput = document.getElementById('{{ form.cpf.id_for_label }}');
+    if (cpfInput) {
+        cpfInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length <= 11) {
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                e.target.value = value;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
