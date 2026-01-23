@@ -101,7 +101,19 @@ class SignatureSubmissionForm(forms.ModelForm):
             'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
             'accept': '.pdf'
         })
-    )    
+    )
+    
+    consent_document_sharing = forms.BooleanField(
+        label='Aceito compartilhar meu documento',
+        required=True,
+        error_messages={
+            'required': 'Você deve consentir com o compartilhamento do documento para enviar a assinatura.'
+        },
+        widget=forms.CheckboxInput(attrs={
+            'class': 'h-5 w-5 text-red-600 focus:ring-red-500 border-gray-300 rounded'
+        })
+    )
+    
     turnstile_token = forms.CharField(
         widget=forms.HiddenInput(),
         required=False  # Not required for when TURNSTILE_ENABLED=False
