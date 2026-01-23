@@ -65,24 +65,42 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@peticaobrasil.com.br')
 SERVER_EMAIL = config('SERVER_EMAIL', default='admin@peticaobrasil.com.br')
 
-# Celery Configuration for Production
+# Cache Configuration for Production with SSL
 import ssl
-import certifi
 
 redis_url = config('REDIS_URL', default='redis://localhost:6379/0')
 
-# Heroku Redis uses TLS (rediss://), configure with proper certificate validation
+# Configure cache with SSL for Heroku Redis
+if redis_url.startswith('rediss://'):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': redis_url.replace('/0', '/1'),  # Use database 1 for cache
+            'OPTIONS': {
+                'ssl_cert_reqs': None,  # Skip SSL verification for Heroku Redis
+            }
+        }
+    }
+else:
+    # Local development
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': redis_url.replace('/0', '/1'),
+        }
+    }
+
+# Celery Configuration for Production
+# Heroku Redis uses self-signed certificates - configure SSL to accept them
+# The connection is still encrypted, we just skip certificate validation
 if redis_url.startswith('rediss://'):
     CELERY_BROKER_URL = redis_url
     CELERY_RESULT_BACKEND = redis_url
-    # Use system CA bundle for proper SSL verification
     CELERY_BROKER_USE_SSL = {
-        'ssl_cert_reqs': ssl.CERT_REQUIRED,
-        'ssl_ca_certs': certifi.where()
+        'ssl_cert_reqs': ssl.CERT_NONE
     }
     CELERY_REDIS_BACKEND_USE_SSL = {
-        'ssl_cert_reqs': ssl.CERT_REQUIRED,
-        'ssl_ca_certs': certifi.where()
+        'ssl_cert_reqs': ssl.CERT_NONE
     }
 else:
     CELERY_BROKER_URL = redis_url
