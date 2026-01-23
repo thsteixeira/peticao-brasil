@@ -1,0 +1,33 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<div class="warning">
+    <h2>⚠️ Assinatura Não Verificada</h2>
+</div>
+
+<p>Olá, {{ signer_name }}!</p>
+
+<p>Infelizmente, não foi possível verificar sua assinatura digital para a petição <strong>{{ petition.title }}</strong>.</p>
+
+<h3>Motivo da Rejeição:</h3>
+<p style="background-color: #fef3c7; padding: 15px; border-left: 4px solid #f59e0b;">
+    {{ reason }}
+</p>
+
+<h3>O que fazer:</h3>
+<ul>
+    <li>Verifique se você usou um certificado digital ICP-Brasil válido</li>
+    <li>Certifique-se de que o CPF do certificado corresponde ao CPF informado</li>
+    <li>Confirme que não modificou o PDF após assiná-lo</li>
+    <li>Tente assinar novamente seguindo as instruções corretamente</li>
+</ul>
+
+<a href="{{ site_url }}/peticoes/{{ petition.uuid }}/{{ petition.slug }}/assinar/" class="button">Tentar Novamente</a>
+
+<p>Se o problema persistir, entre em contato conosco.</p>
+
+<p>
+    Atenciosamente,<br>
+    Equipe {{ site_name }}
+</p>
+{% endblock %}

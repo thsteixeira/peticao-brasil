@@ -250,11 +250,29 @@ class Petition(models.Model):
         return self.signature_count >= self.signature_goal
     
     def increment_signature_count(self):
-        """Safely increment signature count (atomic operation)"""
+        """Safely increment signature count and check for milestones"""
+        old_count = self.signature_count
+        
         self.__class__.objects.filter(pk=self.pk).update(
             signature_count=models.F('signature_count') + 1
         )
         self.refresh_from_db()
+        
+        # Check if we hit a milestone (25%, 50%, 75%, 100%)
+        old_progress = int((old_count / self.signature_goal) * 100)
+        new_progress = int((self.signature_count / self.signature_goal) * 100)
+        
+        milestones = [25, 50, 75, 100]
+        for milestone in milestones:
+            if old_progress < milestone <= new_progress:
+                # Hit a new milestone!
+                try:
+                    from apps.core.tasks import send_milestone_notification
+                    send_milestone_notification.delay(self.id, milestone)
+                except Exception as e:
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Failed to queue milestone email: {str(e)}")
     
     def increment_view_count(self):
         """Safely increment view count (atomic operation)"""

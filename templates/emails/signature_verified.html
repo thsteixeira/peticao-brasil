@@ -1,0 +1,30 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<div class="success">
+    <h2>✅ Assinatura Verificada com Sucesso!</h2>
+</div>
+
+<p>Olá, {{ signer_name }}!</p>
+
+<p>Sua assinatura digital para a petição <strong>{{ petition.title }}</strong> foi verificada e aprovada com sucesso.</p>
+
+<h3>Detalhes da Petição:</h3>
+<ul>
+    <li><strong>Título:</strong> {{ petition.title }}</li>
+    <li><strong>Meta:</strong> {{ petition.signature_goal }} assinaturas</li>
+    <li><strong>Assinaturas atuais:</strong> {{ petition.current_signatures }}</li>
+    <li><strong>Progresso:</strong> {{ petition.progress_percentage }}%</li>
+</ul>
+
+<p>Sua assinatura foi computada e agora faz parte das {{ petition.current_signatures }} assinaturas válidas desta petição.</p>
+
+<a href="{{ site_url }}/peticoes/{{ petition.uuid }}/{{ petition.slug }}/" class="button">Ver Petição</a>
+
+<p>Obrigado por participar!</p>
+
+<p>
+    Atenciosamente,<br>
+    Equipe {{ site_name }}
+</p>
+{% endblock %}

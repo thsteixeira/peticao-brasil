@@ -1,0 +1,36 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<div class="success">
+    <h2>🎉 Meta de {{ milestone }}% Alcançada!</h2>
+</div>
+
+<p>Parabéns!</p>
+
+<p>Sua petição <strong>{{ petition.title }}</strong> atingiu {{ milestone }}% da meta de assinaturas!</p>
+
+<h3>Progresso Atual:</h3>
+<ul>
+    <li><strong>Assinaturas válidas:</strong> {{ current_signatures }} de {{ signature_goal }}</li>
+    <li><strong>Progresso:</strong> {{ petition.progress_percentage }}%</li>
+    <li><strong>Status:</strong> {{ petition.get_status_display }}</li>
+    {% if petition.deadline %}
+    <li><strong>Prazo:</strong> {{ petition.deadline|date:"d/m/Y" }}</li>
+    {% endif %}
+</ul>
+
+<div style="background-color: #dbeafe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <p style="margin: 0;"><strong>Continue compartilhando!</strong></p>
+    <p style="margin: 10px 0 0 0;">Quanto mais pessoas assinarem, maior será o impacto da sua petição.</p>
+</div>
+
+<a href="{{ site_url }}/peticoes/{{ petition.uuid }}/{{ petition.slug }}/" class="button">Ver Petição</a>
+
+<h3>Compartilhe sua petição:</h3>
+<p>Ajude a alcançar 100% da meta compartilhando sua petição nas redes sociais e com pessoas interessadas no tema.</p>
+
+<p>
+    Atenciosamente,<br>
+    Equipe {{ site_name }}
+</p>
+{% endblock %}

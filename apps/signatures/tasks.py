@@ -56,6 +56,13 @@ def verify_signature(self, signature_id):
             
             logger.info(f"Signature {signature.uuid} verified successfully")
             
+            # Send verification email notification
+            try:
+                from apps.core.tasks import send_signature_verified_notification
+                send_signature_verified_notification.delay(signature.id)
+            except Exception as e:
+                logger.error(f"Failed to queue verification email: {str(e)}")
+            
             return {
                 'success': True,
                 'signature_uuid': str(signature.uuid),
@@ -70,6 +77,13 @@ def verify_signature(self, signature_id):
             logger.warning(
                 f"Signature {signature.uuid} rejected: {signature.rejection_reason}"
             )
+            
+            # Send rejection email notification
+            try:
+                from apps.core.tasks import send_signature_rejected_notification
+                send_signature_rejected_notification.delay(signature.id)
+            except Exception as e:
+                logger.error(f"Failed to queue rejection email: {str(e)}")
             
             return {
                 'success': False,
