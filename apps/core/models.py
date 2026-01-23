@@ -97,3 +97,105 @@ class Category(models.Model):
     def petition_count(self):
         """Count of active petitions in this category"""
         return self.petitions.filter(is_active=True).count()
+
+
+class ModerationLog(models.Model):
+    """
+    Log of moderation actions taken by staff users.
+    Tracks all approve/reject actions for audit trail.
+    """
+    
+    ACTION_TYPES = [
+        ('petition_approve', 'Petição Aprovada'),
+        ('petition_reject', 'Petição Rejeitada'),
+        ('petition_archive', 'Petição Arquivada'),
+        ('signature_approve', 'Assinatura Aprovada'),
+        ('signature_reject', 'Assinatura Rejeitada'),
+        ('signature_bulk_approve', 'Assinaturas Aprovadas em Lote'),
+        ('signature_bulk_reject', 'Assinaturas Rejeitadas em Lote'),
+        ('user_ban', 'Usuário Banido'),
+        ('user_unban', 'Usuário Desbanido'),
+    ]
+    
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    
+    moderator = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='moderation_actions',
+        verbose_name="Moderador"
+    )
+    
+    action_type = models.CharField(
+        max_length=50,
+        choices=ACTION_TYPES,
+        verbose_name="Tipo de Ação"
+    )
+    
+    content_type = models.CharField(
+        max_length=50,
+        verbose_name="Tipo de Conteúdo",
+        help_text="petition, signature, user"
+    )
+    
+    object_id = models.CharField(
+        max_length=255,
+        verbose_name="ID do Objeto"
+    )
+    
+    reason = models.TextField(
+        blank=True,
+        verbose_name="Motivo",
+        help_text="Razão para a ação de moderação"
+    )
+    
+    notes = models.TextField(
+        blank=True,
+        verbose_name="Notas Internas",
+        help_text="Notas adicionais visíveis apenas para moderadores"
+    )
+    
+    ip_address = models.GenericIPAddressField(
+        null=True,
+        blank=True,
+        verbose_name="Endereço IP"
+    )
+    
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Data da Ação"
+    )
+    
+    class Meta:
+        verbose_name = "Log de Moderação"
+        verbose_name_plural = "Logs de Moderação"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['-created_at']),
+            models.Index(fields=['moderator', '-created_at']),
+            models.Index(fields=['action_type', '-created_at']),
+            models.Index(fields=['content_type', 'object_id']),
+        ]
+    
+    def __str__(self):
+        return f"{self.get_action_type_display()} - {self.moderator} - {self.created_at.strftime('%d/%m/%Y %H:%M')}"
+    
+    @classmethod
+    def log_action(cls, moderator, action_type, content_type, object_id, reason='', notes='', ip_address=None):
+        """
+        Helper method to create a moderation log entry.
+        """
+        return cls.objects.create(
+            moderator=moderator,
+            action_type=action_type,
+            content_type=content_type,
+            object_id=str(object_id),
+            reason=reason,
+            notes=notes,
+            ip_address=ip_address
+        )

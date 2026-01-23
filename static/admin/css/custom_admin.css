@@ -1,0 +1,155 @@
+/* Custom Admin CSS for Petição Brasil */
+
+/* Improve table readability */
+#result_list tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* Better badge styling */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+/* Action buttons styling */
+.actions select {
+    min-width: 250px;
+}
+
+.actions button[type="submit"] {
+    padding: 8px 15px;
+    font-weight: 600;
+}
+
+/* Fieldset improvements */
+fieldset.module {
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+fieldset.collapse {
+    border-left: 3px solid #667eea;
+}
+
+/* Filter sidebar improvements */
+#changelist-filter {
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+#changelist-filter h2 {
+    color: #667eea;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+#changelist-filter h3 {
+    font-size: 13px;
+    margin-top: 15px;
+    color: #495057;
+}
+
+#changelist-filter li {
+    padding: 5px 0;
+}
+
+#changelist-filter li.selected a {
+    color: #667eea;
+    font-weight: bold;
+}
+
+/* Search bar improvements */
+#changelist-search input[type="text"] {
+    padding: 8px 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+#changelist-search input[type="text"]:focus {
+    border-color: #667eea;
+    outline: none;
+}
+
+/* Date hierarchy improvements */
+.xfull {
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+/* Pagination improvements */
+.paginator {
+    padding: 15px 0;
+}
+
+.paginator a {
+    padding: 5px 10px;
+    margin: 0 2px;
+    border-radius: 3px;
+    background-color: #f8f9fa;
+}
+
+.paginator a:hover {
+    background-color: #667eea;
+    color: white;
+    text-decoration: none;
+}
+
+/* Form improvements */
+.form-row {
+    padding: 12px 10px;
+}
+
+.form-row .help {
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* Inline forms */
+.inline-group .tabular tr.has_original td {
+    padding: 10px;
+}
+
+/* Success messages */
+.messagelist .success {
+    background-color: #d4edda;
+    border-left: 4px solid #28a745;
+    color: #155724;
+}
+
+/* Warning messages */
+.messagelist .warning {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    color: #856404;
+}
+
+/* Error messages */
+.messagelist .error {
+    background-color: #f8d7da;
+    border-left: 4px solid #dc3545;
+    color: #721c24;
+}
+
+/* Responsive tables */
+@media (max-width: 768px) {
+    #result_list {
+        font-size: 12px;
+    }
+    
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-grid {
+        grid-template-columns: 1fr;
+    }
+}

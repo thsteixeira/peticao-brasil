@@ -1,0 +1,54 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <a href="{% url 'admin:index' %}" style="color: #667eea; text-decoration: none;">
+        🗳️ Petição Brasil - Admin
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Custom branding colors */
+    #header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    #site-name a:link, 
+    #site-name a:visited {
+        color: white !important;
+    }
+    
+    .module h2, .module caption, .inline-group h2 {
+        background: #667eea;
+    }
+    
+    div.breadcrumbs {
+        background: #764ba2;
+    }
+    
+    .button, input[type=submit], input[type=button], .submit-row input, button {
+        background: #667eea;
+        border: none;
+    }
+    
+    .button:hover, input[type=submit]:hover, input[type=button]:hover, .submit-row input:hover, button:hover {
+        background: #764ba2;
+    }
+    
+    a:link, a:visited {
+        color: #667eea;
+    }
+    
+    a:hover {
+        color: #764ba2;
+    }
+</style>
+{% endblock %}
