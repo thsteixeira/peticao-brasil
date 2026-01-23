@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sobre - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Sobre o Petição Brasil</h1>
+        <p class="text-xl text-gray-600">
+            Plataforma de democracia participativa com assinatura digital Gov.br
+        </p>
+    </div>
+
+    <!-- Mission Section -->
+    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-8 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Nossa Missão</h2>
+        <p class="text-gray-700 leading-relaxed">
+            O <strong>Petição Brasil</strong> é uma plataforma digital que facilita o exercício da cidadania através de petições públicas 
+            com validade legal. Nossa missão é democratizar o acesso à participação política, permitindo que qualquer cidadão brasileiro 
+            possa criar, assinar e acompanhar petições de forma segura, transparente e legalmente válida.
+        </p>
+    </div>
+
+    <!-- How It Works -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Como Funciona</h2>
+        <div class="space-y-6">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-4">
+                    1
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Assinatura Digital Gov.br</h3>
+                    <p class="text-gray-700">
+                        Utilizamos o sistema oficial de assinatura eletrônica do Governo Federal, garantindo autenticidade 
+                        e validade jurídica a cada assinatura coletada.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold mr-4">
+                    2
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">PDFs com Hash Criptográfico</h3>
+                    <p class="text-gray-700">
+                        Cada petição gera um PDF único com hash SHA-256, impedindo qualquer alteração após a publicação 
+                        e garantindo a integridade do documento.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold mr-4">
+                    3
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Verificação Automática</h3>
+                    <p class="text-gray-700">
+                        Todas as assinaturas são verificadas automaticamente contra certificados ICP-Brasil, 
+                        assegurando que apenas assinaturas válidas sejam contabilizadas.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-start">
+                <div class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold mr-4">
+                    4
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Transparência Total</h3>
+                    <p class="text-gray-700">
+                        Todas as petições e assinaturas são públicas e auditáveis. Qualquer pessoa pode verificar 
+                        a autenticidade das assinaturas coletadas.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Technology -->
+    <div class="bg-gray-50 rounded-xl p-8 mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Tecnologia e Segurança</h2>
+        <div class="grid md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="font-bold text-gray-900 mb-2">🔒 Proteção de Dados</h3>
+                <p class="text-gray-700 text-sm">
+                    Conformidade total com a LGPD (Lei Geral de Proteção de Dados). Seus dados pessoais são 
+                    protegidos com criptografia e armazenados de forma segura.
+                </p>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-900 mb-2">✓ Validação ICP-Brasil</h3>
+                <p class="text-gray-700 text-sm">
+                    Sistema de verificação integrado com a infraestrutura de chaves públicas brasileira (ICP-Brasil), 
+                    garantindo validade legal das assinaturas.
+                </p>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-900 mb-2">🛡️ Sanitização de Conteúdo</h3>
+                <p class="text-gray-700 text-sm">
+                    Todo conteúdo submetido passa por sanitização automática, prevenindo ataques XSS e 
+                    garantindo a segurança da plataforma.
+                </p>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-900 mb-2">📊 Código Aberto</h3>
+                <p class="text-gray-700 text-sm">
+                    Projeto open source desenvolvido com Django e tecnologias modernas, 
+                    permitindo auditoria e contribuições da comunidade.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Framework -->
+    <div class="mb-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Fundamentação Legal</h2>
+        <div class="prose prose-sm max-w-none text-gray-700">
+            <p class="mb-3">
+                A plataforma Petição Brasil está fundamentada nas seguintes normas legais brasileiras:
+            </p>
+            <ul class="list-disc list-inside space-y-2">
+                <li><strong>Decreto nº 10.543/2020:</strong> Regulamenta a assinatura eletrônica em documentos</li>
+                <li><strong>MP 2.200-2/2001:</strong> Institui a Infraestrutura de Chaves Públicas Brasileira (ICP-Brasil)</li>
+                <li><strong>Lei nº 13.709/2018 (LGPD):</strong> Proteção de dados pessoais</li>
+                <li><strong>Constituição Federal Art. 5º, XXXIV:</strong> Direito de petição aos poderes públicos</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Contact -->
+    <div class="bg-blue-50 rounded-xl p-8 text-center">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4">Entre em Contato</h2>
+        <p class="text-gray-700 mb-4">
+            Tem dúvidas, sugestões ou quer contribuir com o projeto?
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="mailto:contato@peticaobrasil.com.br" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                📧 contato@peticaobrasil.com.br
+            </a>
+            <a href="{% url 'petitions:list' %}" class="inline-block bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-50 transition-colors border border-blue-600">
+                Ver Petições Ativas
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

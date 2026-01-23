@@ -8,6 +8,10 @@ app_name = 'petitions'
 
 urlpatterns = [
     path('', views.home_view, name='home'),
+    path('help/how-to-sign/', views.how_to_sign_view, name='how_to_sign'),
+    path('about/', views.about_view, name='about'),
+    path('terms/', views.terms_view, name='terms'),
+    path('privacy/', views.privacy_policy_view, name='privacy_policy'),
     path('petitions/', views.PetitionListView.as_view(), name='list'),
     path('petitions/autocomplete/', views.petition_autocomplete, name='autocomplete'),
     path('petitions/create/', views.PetitionCreateView.as_view(), name='create'),

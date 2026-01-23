@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Termos de Uso - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-12">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">Termos de Uso</h1>
+    <p class="text-gray-600 mb-8">Última atualização: {{ "now"|date:"d/m/Y" }}</p>
+
+    <div class="prose prose-sm max-w-none text-gray-700">
+        
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">1. Aceitação dos Termos</h2>
+        <p>
+            Ao acessar e utilizar a plataforma <strong>Petição Brasil</strong>, você concorda com estes Termos de Uso. 
+            Se você não concorda com qualquer parte destes termos, não deve utilizar nossos serviços.
+        </p>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">2. Descrição do Serviço</h2>
+        <p>
+            O Petição Brasil é uma plataforma de democracia participativa que permite:
+        </p>
+        <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>Criação de petições públicas com validade legal</li>
+            <li>Assinatura digital de petições através do sistema Gov.br</li>
+            <li>Acompanhamento do progresso de petições ativas</li>
+            <li>Consulta pública de petições e suas assinaturas</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">3. Cadastro e Responsabilidades do Usuário</h2>
+        
+        <h3 class="text-xl font-bold text-gray-900 mt-6 mb-3">3.1. Criação de Petições</h3>
+        <p>Ao criar uma petição, você declara que:</p>
+        <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>É maior de 18 anos e possui capacidade legal para os atos da vida civil</li>
+            <li>As informações fornecidas são verdadeiras e de sua autoria</li>
+            <li>O conteúdo não viola direitos de terceiros nem legislação vigente</li>
+            <li>Assume total responsabilidade pelo conteúdo publicado</li>
+        </ul>
+
+        <h3 class="text-xl font-bold text-gray-900 mt-6 mb-3">3.2. Assinatura de Petições</h3>
+        <p>Ao assinar uma petição, você:</p>
+        <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>Utiliza sua conta Gov.br pessoal e intransferível</li>
+            <li>Confirma que leu e concorda com o conteúdo da petição</li>
+            <li>Autoriza a exibição pública de sua assinatura (nome e data)</li>
+            <li>Reconhece que a assinatura digital possui validade legal conforme Decreto nº 10.543/2020</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">4. Conteúdo Proibido</h2>
+        <p>É expressamente proibido publicar petições ou comentários que contenham:</p>
+        <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>Discurso de ódio, discriminação ou intolerância</li>
+            <li>Conteúdo difamatório, calunioso ou injurioso</li>
+            <li>Informações falsas ou enganosas (fake news)</li>
+            <li>Violação de direitos autorais ou propriedade intelectual</li>
+            <li>Conteúdo obsceno, pornográfico ou inadequado</li>
+            <li>Incitação à violência ou atividades ilegais</li>
+            <li>Spam, propaganda não autorizada ou esquemas fraudulentos</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">5. Moderação e Remoção de Conteúdo</h2>
+        <p>
+            O Petição Brasil se reserva o direito de:
+        </p>
+        <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>Revisar e moderar todo conteúdo publicado na plataforma</li>
+            <li>Remover petições que violem estes Termos de Uso ou a legislação vigente</li>
+            <li>Suspender ou cancelar contas de usuários que descumpram as regras</li>
+            <li>Reportar às autoridades competentes conteúdos que configurem crimes</li>
+        </ul>
+        <p class="mt-3">
+            <strong>Importante:</strong> A remoção de petições não afeta a validade das assinaturas digitais já coletadas, 
+            que permanecem arquivadas conforme obrigações legais.
+        </p>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">6. Propriedade Intelectual</h2>
+        
+        <h3 class="text-xl font-bold text-gray-900 mt-6 mb-3">6.1. Conteúdo da Plataforma</h3>
+        <p>
+            O código-fonte, design, marca e elementos visuais do Petição Brasil são protegidos por direitos autorais 
+            e licenciados sob <strong>licença open source</strong>. O repositório está disponível publicamente para auditoria e contribuições.
+        </p>
+
+        <h3 class="text-xl font-bold text-gray-900 mt-6 mb-3">6.2. Conteúdo do Usuário</h3>
+        <p>
+            Ao publicar uma petição, você mantém todos os direitos sobre seu conteúdo, mas concede ao Petição Brasil 
+            uma licença não exclusiva, mundial e gratuita para:
+        </p>
+        <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>Exibir, reproduzir e distribuir o conteúdo na plataforma</li>
+            <li>Gerar PDFs com hash criptográfico para fins de autenticação</li>
+            <li>Armazenar assinaturas digitais conforme exigências legais</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">7. Privacidade e Proteção de Dados</h2>
+        <p>
+            A coleta e tratamento de dados pessoais segue nossa 
+            <a href="{% url 'petitions:privacy_policy' %}" class="text-blue-600 hover:underline">Política de Privacidade</a>, 
+            em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018).
+        </p>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">8. Validade Legal das Assinaturas</h2>
+        <p>
+            As assinaturas digitais coletadas através do sistema Gov.br possuem:
+        </p>
+        <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>Validade jurídica equivalente à assinatura de próprio punho (Decreto nº 10.543/2020)</li>
+            <li>Verificação através de certificados ICP-Brasil</li>
+            <li>Rastreabilidade e autenticidade garantidas por hash criptográfico SHA-256</li>
+            <li>Integridade assegurada - qualquer modificação invalida a assinatura</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">9. Limitação de Responsabilidade</h2>
+        <p>
+            O Petição Brasil não se responsabiliza por:
+        </p>
+        <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>Conteúdo publicado por usuários (responsabilidade exclusiva do autor)</li>
+            <li>Resultado ou efetividade de petições criadas na plataforma</li>
+            <li>Indisponibilidade temporária do serviço por manutenção ou falhas técnicas</li>
+            <li>Mudanças nas políticas ou disponibilidade do sistema Gov.br de assinatura</li>
+            <li>Perda de dados devido a falhas do usuário ou problemas técnicos externos</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">10. Disponibilidade do Serviço</h2>
+        <p>
+            Não garantimos que a plataforma estará disponível de forma ininterrupta. Reservamo-nos o direito de:
+        </p>
+        <ul class="list-disc list-inside space-y-2 ml-4">
+            <li>Realizar manutenções programadas ou emergenciais</li>
+            <li>Modificar ou descontinuar funcionalidades mediante aviso prévio</li>
+            <li>Suspender temporariamente o acesso em caso de ataques ou vulnerabilidades</li>
+        </ul>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">11. Alterações nos Termos de Uso</h2>
+        <p>
+            Estes Termos de Uso podem ser atualizados periodicamente. As alterações entram em vigor imediatamente 
+            após publicação na plataforma. O uso continuado dos serviços após as alterações constitui aceitação dos novos termos.
+        </p>
+        <p class="mt-3">
+            Recomendamos revisar esta página regularmente para se manter informado sobre eventuais mudanças.
+        </p>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">12. Lei Aplicável e Foro</h2>
+        <p>
+            Estes Termos de Uso são regidos pelas leis da República Federativa do Brasil. 
+            Fica eleito o foro da comarca da capital do Estado de São Paulo para dirimir quaisquer controvérsias decorrentes destes termos.
+        </p>
+
+        <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">13. Contato</h2>
+        <p>
+            Para questões sobre estes Termos de Uso, entre em contato:
+        </p>
+        <p class="mt-3">
+            <strong>Email:</strong> <a href="mailto:contato@peticaobrasil.com.br" class="text-blue-600 hover:underline">contato@peticaobrasil.com.br</a>
+        </p>
+
+        <div class="bg-blue-50 rounded-lg p-6 mt-8">
+            <p class="text-sm text-gray-700">
+                <strong>Última atualização:</strong> {{ "now"|date:"d/m/Y" }}<br>
+                Ao utilizar o Petição Brasil, você confirma que leu, compreendeu e aceita estes Termos de Uso.
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

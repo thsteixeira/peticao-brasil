@@ -71,10 +71,11 @@
                 <div>
                     <h3 class="font-bold mb-2">Links</h3>
                     <ul class="text-gray-400 text-sm space-y-1">
-                        <li><a href="#" class="hover:text-white">Sobre</a></li>
-                        <li><a href="#" class="hover:text-white">Como Funciona</a></li>
-                        <li><a href="#" class="hover:text-white">Termos de Uso</a></li>
-                        <li><a href="#" class="hover:text-white">Política de Privacidade</a></li>
+                        <li><a href="{% url 'petitions:list' %}" class="hover:text-white">Petições Ativas</a></li>
+                        <li><a href="{% url 'petitions:how_to_sign' %}" class="hover:text-white">Como Assinar</a></li>
+                        <li><a href="{% url 'petitions:about' %}" class="hover:text-white">Sobre</a></li>
+                        <li><a href="{% url 'petitions:terms' %}" class="hover:text-white">Termos de Uso</a></li>
+                        <li><a href="{% url 'petitions:privacy_policy' %}" class="hover:text-white">Política de Privacidade</a></li>
                     </ul>
                 </div>
                 <div>

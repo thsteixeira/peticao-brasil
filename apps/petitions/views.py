@@ -280,3 +280,23 @@ def home_view(request):
     }
     
     return render(request, 'petitions/home.html', context)
+
+
+def how_to_sign_view(request):
+    """Help page showing step-by-step guide for signing with Gov.br"""
+    return render(request, 'help/how_to_sign.html')
+
+
+def about_view(request):
+    """About page with platform information"""
+    return render(request, 'static_pages/about.html')
+
+
+def terms_view(request):
+    """Terms of Use page"""
+    return render(request, 'static_pages/terms.html')
+
+
+def privacy_policy_view(request):
+    """Privacy Policy page"""
+    return render(request, 'static_pages/privacy.html')
