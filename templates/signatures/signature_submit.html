@@ -27,7 +27,12 @@
 
     <!-- Instructions -->
     <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-        <h2 class="text-xl font-bold text-blue-900 mb-4">📋 Instruções Importantes</h2>
+        <div class="flex items-start justify-between mb-4">
+            <h2 class="text-xl font-bold text-blue-900">📋 Instruções Importantes</h2>
+            <a href="{% url 'petitions:how_to_sign' %}" class="text-sm text-blue-600 hover:text-blue-800 font-semibold whitespace-nowrap ml-4">
+                📖 Ver guia completo →
+            </a>
+        </div>
         <ol class="space-y-2 text-gray-700">
             <li><strong>1.</strong> Certifique-se de que baixou o PDF oficial da petição</li>
             <li><strong>2.</strong> Assine o PDF usando sua assinatura digital Gov.br (certificado ICP-Brasil)</li>
@@ -38,6 +43,12 @@
             <p class="text-sm text-gray-600">
                 <strong>⚠️ ATENÇÃO:</strong> O CPF informado deve ser o mesmo associado ao certificado digital utilizado para assinar o PDF.
                 Não modifique o conteúdo do PDF após o download, pois isso invalidará a verificação.
+            </p>
+        </div>
+        <div class="mt-4">
+            <p class="text-sm text-gray-700">
+                <strong>💡 Primeira vez assinando?</strong> Veja nosso 
+                <a href="{% url 'petitions:how_to_sign' %}" class="text-blue-600 hover:underline font-semibold">guia passo a passo de como assinar com Gov.br</a>.
             </p>
         </div>
     </div>

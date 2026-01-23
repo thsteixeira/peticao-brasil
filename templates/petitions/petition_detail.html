@@ -108,7 +108,12 @@
     <!-- How to Sign -->
     {% if petition.pdf_url %}
     <div class="bg-white rounded-lg shadow-md p-8 mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Como Assinar esta Petição</h2>
+        <div class="flex items-start justify-between mb-4">
+            <h2 class="text-2xl font-bold text-gray-900">Como Assinar esta Petição</h2>
+            <a href="{% url 'petitions:how_to_sign' %}" class="text-sm text-blue-600 hover:text-blue-800 font-semibold whitespace-nowrap">
+                📖 Guia completo →
+            </a>
+        </div>
         <div class="space-y-4">
             <div class="flex items-start space-x-3">
                 <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</span>
@@ -121,7 +126,7 @@
                 <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</span>
                 <div class="flex-1">
                     <h3 class="font-semibold text-gray-900">Assine digitalmente com Gov.br</h3>
-                    <p class="text-gray-600 text-sm">Acesse o <a href="https://gov.br/assinador" target="_blank" class="text-blue-600 hover:underline">sistema de assinatura Gov.br</a> e assine o PDF com seu certificado digital ICP-Brasil.</p>
+                    <p class="text-gray-600 text-sm">Acesse o <a href="https://assinador.iti.br/assinatura/" target="_blank" class="text-blue-600 hover:underline">Assinador Gov.br</a> e assine o PDF com sua conta Gov.br (nível prata ou ouro).</p>
                 </div>
             </div>
             <div class="flex items-start space-x-3">
@@ -132,9 +137,19 @@
                 </div>
             </div>
         </div>
-        <div class="mt-6">
-            <a href="{% url 'signatures:submit' uuid=petition.uuid %}" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
+        <div class="bg-blue-50 rounded-lg p-4 mt-4 border border-blue-200">
+            <p class="text-sm text-gray-700">
+                <strong>💡 Primeira vez assinando digitalmente?</strong> 
+                Confira nosso <a href="{% url 'petitions:how_to_sign' %}" class="text-blue-600 hover:underline font-semibold">guia passo a passo com imagens</a> 
+                sobre como usar o Assinador Gov.br.
+            </p>
+        </div>
+        <div class="mt-6 flex gap-4">
+            <a href="{% url 'signatures:submit' uuid=petition.uuid %}" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
                 ✍️ Enviar PDF Assinado
+            </a>
+            <a href="{% url 'petitions:how_to_sign' %}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                📖 Ver Guia Completo
             </a>
         </div>
     </div>

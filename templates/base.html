@@ -21,6 +21,8 @@
                 </a>
                 
                 <div class="flex items-center space-x-4">
+                    <a href="{% url 'petitions:list' %}" class="text-gray-700 hover:text-blue-600">Petições</a>
+                    <a href="{% url 'petitions:how_to_sign' %}" class="text-gray-700 hover:text-blue-600">Como Assinar</a>
                     {% if user.is_authenticated %}
                         <a href="{% url 'accounts:profile' %}" class="text-gray-700 hover:text-blue-600">Meu Perfil</a>
                         <a href="{% url 'signatures:my_signatures' %}" class="text-gray-700 hover:text-blue-600">Minhas Assinaturas</a>
