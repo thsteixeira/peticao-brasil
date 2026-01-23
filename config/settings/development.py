@@ -7,6 +7,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
+# Add debug toolbar only in development
+INSTALLED_APPS = INSTALLED_APPS + ['debug_toolbar']
+
 # Disable Celery in development - run tasks synchronously
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_EAGER_PROPAGATES = True
@@ -24,6 +27,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.core.middleware.SecurityHeadersMiddleware',
     'apps.core.middleware.FileUploadSecurityMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 ]
 
 # Use default static files storage in development

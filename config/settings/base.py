@@ -37,6 +37,9 @@ INSTALLED_APPS = [
     'apps.core',
 ]
 
+# DEBUG will be set in development/production settings
+DEBUG = config('DEBUG', default=False, cast=bool)
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Static files
