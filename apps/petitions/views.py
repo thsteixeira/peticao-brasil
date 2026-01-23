@@ -7,16 +7,21 @@ from django.contrib import messages
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.db.models import Q
+from django.db.models import Q, F, Count
+from django.contrib.postgres.search import SearchQuery, SearchRank
+from django.utils import timezone
+from datetime import timedelta
+from django.http import JsonResponse
 
 from .models import Petition, FlaggedContent
 from .forms import PetitionForm
+from .search import PetitionSearchForm
 from apps.core.models import Category
 
 
 class PetitionListView(ListView):
     """
-    Public view listing all active petitions.
+    Public view listing all active petitions with advanced search and filters.
     """
     model = Petition
     template_name = 'petitions/petition_list.html'
@@ -27,37 +32,79 @@ class PetitionListView(ListView):
         queryset = Petition.objects.filter(
             is_active=True,
             status='active'
-        ).select_related('creator', 'category').order_by('-created_at')
+        ).select_related('creator', 'category')
         
-        # Search functionality
-        search = self.request.GET.get('q')
-        if search:
-            queryset = queryset.filter(
-                Q(title__icontains=search) | Q(description__icontains=search)
-            )
+        form = PetitionSearchForm(self.request.GET)
         
-        # Category filter
-        category_slug = self.request.GET.get('category')
-        if category_slug:
-            queryset = queryset.filter(category__slug=category_slug)
-        
-        # Sort options
-        sort = self.request.GET.get('sort', 'recent')
-        if sort == 'popular':
-            queryset = queryset.order_by('-signature_count')
-        elif sort == 'progress':
-            queryset = queryset.order_by('-signature_count')
-        elif sort == 'ending':
-            queryset = queryset.filter(deadline__isnull=False).order_by('deadline')
+        if form.is_valid():
+            # Text search with PostgreSQL full-text search
+            search_query = form.cleaned_data.get('q')
+            if search_query:
+                search_query_obj = SearchQuery(search_query, config='portuguese')
+                queryset = queryset.filter(search_vector=search_query_obj)
+                queryset = queryset.annotate(
+                    rank=SearchRank(F('search_vector'), search_query_obj)
+                ).order_by('-rank')
+            
+            # Category filter (multiple)
+            categories = form.cleaned_data.get('categories')
+            if categories:
+                queryset = queryset.filter(category__in=categories)
+            
+            # Status filter
+            status = form.cleaned_data.get('status')
+            if status == 'completed':
+                queryset = queryset.filter(
+                    signature_count__gte=F('signature_goal')
+                )
+            elif status == 'expiring_soon':
+                # Petitions ending in the next 7 days
+                expiring_date = timezone.now().date() + timedelta(days=7)
+                queryset = queryset.filter(
+                    deadline__isnull=False,
+                    deadline__lte=expiring_date,
+                    deadline__gte=timezone.now().date()
+                )
+            
+            # Minimum signatures filter
+            min_signatures = form.cleaned_data.get('min_signatures')
+            if min_signatures is not None:
+                queryset = queryset.filter(signature_count__gte=min_signatures)
+            
+            # Location filters (search in signatures)
+            state = form.cleaned_data.get('state')
+            if state:
+                queryset = queryset.filter(
+                    signatures__state=state
+                ).annotate(
+                    signature_from_state=Count('signatures')
+                ).distinct()
+            
+            city = form.cleaned_data.get('city')
+            if city:
+                queryset = queryset.filter(
+                    signatures__city__icontains=city
+                ).distinct()
+            
+            # Sorting
+            sort = form.cleaned_data.get('sort')
+            if sort and sort != 'relevance':
+                # If not search query, ignore relevance sort
+                if not search_query and sort == 'relevance':
+                    sort = '-created_at'
+                queryset = queryset.order_by(sort)
+            elif not search_query:
+                # Default sort if no search
+                queryset = queryset.order_by('-created_at')
+        else:
+            queryset = queryset.order_by('-created_at')
         
         return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = Category.objects.filter(active=True)
-        context['search_query'] = self.request.GET.get('q', '')
-        context['current_category'] = self.request.GET.get('category', '')
-        context['current_sort'] = self.request.GET.get('sort', 'recent')
+        context['search_form'] = PetitionSearchForm(self.request.GET or None)
+        context['categories'] = Category.objects.filter(active=True).order_by('order', 'name')
         return context
 
 
@@ -131,6 +178,39 @@ class PetitionCreateView(LoginRequiredMixin, CreateView):
     
     def get_success_url(self):
         return self.object.get_absolute_url()
+
+
+def petition_autocomplete(request):
+    """
+    API endpoint for petition title autocomplete.
+    Returns JSON with petition suggestions based on query.
+    """
+    query = request.GET.get('q', '').strip()
+    
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+    
+    # Search in titles with PostgreSQL full-text search
+    search_query_obj = SearchQuery(query, config='portuguese')
+    petitions = Petition.objects.filter(
+        is_active=True,
+        status='active',
+        search_vector=search_query_obj
+    ).annotate(
+        rank=SearchRank(F('search_vector'), search_query_obj)
+    ).select_related('category').order_by('-rank')[:10]
+    
+    results = []
+    for petition in petitions:
+        results.append({
+            'id': str(petition.uuid),
+            'title': petition.title,
+            'category': petition.category.name,
+            'signature_count': petition.signature_count,
+            'url': petition.get_absolute_url()
+        })
+    
+    return JsonResponse({'results': results})
 
 
 class PetitionUpdateView(LoginRequiredMixin, UpdateView):

@@ -8,6 +8,8 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.postgres.search import SearchVector, SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
 
 class Petition(models.Model):
@@ -168,6 +170,14 @@ class Petition(models.Model):
         help_text="Notas internas para moderadores"
     )
     
+    # Full-text search
+    search_vector = SearchVectorField(
+        null=True,
+        blank=True,
+        verbose_name="Vetor de Busca",
+        help_text="Campo de busca full-text (gerado automaticamente)"
+    )
+    
     class Meta:
         verbose_name = "Petição"
         verbose_name_plural = "Petições"
@@ -178,6 +188,8 @@ class Petition(models.Model):
             models.Index(fields=['creator', '-created_at']),
             models.Index(fields=['-signature_count']),
             models.Index(fields=['uuid']),
+            models.Index(fields=['deadline']),
+            GinIndex(fields=['search_vector'], name='petition_search_idx'),
         ]
         constraints = [
             models.CheckConstraint(
@@ -216,7 +228,20 @@ class Petition(models.Model):
             if self.status == self.STATUS_ACTIVE:
                 self.status = self.STATUS_COMPLETED
         
+        # Update search vector
+        skip_search_update = kwargs.pop('skip_search_update', False)
         super().save(*args, **kwargs)
+        
+        if not skip_search_update:
+            self.update_search_vector()
+    
+    def update_search_vector(self):
+        """Update the search vector for full-text search"""
+        Petition.objects.filter(pk=self.pk).update(
+            search_vector=SearchVector('title', weight='A') + 
+                         SearchVector('description', weight='B') +
+                         SearchVector('category__name', weight='C')
+        )
     
     def get_absolute_url(self):
         from django.urls import reverse
