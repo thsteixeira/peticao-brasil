@@ -13,8 +13,8 @@ class MediaStorage(S3Boto3Storage):
     """
     location = 'media'
     file_overwrite = False
-    default_acl = 'public-read'  # Make files publicly accessible
-    querystring_auth = False  # Don't use signed URLs for public files
+    default_acl = None  # Use bucket policy instead
+    querystring_auth = False  # Files are public via bucket policy
     
     # Custom cache control for different file types
     def get_object_parameters(self, name):
@@ -23,17 +23,14 @@ class MediaStorage(S3Boto3Storage):
         # Petition PDFs - cache for 7 days (they don't change)
         if name.startswith('media/petitions/'):
             params['CacheControl'] = 'max-age=604800, public'  # 7 days
-            params['ACL'] = 'public-read'  # Explicitly public
         
         # Signature PDFs - cache for 24 hours (may be updated)
         elif name.startswith('media/signatures/'):
             params['CacheControl'] = 'max-age=86400, public'  # 24 hours
-            params['ACL'] = 'public-read'  # Explicitly public
         
         # Other media - standard cache
         else:
             params['CacheControl'] = 'max-age=3600, public'  # 1 hour
-            params['ACL'] = 'public-read'
         
         # Set content disposition for PDFs (inline display)
         if name.endswith('.pdf'):
