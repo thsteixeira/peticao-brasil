@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Como Assinar com Gov.br - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-12 mb-12">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4 text-center">Como Assinar Digitalmente</h1>
+        <p class="text-xl text-blue-100 text-center max-w-3xl mx-auto">
+            Guia completo para assinar petições usando o Assinador Gov.br
+        </p>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 max-w-4xl mb-16">
+    
+    <!-- Prerequisites -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-12 rounded-r-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <span class="text-3xl">⚠️</span>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-bold text-yellow-800 mb-2">Antes de começar</h3>
+                <ul class="text-yellow-700 space-y-2">
+                    <li>✓ Você precisa ter uma <strong>conta Gov.br</strong> (nível prata ou ouro)</li>
+                    <li>✓ É necessário ter o <strong>aplicativo Gov.br</strong> instalado no celular</li>
+                    <li>✓ Certifique-se de que seu celular está com internet</li>
+                    <li>✓ Todo o processo acontece <strong>no navegador</strong> - não precisa instalar nada no computador</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 1: Download PDF -->
+    <div class="mb-12">
+        <div class="flex items-start mb-6">
+            <div class="flex-shrink-0 w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
+                1
+            </div>
+            <div class="ml-6 flex-1">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Baixe o PDF da Petição</h2>
+                <p class="text-gray-700 mb-4">
+                    Na página da petição, clique no botão "Baixar PDF para Assinar" para fazer o download do documento oficial.
+                </p>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <p class="text-gray-700 mb-3">
+                        O arquivo será baixado com o nome <code class="bg-gray-100 px-2 py-1 rounded">petition_[UUID].pdf</code>
+                    </p>
+                    <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                        <p class="text-sm text-blue-800">
+                            <strong>💡 Dica:</strong> Salve o arquivo em um local fácil de encontrar, você vai precisar dele na próxima etapa.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 3: Access Assinador Web -->
+    <div class="mb-12">
+        <div class="flex items-start mb-6">
+            <div class="flex-shrink-0 w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
+                3
+            </div>
+            <div class="ml-6 flex-1">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Acesse o Assinador Gov.br no Navegador</h2>
+                <p class="text-gray-700 mb-4">
+                    O Assinador Gov.br é um serviço web. Acesse o link abaixo no seu navegador:
+                </p>
+                <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+                    <a href="https://assinador.iti.br/assinatura/" 
+                       target="_blank"
+                       class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                        🔗 Abrir Assinador Gov.br
+                    </a>
+                    <p class="text-sm text-gray-600 mt-4">
+                        URL: <code class="bg-gray-100 px-2 py-1 rounded">https://assinador.iti.br/assinatura/</code>
+                    </p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                    <p class="text-sm text-green-800">
+                        <strong>✓ Vantagem:</strong> Não precisa instalar nada no computador - tudo funciona direto no navegador!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 4: Upload and Choose File -->
+    <div class="mb-12">
+        <div class="flex items-start mb-6">
+            <div class="flex-shrink-0 w-12 h-12 bg-red-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
+                4
+            </div>
+            <div class="ml-6 flex-1">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Adicione o Arquivo que Será Assinado (Etapa 3)</h2>
+                <p class="text-gray-700 mb-4">
+                    Na terceira etapa do Assinador, você verá <strong>"Escolher arquivo"</strong>:
+                </p>
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <ol class="space-y-3 text-gray-700">
+                        <li class="flex items-start">
+                            <span class="font-bold text-red-600 mr-3">1.</span>
+                            <span>Clique na área "Arraste e solte o arquivo do seu computador aqui" ou clique para selecionar</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold text-red-600 mr-3">2.</span>
+                            <span>Selecione o PDF da petição que você baixou</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold text-red-600 mr-3">3.</span>
+                            <span>Aguarde o upload e visualização do documento</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="font-bold text-red-600 mr-3">4.</span>
+                            <span>Clique em <strong>"Avançar"</strong> para ir para a próxima etapa</span>
+                        </li>
+                    </ol>
+                    <div class="bg-gray-50 rounded-lg p-4 mt-4 border border-gray-200">
+                        <p class="text-sm text-gray-700">
+                            <strong>📄 Formatos aceitos:</strong> DOC, DOCX, ODT, JPG, PNG ou PDF com até 100MB
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 5: Sign with Gov.br -->
+    <div class="mb-12">
+        <div class="flex items-start mb-6">
+            <div class="flex-shrink-0 w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
+                5
+            </div>
+            <div class="ml-6 flex-1">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Escolha o Local da Assinatura e Assine (Etapas 4 e 5)</h2>
+                <p class="text-gray-700 mb-4">
+                    Na quarta e quinta etapas, você posicionará a assinatura e confirmará:
+                </p>
+                <div class="bg-white rounded-lg shadow-md p-6 space-y-4">
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">1</span>
+                        <div class="flex-1">
+                            <p class="text-gray-700"><strong>(Opcional)</strong> Clique no documento para escolher onde sua assinatura será posicionada visualmente</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">2</span>
+                        <div class="flex-1">
+                            <p class="text-gray-700">Clique em <strong>"Assinar digitalmente"</strong> para validar a assinatura</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">3</span>
+                        <div class="flex-1">
+                            <p class="text-gray-700">Confirme a ação clicando em <strong>"Assinar"</strong> novamente</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">4</span>
+                        <div class="flex-1">
+                            <p class="text-gray-700">O sistema enviará um <strong>código de autorização para o app Gov.br</strong> no seu celular</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">5</span>
+                        <div class="flex-1">
+                            <p class="text-gray-700">Abra a <strong>notificação no celular</strong> e visualize o código de autorização</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">6</span>
+                        <div class="flex-1">
+                            <p class="text-gray-700">A assinatura será concluída automaticamente - aguarde a confirmação no navegador</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-4 mt-4 border border-blue-200">
+                    <p class="text-sm text-blue-800">
+                        <strong>📱 Importante:</strong> Certifique-se de que o app Gov.br está instalado no celular e que você permitiu o recebimento de notificações nas configurações do celular. Não é necessário estar logado no app no momento da assinatura.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Step 6: Download and Upload -->
+    <div class="mb-12">
+        <div class="flex items-start mb-6">
+            <div class="flex-shrink-0 w-12 h-12 bg-teal-600 text-white rounded-full flex items-center justify-center text-xl font-bold">
+                6
+            </div>
+            <div class="ml-6 flex-1">
+                <h2 class="text-2xl font-bold text-gray-900 mb-4">Baixe o Documento Assinado (Etapa 6)</h2>
+                <p class="text-gray-700 mb-4">
+                    Após a assinatura ser concluída, você verá a mensagem de sucesso e poderá baixar o arquivo:
+                </p>
+                <div class="bg-white rounded-lg shadow-md p-6 space-y-4">
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">1</span>
+                        <p class="text-gray-700">Clique no ícone de <strong>download</strong> para baixar o arquivo assinado</p>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">2</span>
+                        <p class="text-gray-700">Escolha o local para salvar o PDF assinado no seu computador</p>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">3</span>
+                        <p class="text-gray-700">Retorne à <strong>plataforma Petição Brasil</strong></p>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">4</span>
+                        <p class="text-gray-700">Vá até a página da petição e clique em <strong>"Enviar Assinatura"</strong></p>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">5</span>
+                        <p class="text-gray-700">Preencha seus dados (nome, CPF, e-mail, cidade, estado)</p>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">6</span>
+                        <p class="text-gray-700">Selecione o PDF assinado que você acabou de baixar</p>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">7</span>
+                        <p class="text-gray-700">Clique em <strong>"Enviar Assinatura"</strong></p>
+                    </div>
+                    <div class="flex items-start">
+                        <span class="flex-shrink-0 w-8 h-8 bg-teal-100 text-teal-600 rounded-full flex items-center justify-center font-bold text-sm mr-3">8</span>
+                        <p class="text-gray-700">Aguarde o upload e validação automática da assinatura</p>
+                    </div>
+                </div>
+                <div class="bg-red-50 rounded-lg p-4 mt-4 border border-red-200">
+                    <p class="text-sm text-red-800">
+                        <strong>⚠️ Atenção:</strong> Não utilize a função de imprimir o arquivo para salvar, pois o arquivo salvo dessa forma não incluirá a assinatura digital e o documento impresso não possui validade legal.
+                    </p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4 border border-green-200 mt-4">
+                    <p class="text-sm text-green-800">
+                        <strong>✅ Pronto!</strong> Sua assinatura foi registrada com sucesso. O sistema verificará automaticamente se a assinatura digital é válida.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="bg-gray-50 rounded-xl p-8 mb-12">
+        <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Perguntas Frequentes</h2>
+        
+        <div class="space-y-6">
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-2">❓ Preciso instalar algum programa no computador?</h3>
+                <p class="text-gray-700">
+                    Não! O Assinador Gov.br funciona totalmente no navegador. Você só precisa ter o <strong>aplicativo Gov.br instalado no celular</strong> 
+                    para confirmar a assinatura com sua conta Gov.br (nível prata ou ouro).
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-2">❓ Como criar uma conta Gov.br?</h3>
+                <p class="text-gray-700">
+                    Acesse <a href="https://www.gov.br/governodigital/pt-br/conta-gov-br" target="_blank" class="text-blue-600 hover:underline">www.gov.br/governodigital</a> 
+                    e siga as instruções para criar sua conta. Para assinar documentos, você precisa de uma conta <strong>nível prata ou ouro</strong>.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-2">❓ O Assinador Gov.br é gratuito?</h3>
+                <p class="text-gray-700">
+                    Sim! O Assinador Gov.br é 100% gratuito e desenvolvido pelo Governo Federal. A conta Gov.br também é gratuita.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-2">❓ Não recebi a notificação no celular. O que fazer?</h3>
+                <p class="text-gray-700">
+                    Verifique se: (1) o app Gov.br está instalado e atualizado, (2) seu celular está conectado à internet, 
+                    (3) as notificações estão habilitadas para o app. Caso o problema persista, tente fechar e abrir o app novamente.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-2">❓ Minha assinatura foi rejeitada. O que fazer?</h3>
+                <p class="text-gray-700">
+                    Verifique se você completou todo o processo no Assinador Gov.br (upload → assinar → confirmar no celular → baixar). 
+                    Certifique-se de que o CPF da sua conta Gov.br corresponde ao CPF informado no formulário de assinatura. 
+                    Em caso de dúvidas, entre em contato conosco.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-2">❓ Quanto tempo leva para verificar minha assinatura?</h3>
+                <p class="text-gray-700">
+                    A verificação é automática e acontece em poucos segundos após o upload. O sistema verifica a autenticidade da assinatura Gov.br 
+                    e confirma que o documento não foi modificado após a assinatura.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-8 text-center text-white">
+        <h2 class="text-2xl font-bold mb-4">Ainda tem dúvidas?</h2>
+        <p class="text-blue-100 mb-6">Entre em contato conosco ou consulte a documentação oficial</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="{% url 'petitions:list' %}" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
+                Ver Petições Ativas
+            </a>
+            <a href="https://www.gov.br/governodigital/pt-br/assinatura-eletronica" target="_blank" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                Documentação Gov.br
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
