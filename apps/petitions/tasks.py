@@ -3,9 +3,10 @@ Celery tasks for the petitions app.
 """
 from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
-import logging
+import time
+from apps.core.logging_utils import StructuredLogger, log_execution_time
 
-logger = logging.getLogger(__name__)
+logger = StructuredLogger(__name__)
 
 
 @shared_task(bind=True, max_retries=3)
@@ -13,6 +14,7 @@ def generate_petition_pdf(self, petition_id):
     """
     Async task to generate PDF for a petition.
     """
+    start_time = time.time()
     try:
         from apps.petitions.models import Petition
         from apps.petitions.pdf_service import PetitionPDFGenerator
@@ -20,12 +22,25 @@ def generate_petition_pdf(self, petition_id):
         # Get petition
         petition = Petition.objects.get(id=petition_id)
         
-        logger.info(f"Generating PDF for petition {petition.uuid}")
+        logger.info(
+            "Starting PDF generation",
+            petition_id=petition_id,
+            petition_uuid=str(petition.uuid),
+            task_id=self.request.id
+        )
         
         # Generate and save PDF
         pdf_url = PetitionPDFGenerator.generate_and_save(petition)
         
-        logger.info(f"PDF generated successfully for petition {petition.uuid}: {pdf_url}")
+        duration = time.time() - start_time
+        logger.info(
+            "PDF generated successfully",
+            petition_id=petition_id,
+            petition_uuid=str(petition.uuid),
+            pdf_url=pdf_url,
+            duration_seconds=duration,
+            task_id=self.request.id
+        )
         
         return {
             'success': True,
@@ -34,11 +49,24 @@ def generate_petition_pdf(self, petition_id):
         }
         
     except ObjectDoesNotExist:
-        logger.error(f"Petition with id {petition_id} not found")
+        logger.error(
+            "Petition not found",
+            petition_id=petition_id,
+            task_id=self.request.id
+        )
         raise
     
     except Exception as exc:
-        logger.error(f"Error generating PDF for petition {petition_id}: {str(exc)}")
+        duration = time.time() - start_time
+        logger.error(
+            "PDF generation failed",
+            petition_id=petition_id,
+            error=str(exc),
+            error_type=type(exc).__name__,
+            duration_seconds=duration,
+            retry_count=self.request.retries,
+            task_id=self.request.id
+        )
         # Retry the task
         raise self.retry(exc=exc, countdown=60)
 

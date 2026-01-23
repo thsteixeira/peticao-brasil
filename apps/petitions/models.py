@@ -11,6 +11,9 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 from django.db.models import Value
+from apps.core.logging_utils import StructuredLogger, log_model_event
+
+logger = StructuredLogger(__name__)
 
 
 class Petition(models.Model):
@@ -231,7 +234,39 @@ class Petition(models.Model):
         
         # Update search vector
         skip_search_update = kwargs.pop('skip_search_update', False)
+        
+        # Track if this is a new instance
+        is_new = self.pk is None
+        old_status = None
+        
+        if not is_new:
+            # Get old status before save
+            try:
+                old_instance = Petition.objects.get(pk=self.pk)
+                old_status = old_instance.status
+            except Petition.DoesNotExist:
+                pass
+        
         super().save(*args, **kwargs)
+        
+        # Log lifecycle events
+        if is_new:
+            log_model_event(
+                logger, 'Petition', 'created',
+                self.uuid,
+                title=self.title,
+                creator_id=self.creator_id,
+                category=self.category.name if self.category else None,
+                status=self.status
+            )
+        elif old_status and old_status != self.status:
+            log_model_event(
+                logger, 'Petition', 'status_changed',
+                self.uuid,
+                old_status=old_status,
+                new_status=self.status,
+                signature_count=self.signature_count
+            )
         
         if not skip_search_update:
             self.update_search_vector()

@@ -6,6 +6,9 @@ import hashlib
 from django.db import models
 from django.utils import timezone
 from django.core.validators import EmailValidator
+from apps.core.logging_utils import StructuredLogger, log_model_event
+
+logger = StructuredLogger(__name__)
 
 
 class Signature(models.Model):
@@ -247,15 +250,38 @@ class Signature(models.Model):
     def approve(self):
         """Approve signature and increment petition count"""
         if self.verification_status != self.STATUS_APPROVED:
+            old_status = self.verification_status
             self.verification_status = self.STATUS_APPROVED
             self.verified_at = timezone.now()
             self.save()
+            
+            # Log approval event
+            log_model_event(
+                logger, 'Signature', 'approved',
+                self.uuid,
+                petition_id=self.petition_id,
+                old_status=old_status,
+                signer_name=self.full_name,
+                city=self.city,
+                state=self.state
+            )
             
             # Increment petition signature count
             self.petition.increment_signature_count()
     
     def reject(self, reason):
         """Reject signature with reason"""
+        old_status = self.verification_status
         self.verification_status = self.STATUS_REJECTED
         self.verification_notes = reason
         self.save()
+        
+        # Log rejection event
+        log_model_event(
+            logger, 'Signature', 'rejected',
+            self.uuid,
+            petition_id=self.petition_id,
+            old_status=old_status,
+            rejection_reason=reason,
+            signer_name=self.full_name
+        )

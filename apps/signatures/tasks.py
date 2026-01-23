@@ -4,9 +4,10 @@ Celery tasks for signature verification.
 from celery import shared_task
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
-import logging
+import time
+from apps.core.logging_utils import StructuredLogger
 
-logger = logging.getLogger(__name__)
+logger = StructuredLogger(__name__)
 
 
 @shared_task(bind=True, max_retries=3)
@@ -14,6 +15,7 @@ def verify_signature(self, signature_id):
     """
     Async task to verify a signature's digital certificate.
     """
+    start_time = time.time()
     try:
         from apps.signatures.models import Signature
         from apps.signatures.verification_service import PDFSignatureVerifier
@@ -21,7 +23,13 @@ def verify_signature(self, signature_id):
         # Get signature
         signature = Signature.objects.get(id=signature_id)
         
-        logger.info(f"Verifying signature {signature.uuid}")
+        logger.info(
+            "Starting signature verification",
+            signature_id=signature_id,
+            signature_uuid=str(signature.uuid),
+            petition_id=signature.petition_id,
+            task_id=self.request.id
+        )
         
         # Update status to processing
         signature.verification_status = Signature.STATUS_PROCESSING
@@ -54,7 +62,15 @@ def verify_signature(self, signature_id):
             # Increment petition signature count
             signature.petition.increment_signature_count()
             
-            logger.info(f"Signature {signature.uuid} verified successfully")
+            duration = time.time() - start_time
+            logger.info(
+                "Signature verified successfully",
+                signature_id=signature_id,
+                signature_uuid=str(signature.uuid),
+                petition_id=signature.petition_id,
+                duration_seconds=duration,
+                task_id=self.request.id
+            )
             
             # Send verification email notification
             try:
@@ -74,8 +90,15 @@ def verify_signature(self, signature_id):
             signature.rejection_reason = result.get('error', 'Verificação falhou')
             signature.save()
             
+            duration = time.time() - start_time
             logger.warning(
-                f"Signature {signature.uuid} rejected: {signature.rejection_reason}"
+                "Signature verification rejected",
+                signature_id=signature_id,
+                signature_uuid=str(signature.uuid),
+                petition_id=signature.petition_id,
+                rejection_reason=signature.rejection_reason,
+                duration_seconds=duration,
+                task_id=self.request.id
             )
             
             # Send rejection email notification

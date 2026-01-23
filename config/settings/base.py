@@ -51,6 +51,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.core.middleware.SecurityHeadersMiddleware',
     'apps.core.middleware.FileUploadSecurityMiddleware',
+    'apps.core.logging_utils.CorrelationIdMiddleware',  # Add correlation IDs
 ]
 
 ROOT_URLCONF = 'config.urls'
