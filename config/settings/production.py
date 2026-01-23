@@ -66,8 +66,28 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@peticaobrasil
 SERVER_EMAIL = config('SERVER_EMAIL', default='admin@peticaobrasil.com.br')
 
 # Celery Configuration for Production
-CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/0')
-CELERY_RESULT_BACKEND = config('REDIS_URL', default='redis://localhost:6379/0')
+import ssl
+import certifi
+
+redis_url = config('REDIS_URL', default='redis://localhost:6379/0')
+
+# Heroku Redis uses TLS (rediss://), configure with proper certificate validation
+if redis_url.startswith('rediss://'):
+    CELERY_BROKER_URL = redis_url
+    CELERY_RESULT_BACKEND = redis_url
+    # Use system CA bundle for proper SSL verification
+    CELERY_BROKER_USE_SSL = {
+        'ssl_cert_reqs': ssl.CERT_REQUIRED,
+        'ssl_ca_certs': certifi.where()
+    }
+    CELERY_REDIS_BACKEND_USE_SSL = {
+        'ssl_cert_reqs': ssl.CERT_REQUIRED,
+        'ssl_ca_certs': certifi.where()
+    }
+else:
+    CELERY_BROKER_URL = redis_url
+    CELERY_RESULT_BACKEND = redis_url
+
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'

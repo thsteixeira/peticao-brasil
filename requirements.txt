@@ -33,6 +33,7 @@ django-storages==1.14.2
 celery==5.3.6
 redis==5.0.1
 django-celery-beat==2.6.0
+certifi==2024.12.14
 
 # Security
 django-ratelimit==4.1.0
