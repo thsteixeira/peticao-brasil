@@ -38,7 +38,7 @@ class ModerationFilter(admin.SimpleListFilter):
         if self.value() == 'rejected':
             return queryset.filter(status='rejected')
         if self.value() == 'has_flags':
-            return queryset.filter(flagged_contents__status='pending').distinct()
+            return queryset.filter(flags__status='pending').distinct()
 
 
 class SignatureCountFilter(admin.SimpleListFilter):
@@ -227,7 +227,7 @@ class PetitionAdmin(admin.ModelAdmin):
         """Optimize queries"""
         qs = super().get_queryset(request)
         return qs.select_related('creator', 'category').annotate(
-            flag_count=Count('flagged_contents', filter=Q(flagged_contents__status='pending'))
+            flag_count=Count('flags', filter=Q(flags__status='pending'))
         )
 
 
