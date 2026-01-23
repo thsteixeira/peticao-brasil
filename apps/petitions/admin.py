@@ -108,8 +108,11 @@ class PetitionAdmin(admin.ModelAdmin):
     def title_link(self, obj):
         """Display title as clickable link"""
         from django.utils.html import escape
+        # Allow links for active, completed, and expired petitions
+        viewable_statuses = ['active', 'completed', 'expired', 'closed']
+        url = obj.get_absolute_url() if obj.status in viewable_statuses else '#'
         return format_html('<a href="{}" target="_blank">{}</a>', 
-                          obj.get_absolute_url() if obj.status == 'published' else '#',
+                          url,
                           escape(obj.title[:60]))
     title_link.short_description = 'Título'
     
