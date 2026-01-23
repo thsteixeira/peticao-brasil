@@ -96,3 +96,37 @@ def verify_signature(self, signature_id):
         
         # Retry the task
         raise self.retry(exc=exc, countdown=60)
+
+
+@shared_task(name='apps.signatures.tasks.verify_pending_signatures')
+def verify_pending_signatures():
+    """
+    Periodic task to verify all pending signatures.
+    Runs every 5 minutes via Celery Beat.
+    """
+    from apps.signatures.models import Signature
+    
+    try:
+        pending_signatures = Signature.objects.filter(
+            verification_status=Signature.STATUS_PENDING
+        )[:50]  # Limit to 50 at a time
+        
+        count = 0
+        for signature in pending_signatures:
+            try:
+                verify_signature.delay(signature.id)
+                count += 1
+            except Exception as e:
+                logger.error(f'Failed to queue verification for signature {signature.uuid}: {str(e)}')
+                continue
+        
+        logger.info(f'Queued {count} signature(s) for verification')
+        return {
+            'success': True,
+            'queued_count': count
+        }
+        
+    except Exception as e:
+        logger.error(f'Error queuing pending signature verifications: {str(e)}')
+        raise
+

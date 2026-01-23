@@ -43,6 +43,39 @@ def generate_petition_pdf(self, petition_id):
         raise self.retry(exc=exc, countdown=60)
 
 
+@shared_task(name='apps.petitions.tasks.cleanup_expired_petitions')
+def cleanup_expired_petitions():
+    """
+    Daily task to mark expired petitions as closed.
+    Runs at 2 AM daily via Celery Beat.
+    """
+    from apps.petitions.models import Petition
+    from django.utils import timezone
+    
+    try:
+        today = timezone.now().date()
+        expired_petitions = Petition.objects.filter(
+            status='active',
+            deadline__lt=today
+        )
+        
+        count = expired_petitions.count()
+        if count > 0:
+            expired_petitions.update(status='closed')
+            logger.info(f'Closed {count} expired petition(s)')
+        else:
+            logger.info('No expired petitions to close')
+            
+        return {
+            'success': True,
+            'closed_count': count
+        }
+        
+    except Exception as e:
+        logger.error(f'Error cleaning up expired petitions: {str(e)}')
+        raise
+
+
 @shared_task
 def cleanup_old_pdfs():
     """
@@ -50,3 +83,4 @@ def cleanup_old_pdfs():
     """
     # TODO: Implement PDF cleanup logic
     pass
+

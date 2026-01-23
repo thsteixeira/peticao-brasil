@@ -65,6 +65,32 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@peticaobrasil.com.br')
 SERVER_EMAIL = config('SERVER_EMAIL', default='admin@peticaobrasil.com.br')
 
+# Celery Configuration for Production
+CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('REDIS_URL', default='redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60  # 30 minutes
+CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60  # 25 minutes
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_RESULT_EXPIRES = 3600  # 1 hour
+
+# Celery Beat Schedule for periodic tasks
+from celery.schedules import crontab
+CELERY_BEAT_SCHEDULE = {
+    'verify-pending-signatures': {
+        'task': 'apps.signatures.tasks.verify_pending_signatures',
+        'schedule': crontab(minute='*/5'),  # Every 5 minutes
+    },
+    'cleanup-expired-petitions': {
+        'task': 'apps.petitions.tasks.cleanup_expired_petitions',
+        'schedule': crontab(hour=2, minute=0),  # Daily at 2 AM
+    },
+}
+
 # Sentry Error Tracking
 SENTRY_DSN = config('SENTRY_DSN', default='')
 if SENTRY_DSN:
