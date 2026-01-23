@@ -1,5 +1,5 @@
 """
-Development settings for Democracia Direta project.
+Development settings for Petição Brasil project.
 """
 from .base import *
 

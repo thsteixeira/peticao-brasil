@@ -1,9 +1,10 @@
-# Democracia Direta - User Interface and UX
+# Petição Brasil - User Interface and UX
 
 **Project Phase:** Planning - Phase 5  
-**Document Version:** 1.0  
-**Last Updated:** November 23, 2025  
-**Status:** Draft
+**Document Version:** 1.1  
+**Last Updated:** January 22, 2026  
+**Status:** Draft  
+**Domain:** peticaobrasil.com.br
 
 ---
 

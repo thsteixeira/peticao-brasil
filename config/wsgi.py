@@ -1,5 +1,5 @@
 """
-WSGI config for Democracia Direta project.
+WSGI config for Petição Brasil project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 

@@ -1,5 +1,5 @@
 """
-Petition models for the Democracia Direta application.
+Petition models for the Petição Brasil application.
 """
 import uuid
 import hashlib

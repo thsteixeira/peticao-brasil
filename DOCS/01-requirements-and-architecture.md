@@ -1,9 +1,10 @@
-# Democracia Direta - Requirements and Architecture
+# Petição Brasil - Requirements and Architecture
 
 **Project Phase:** Planning - Phase 1  
-**Document Version:** 1.0  
-**Last Updated:** November 23, 2025  
-**Status:** Draft
+**Document Version:** 1.1  
+**Last Updated:** January 22, 2026  
+**Status:** Draft  
+**Domain:** peticaobrasil.com.br
 
 ---
 
@@ -1048,7 +1049,7 @@ democracia_direta_project/  # Main Django project
 ```python
 # settings.py
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_STORAGE_BUCKET_NAME = 'democracia-direta-petitions'
+AWS_STORAGE_BUCKET_NAME = 'peticaobrasil-petitions'
 AWS_S3_REGION_NAME = 'sa-east-1'  # São Paulo
 AWS_S3_FILE_OVERWRITE = False
 AWS_S3_OBJECT_PARAMETERS = {
@@ -1058,7 +1059,7 @@ AWS_S3_OBJECT_PARAMETERS = {
 
 **Folder structure:**
 ```
-s3://democracia-direta-petitions/
+s3://peticaobrasil-petitions/
   ├── petitions/
   │   └── <petition-uuid>/
   │       └── original.pdf

@@ -1,9 +1,10 @@
-# Democracia Direta - PDF Generation and Signing
+# Petição Brasil - PDF Generation and Signing
 
 **Project Phase:** Planning - Phase 3  
-**Document Version:** 1.0  
-**Last Updated:** November 23, 2025  
-**Status:** Draft
+**Document Version:** 1.1  
+**Last Updated:** January 22, 2026  
+**Status:** Draft  
+**Domain:** peticaobrasil.com.br
 
 ---
 
@@ -93,7 +94,7 @@ pip install pillow==10.1.0  # For image support
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                DEMOCRACIA DIRETA                       │
+│                PETIÇÃO BRASIL                       │
 │            Plataforma de Petições Cidadãs            │
 │                                                         │
 │  Logo                                    [Categoria]    │
@@ -129,7 +130,7 @@ pip install pillow==10.1.0  # For image support
 │  5. Conclua o processo de assinatura                   │
 │  6. Baixe o PDF assinado                               │
 │  7. Envie o PDF assinado de volta em:                  │
-│     https://democraciadireta.org/peticoes/[ID]/upload/ │
+│     https://peticaobrasil.com.br/peticoes/[ID]/upload/ │
 │                                                         │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
@@ -306,9 +307,9 @@ def embed_metadata(pdf_canvas, petition):
     """
     # Standard metadata
     pdf_canvas.setTitle(petition.title)
-    pdf_canvas.setAuthor(f"Democracia Direta - {petition.creator.get_full_name() or petition.creator.username}")
+    pdf_canvas.setAuthor(f"Petição Brasil - {petition.creator.get_full_name() or petition.creator.username}")
     pdf_canvas.setSubject(f"Petição Pública - {petition.category.name}")
-    pdf_canvas.setCreator("DemocraciaDireta.org - Plataforma de Petições Cidadãs")
+    pdf_canvas.setCreator("PeticaoBrasil.com.br - Plataforma de Petições Cidadãs")
     
     # Custom metadata (accessible via PDF info dictionary)
     # Note: Custom fields use /Key format
@@ -394,7 +395,7 @@ def extract_uuid_from_text(text):
        │ 1. Downloads unsigned PDF
        ▼
 ┌─────────────────────────────────────┐
-│     Democracia Direta Platform       │
+│     Petição Brasil Platform       │
 │  (Generates PDF with UUID/hash)     │
 └──────────┬──────────────────────────┘
            │ 2. PDF file
@@ -594,7 +595,7 @@ class PetitionPDFGenerator:
             topMargin=2*cm,
             bottomMargin=2*cm,
             title=self.petition.title,
-            author=f"Democracia Direta - {self.petition.creator.username}",
+            author=f"Petição Brasil - {self.petition.creator.username}",
             subject=f"Petição Pública - {self.petition.category.name}",
         )
         
@@ -630,7 +631,7 @@ class PetitionPDFGenerator:
         
         # Platform name
         header = Paragraph(
-            "<b>DEMOCRACIA DIRETA</b><br/>"
+            "<b>PETIÇÃO BRASIL</b><br/>"
             "<font size=10>Plataforma de Petições Cidadãs</font>",
             self.styles['Normal']
         )
@@ -750,8 +751,8 @@ class PetitionPDFGenerator:
             "",
             "6. Baixe o arquivo PDF assinado",
             "",
-            "7. Retorne à plataforma Democracia Direta e envie o PDF assinado em:",
-            f"   <b>https://democraciadireta.org/peticoes/{self.petition.id}/upload/</b>",
+            "7. Retorne à plataforma Petição Brasil e envie o PDF assinado em:",
+            f"   <b>https://peticaobrasil.com.br/peticoes/{self.petition.id}/upload/</b>",
             "",
             "Após o envio, nosso sistema verificará automaticamente sua assinatura.",
         ]
@@ -830,9 +831,9 @@ class PetitionPDFGenerator:
         """
         # Standard metadata
         canvas.setTitle(self.petition.title)
-        canvas.setAuthor(f"Democracia Direta - {self.petition.creator.username}")
+        canvas.setAuthor(f"Petição Brasil - {self.petition.creator.username}")
         canvas.setSubject(f"Petição Pública - {self.petition.category.name}")
-        canvas.setCreator("DemocraciaDireta.org - Plataforma de Petições Cidadãs")
+        canvas.setCreator("PeticaoBrasil.com.br - Plataforma de Petições Cidadãs")
         
         # Custom metadata fields
         info = canvas._doc.info

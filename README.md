@@ -1,6 +1,8 @@
-# Democracia Direta
+# Petição Brasil
 
 A platform that empowers Brazilian citizens to create, sign, and manage public petitions for specific political causes using official Gov.br digital signatures.
+
+**Domain:** peticaobrasil.com.br
 
 ## Features
 
@@ -34,7 +36,7 @@ A platform that empowers Brazilian citizens to create, sign, and manage public p
 1. **Clone the repository**
 ```bash
 git clone <repository-url>
-cd "DEMOCRACIA DIRETA"
+cd "PETICAO-BRASIL"
 ```
 
 2. **Create virtual environment**
@@ -83,7 +85,7 @@ celery -A config beat -l info
 ## Project Structure
 
 ```
-DEMOCRACIA DIRETA/
+PETICAO-BRASIL/
 ├── apps/
 │   ├── accounts/       # User authentication and management
 │   ├── petitions/      # Petition creation and listing

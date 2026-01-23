@@ -1,9 +1,10 @@
-# Democracia Direta - Deployment Checklist
+# Petição Brasil - Deployment Checklist
 
 **Project Phase:** Planning - Phase 8  
-**Document Version:** 1.0  
-**Last Updated:** November 23, 2025  
-**Status:** Draft
+**Document Version:** 1.1  
+**Last Updated:** January 22, 2026  
+**Status:** Draft  
+**Domain:** peticaobrasil.com.br
 
 ---
 
@@ -92,7 +93,7 @@ Create a `.env` file (never commit to git):
 # Django Core
 SECRET_KEY=your-secret-key-min-50-chars
 DEBUG=False
-ALLOWED_HOSTS=democraciadireta.herokuapp.com,www.democraciadireta.org
+ALLOWED_HOSTS=peticaobrasil.com.br,www.peticaobrasil.com.br
 
 # Database (Heroku provides DATABASE_URL automatically)
 DATABASE_URL=postgres://user:password@host:5432/database
@@ -104,13 +105,13 @@ EMAIL_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER=apikey
 EMAIL_HOST_PASSWORD=your-sendgrid-api-key
-DEFAULT_FROM_EMAIL=noreply@democraciadireta.org
-SERVER_EMAIL=admin@democraciadireta.org
+DEFAULT_FROM_EMAIL=noreply@peticaobrasil.com.br
+SERVER_EMAIL=admin@peticaobrasil.com.br
 
 # AWS S3 for Media Files
 AWS_ACCESS_KEY_ID=your-aws-access-key
 AWS_SECRET_ACCESS_KEY=your-aws-secret-key
-AWS_STORAGE_BUCKET_NAME=democracia-direta-petitions
+AWS_STORAGE_BUCKET_NAME=peticaobrasil-petitions
 AWS_S3_REGION_NAME=sa-east-1
 
 # Cloudflare Turnstile
@@ -176,8 +177,8 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@democraciadireta.org')
-SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'admin@democraciadireta.org')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@peticaobrasil.com.br')
+SERVER_EMAIL = os.environ.get('SERVER_EMAIL', 'admin@peticaobrasil.com.br')
 
 # Security Settings
 SECURE_SSL_REDIRECT = True
@@ -268,13 +269,13 @@ CELERY_TIMEZONE = 'America/Sao_Paulo'
 
 ```bash
 # Create PostgreSQL addon (if not already created)
-heroku addons:create heroku-postgresql:mini -a democraciadireta
+heroku addons:create heroku-postgresql:mini -a peticaobrasil
 
 # Verify database
-heroku pg:info -a democraciadireta
+heroku pg:info -a peticaobrasil
 
 # Get database credentials
-heroku config:get DATABASE_URL -a democraciadireta
+heroku config:get DATABASE_URL -a peticaobrasil
 ```
 
 ### Database Configuration
@@ -328,7 +329,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 pip install boto3 django-storages
 
 # Create S3 bucket
-aws s3 mb s3://democracia-direta-petitions --region sa-east-1
+aws s3 mb s3://peticaobrasil-petitions --region sa-east-1
 
 # Set bucket policy (public read for petition PDFs)
 # Use AWS Console or CLI to configure
@@ -344,14 +345,14 @@ aws s3 mb s3://democracia-direta-petitions --region sa-east-1
             "Effect": "Allow",
             "Principal": "*",
             "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::democracia-direta-petitions/petitions/*"
+            "Resource": "arn:aws:s3:::peticaobrasil-petitions/petitions/*"
         },
         {
             "Sid": "PrivateSignatures",
             "Effect": "Deny",
             "Principal": "*",
             "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::democracia-direta-petitions/signatures/*",
+            "Resource": "arn:aws:s3:::peticaobrasil-petitions/signatures/*",
             "Condition": {
                 "StringNotEquals": {
                     "aws:UserAgent": "pressiona-backend"
@@ -407,51 +408,51 @@ sentry-sdk==1.39.1
 
 ```bash
 # Create Heroku app
-heroku create democraciadireta
+heroku create peticaobrasil
 
 # Add buildpacks
-heroku buildpacks:add --index 1 heroku/python -a democraciadireta
+heroku buildpacks:add --index 1 heroku/python -a peticaobrasil
 
 # Set environment variables
-heroku config:set DJANGO_SETTINGS_MODULE=democracia_direta_project.settings_production -a democraciadireta
-heroku config:set SECRET_KEY=$(python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())') -a democraciadireta
-heroku config:set ALLOWED_HOSTS=democraciadireta.herokuapp.com -a democraciadireta
-heroku config:set DEBUG=False -a democraciadireta
+heroku config:set DJANGO_SETTINGS_MODULE=config.settings.production -a peticaobrasil
+heroku config:set SECRET_KEY=$(python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())') -a peticaobrasil
+heroku config:set ALLOWED_HOSTS=peticaobrasil.com.br,www.peticaobrasil.com.br -a peticaobrasil
+heroku config:set DEBUG=False -a peticaobrasil
 
 # AWS credentials
-heroku config:set AWS_ACCESS_KEY_ID=your-key -a democraciadireta
-heroku config:set AWS_SECRET_ACCESS_KEY=your-secret -a democraciadireta
-heroku config:set AWS_STORAGE_BUCKET_NAME=democracia-direta-petitions -a democraciadireta
+heroku config:set AWS_ACCESS_KEY_ID=your-key -a peticaobrasil
+heroku config:set AWS_SECRET_ACCESS_KEY=your-secret -a peticaobrasil
+heroku config:set AWS_STORAGE_BUCKET_NAME=peticaobrasil-petitions -a peticaobrasil
 
 # Email (SendGrid)
-heroku config:set EMAIL_HOST_USER=apikey -a democraciadireta
-heroku config:set EMAIL_HOST_PASSWORD=your-sendgrid-api-key -a democraciadireta
+heroku config:set EMAIL_HOST_USER=apikey -a peticaobrasil
+heroku config:set EMAIL_HOST_PASSWORD=your-sendgrid-api-key -a peticaobrasil
 
 # Cloudflare Turnstile
-heroku config:set TURNSTILE_SITE_KEY=your-site-key -a democraciadireta
-heroku config:set TURNSTILE_SECRET_KEY=your-secret-key -a democraciadireta
+heroku config:set TURNSTILE_SITE_KEY=your-site-key -a peticaobrasil
+heroku config:set TURNSTILE_SECRET_KEY=your-secret-key -a peticaobrasil
 ```
 
 ### Heroku Addons
 
 ```bash
 # PostgreSQL (already created)
-heroku addons:create heroku-postgresql:mini -a democraciadireta
+heroku addons:create heroku-postgresql:mini -a peticaobrasil
 
 # Redis (for Celery)
-heroku addons:create heroku-redis:mini -a democraciadireta
+heroku addons:create heroku-redis:mini -a peticaobrasil
 
 # SendGrid (Email)
-heroku addons:create sendgrid:starter -a democraciadireta
+heroku addons:create sendgrid:starter -a peticaobrasil
 
 # Papertrail (Logging)
-heroku addons:create papertrail:choklad -a democraciadireta
+heroku addons:create papertrail:choklad -a peticaobrasil
 
 # Sentry (Error Tracking)
-heroku addons:create sentry:f1 -a democraciadireta
+heroku addons:create sentry:f1 -a peticaobrasil
 
 # Verify addons
-heroku addons -a democraciadireta
+heroku addons -a peticaobrasil
 ```
 
 ---
@@ -463,25 +464,25 @@ heroku addons -a democraciadireta
 **Create IAM User:**
 ```bash
 # Create IAM user with S3 access
-aws iam create-user --user-name democraciadireta-s3-user
+aws iam create-user --user-name peticaobrasil-s3-user
 
 # Attach S3 policy
-aws iam attach-user-policy --user-name democraciadireta-s3-user --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
+aws iam attach-user-policy --user-name peticaobrasil-s3-user --policy-arn arn:aws:iam::aws:policy/AmazonS3FullAccess
 
 # Create access key
-aws iam create-access-key --user-name democraciadireta-s3-user
+aws iam create-access-key --user-name peticaobrasil-s3-user
 ```
 
 **Create S3 Bucket:**
 ```bash
 # Create bucket
-aws s3 mb s3://democracia-direta-petitions --region sa-east-1
+aws s3 mb s3://peticaobrasil-petitions --region sa-east-1
 
 # Enable versioning
-aws s3api put-bucket-versioning --bucket democracia-direta-petitions --versioning-configuration Status=Enabled
+aws s3api put-bucket-versioning --bucket peticaobrasil-petitions --versioning-configuration Status=Enabled
 
 # Configure lifecycle policy (optional - delete old files)
-aws s3api put-bucket-lifecycle-configuration --bucket democracia-direta-petitions --lifecycle-configuration file://s3-lifecycle.json
+aws s3api put-bucket-lifecycle-configuration --bucket peticaobrasil-petitions --lifecycle-configuration file://s3-lifecycle.json
 ```
 
 **s3-lifecycle.json:**
@@ -509,7 +510,7 @@ aws s3api put-bucket-lifecycle-configuration --bucket democracia-direta-petition
 # Create API key with "Mail Send" permissions
 
 # Verify sender email
-# Add sender: noreply@democraciadireta.org
+# Add sender: noreply@peticaobrasil.com.br
 
 # Configure DNS records (SPF, DKIM)
 # Add to your domain DNS:
@@ -517,9 +518,9 @@ aws s3api put-bucket-lifecycle-configuration --bucket democracia-direta-petition
 # CNAME records: s1._domainkey, s2._domainkey (provided by SendGrid)
 
 # Test email
-heroku run python manage.py shell -a democraciadireta
+heroku run python manage.py shell -a peticaobrasil
 >>> from django.core.mail import send_mail
->>> send_mail('Test', 'Message', 'noreply@democraciadireta.org', ['your-email@example.com'])
+>>> send_mail('Test', 'Message', 'noreply@peticaobrasil.com.br', ['your-email@example.com'])
 ```
 
 ### 3. Cloudflare Turnstile Setup
@@ -528,14 +529,14 @@ heroku run python manage.py shell -a democraciadireta
 # 1. Go to https://dash.cloudflare.com/
 # 2. Navigate to Turnstile
 # 3. Create new site
-#    - Site name: Democracia Direta
-#    - Domain: democraciadireta.herokuapp.com (or custom domain)
+#    - Site name: Petição Brasil
+#    - Domain: peticaobrasil.com.br
 #    - Widget mode: Managed
 # 4. Copy Site Key and Secret Key
 # 5. Add to Heroku config
 
-heroku config:set TURNSTILE_SITE_KEY=your-site-key -a democraciadireta
-heroku config:set TURNSTILE_SECRET_KEY=your-secret-key -a democraciadireta
+heroku config:set TURNSTILE_SITE_KEY=your-site-key -a peticaobrasil
+heroku config:set TURNSTILE_SECRET_KEY=your-secret-key -a peticaobrasil
 ```
 
 ### 4. Sentry Error Tracking
@@ -546,17 +547,17 @@ heroku config:set TURNSTILE_SECRET_KEY=your-secret-key -a democraciadireta
 # 3. Copy DSN
 # 4. Add to Heroku
 
-heroku config:set SENTRY_DSN=your-sentry-dsn -a democraciadireta
+heroku config:set SENTRY_DSN=your-sentry-dsn -a peticaobrasil
 ```
 
 ### 5. Redis Setup (for Celery)
 
 ```bash
 # Heroku Redis addon provides REDIS_URL automatically
-heroku config:get REDIS_URL -a democraciadireta
+heroku config:get REDIS_URL -a peticaobrasil
 
 # Set Celery to use Redis
-heroku config:set CELERY_BROKER_URL=$(heroku config:get REDIS_URL -a democraciadireta) -a democraciadireta
+heroku config:set CELERY_BROKER_URL=$(heroku config:get REDIS_URL -a peticaobrasil) -a peticaobrasil
 ```
 
 ---
@@ -576,10 +577,10 @@ python manage.py makemigrations --check --dry-run
 python manage.py dumpdata --natural-foreign --natural-primary > backup.json
 
 # 4. Deploy migrations to Heroku
-heroku run python manage.py migrate -a democraciadireta
+heroku run python manage.py migrate -a peticaobrasil
 
 # 5. Load initial data (categories)
-heroku run python manage.py loaddata categories -a democraciadireta
+heroku run python manage.py loaddata categories -a peticaobrasil
 ```
 
 ### Category Fixture
@@ -748,22 +749,22 @@ python manage.py loaddata categories
 git push heroku main
 
 # 2. Run migrations
-heroku run python manage.py migrate -a democraciadireta
+heroku run python manage.py migrate -a peticaobrasil
 
 # 3. Load initial data
-heroku run python manage.py loaddata categories -a democraciadireta
+heroku run python manage.py loaddata categories -a peticaobrasil
 
 # 4. Collect static files (if not automatic)
-heroku run python manage.py collectstatic --noinput -a democraciadireta
+heroku run python manage.py collectstatic --noinput -a peticaobrasil
 
 # 5. Create superuser
-heroku run python manage.py createsuperuser -a democraciadireta
+heroku run python manage.py createsuperuser -a peticaobrasil
 
 # 6. Verify app is running
-heroku ps -a democraciadireta
+heroku ps -a peticaobrasil
 
 # 7. Check logs
-heroku logs --tail -a democraciadireta
+heroku logs --tail -a peticaobrasil
 ```
 
 ### Manual Testing Checklist
@@ -898,10 +899,10 @@ sentry_sdk.init(
 
 ```bash
 # View logs
-heroku addons:open papertrail -a democraciadireta
+heroku addons:open papertrail -a peticaobrasil
 
 # Search logs
-heroku logs --tail --app democraciadireta | grep ERROR
+heroku logs --tail --app peticaobrasil | grep ERROR
 ```
 
 ### 3. Uptime Monitoring
@@ -913,7 +914,7 @@ heroku logs --tail --app democraciadireta | grep ERROR
 
 **Configure:**
 ```
-URL to monitor: https://democraciadireta.herokuapp.com/health/
+URL to monitor: https://peticaobrasil.com.br/health/
 Check interval: 5 minutes
 ```
 
@@ -921,26 +922,26 @@ Check interval: 5 minutes
 
 ```bash
 # Add New Relic addon
-heroku addons:create newrelic:wayne -a democraciadireta
+heroku addons:create newrelic:wayne -a peticaobrasil
 
 # Install agent
 pip install newrelic
 
 # Configure
-heroku config:set NEW_RELIC_CONFIG_FILE=newrelic.ini -a democraciadireta
+heroku config:set NEW_RELIC_CONFIG_FILE=newrelic.ini -a peticaobrasil
 ```
 
 ### 5. Database Monitoring
 
 ```bash
 # Heroku Postgres metrics
-heroku pg:diagnose -a democraciadireta
+heroku pg:diagnose -a peticaobrasil
 
 # Connection info
-heroku pg:info -a democraciadireta
+heroku pg:info -a peticaobrasil
 
 # Long-running queries
-heroku pg:outliers -a democraciadireta
+heroku pg:outliers -a peticaobrasil
 ```
 
 ---
@@ -951,39 +952,39 @@ heroku pg:outliers -a democraciadireta
 
 ```bash
 # View releases
-heroku releases -a democraciadireta
+heroku releases -a peticaobrasil
 
 # Rollback to previous release
-heroku rollback -a democraciadireta
+heroku rollback -a peticaobrasil
 
 # Rollback to specific version
-heroku rollback v123 -a democraciadireta
+heroku rollback v123 -a peticaobrasil
 ```
 
 ### Database Rollback
 
 ```bash
 # 1. Create backup before risky operations
-heroku pg:backups:capture -a democraciadireta
+heroku pg:backups:capture -a peticaobrasil
 
 # 2. Download backup
-heroku pg:backups:download -a democraciadireta
+heroku pg:backups:download -a peticaobrasil
 
 # 3. If needed, restore backup
-heroku pg:backups:restore b001 DATABASE_URL -a democraciadireta --confirm democraciadireta
+heroku pg:backups:restore b001 DATABASE_URL -a peticaobrasil --confirm peticaobrasil
 ```
 
 ### Migration Rollback
 
 ```bash
 # Show migrations
-heroku run python manage.py showmigrations -a democraciadireta
+heroku run python manage.py showmigrations -a peticaobrasil
 
 # Rollback specific migration
-heroku run python manage.py migrate petitions 0005 -a democraciadireta
+heroku run python manage.py migrate petitions 0005 -a peticaobrasil
 
 # Rollback all app migrations
-heroku run python manage.py migrate petitions zero -a democraciadireta
+heroku run python manage.py migrate petitions zero -a peticaobrasil
 ```
 
 ### Emergency Procedures
@@ -991,34 +992,34 @@ heroku run python manage.py migrate petitions zero -a democraciadireta
 **1. App is Down:**
 ```bash
 # Check dyno status
-heroku ps -a democraciadireta
+heroku ps -a peticaobrasil
 
 # Restart dynos
-heroku restart -a democraciadireta
+heroku restart -a peticaobrasil
 
 # Scale up if needed
-heroku ps:scale web=2 -a democraciadireta
+heroku ps:scale web=2 -a peticaobrasil
 ```
 
 **2. Database Issues:**
 ```bash
 # Check database status
-heroku pg:info -a democraciadireta
+heroku pg:info -a peticaobrasil
 
 # Kill long-running queries
-heroku pg:kill <pid> -a democraciadireta
+heroku pg:kill <pid> -a peticaobrasil
 
 # Reset connections
-heroku pg:killall -a democraciadireta
+heroku pg:killall -a peticaobrasil
 ```
 
 **3. Memory Issues:**
 ```bash
 # Check memory usage
-heroku logs --tail --app democraciadireta | grep "Error R14"
+heroku logs --tail --app peticaobrasil | grep "Error R14"
 
 # Upgrade dyno type
-heroku ps:type web=standard-1x -a democraciadireta
+heroku ps:type web=standard-1x -a peticaobrasil
 ```
 
 ---
@@ -1103,19 +1104,19 @@ heroku ps:type web=standard-1x -a democraciadireta
 git push heroku main
 
 # 2. Run migrations
-heroku run python manage.py migrate -a democraciadireta
+heroku run python manage.py migrate -a peticaobrasil
 
 # 3. Load initial data
-heroku run python manage.py loaddata categories -a democraciadireta
+heroku run python manage.py loaddata categories -a peticaobrasil
 
 # 4. Create superuser
-heroku run python manage.py createsuperuser -a democraciadireta
+heroku run python manage.py createsuperuser -a peticaobrasil
 
 # 5. Collect static files
-heroku run python manage.py collectstatic --noinput -a democraciadireta
+heroku run python manage.py collectstatic --noinput -a peticaobrasil
 
 # 6. Verify deployment
-heroku open -a democraciadireta
+heroku open -a peticaobrasil
 ```
 
 ### Subsequent Deployments
@@ -1135,16 +1136,16 @@ git push origin main
 git push heroku main
 
 # 5. Run migrations (if any)
-heroku run python manage.py migrate -a democraciadireta
+heroku run python manage.py migrate -a peticaobrasil
 
 # 6. Clear cache (if needed)
-heroku run python manage.py clear_cache -a democraciadireta
+heroku run python manage.py clear_cache -a peticaobrasil
 
 # 7. Restart workers (if using Celery)
-heroku ps:restart worker -a democraciadireta
+heroku ps:restart worker -a peticaobrasil
 
 # 8. Monitor logs
-heroku logs --tail -a democraciadireta
+heroku logs --tail -a peticaobrasil
 ```
 
 ---
@@ -1155,10 +1156,10 @@ heroku logs --tail -a democraciadireta
 
 ```bash
 # Enable maintenance page
-heroku maintenance:on -a democraciadireta
+heroku maintenance:on -a peticaobrasil
 
 # Verify
-heroku maintenance -a democraciadireta
+heroku maintenance -a peticaobrasil
 ```
 
 ### Custom Maintenance Page
@@ -1171,7 +1172,7 @@ heroku maintenance -a democraciadireta
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Democracia Direta - Em Manutenção</title>
+    <title>Petição Brasil - Em Manutenção</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -1212,7 +1213,7 @@ heroku maintenance -a democraciadireta
 
 ```bash
 # Disable maintenance page
-heroku maintenance:off -a democraciadireta
+heroku maintenance:off -a peticaobrasil
 ```
 
 ---
@@ -1225,17 +1226,17 @@ heroku maintenance:off -a democraciadireta
 # Heroku provides SSL automatically for *.herokuapp.com
 
 # For custom domain, add SSL certificate
-heroku certs:auto:enable -a democraciadireta
+heroku certs:auto:enable -a peticaobrasil
 
 # Verify SSL
-heroku certs -a democraciadireta
+heroku certs -a peticaobrasil
 ```
 
 ### Security Headers Verification
 
 ```bash
 # Test security headers
-curl -I https://democraciadireta.herokuapp.com | grep -E "Strict-Transport-Security|X-Frame-Options|X-Content-Type-Options"
+curl -I https://peticaobrasil.com.br | grep -E "Strict-Transport-Security|X-Frame-Options|X-Content-Type-Options"
 ```
 
 ### Regular Security Tasks
@@ -1250,7 +1251,7 @@ bandit -r petitions/
 safety check
 
 # Monthly: Review logs for suspicious activity
-heroku logs --tail -a democraciadireta | grep "security"
+heroku logs --tail -a peticaobrasil | grep "security"
 
 # Quarterly: Full security audit
 # - Penetration testing
@@ -1266,26 +1267,26 @@ heroku logs --tail -a democraciadireta | grep "security"
 
 ```bash
 # Enable automatic daily backups (Heroku Postgres Standard+)
-heroku pg:backups:schedule DATABASE_URL --at '02:00 America/Sao_Paulo' -a democraciadireta
+heroku pg:backups:schedule DATABASE_URL --at '02:00 America/Sao_Paulo' -a peticaobrasil
 
 # Verify schedule
-heroku pg:backups:schedules -a democraciadireta
+heroku pg:backups:schedules -a peticaobrasil
 ```
 
 ### Manual Backups
 
 ```bash
 # Create manual backup
-heroku pg:backups:capture -a democraciadireta
+heroku pg:backups:capture -a peticaobrasil
 
 # List backups
-heroku pg:backups -a democraciadireta
+heroku pg:backups -a peticaobrasil
 
 # Download backup
-heroku pg:backups:download b001 -a democraciadireta
+heroku pg:backups:download b001 -a peticaobrasil
 
 # Restore backup
-heroku pg:backups:restore b001 DATABASE_URL -a democraciadireta --confirm democraciadireta
+heroku pg:backups:restore b001 DATABASE_URL -a peticaobrasil --confirm peticaobrasil
 ```
 
 ### Media Files Backup (S3)

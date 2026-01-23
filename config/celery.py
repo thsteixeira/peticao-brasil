@@ -1,5 +1,5 @@
 """
-Celery configuration for Democracia Direta project.
+Celery configuration for Petição Brasil project.
 """
 import os
 from celery import Celery

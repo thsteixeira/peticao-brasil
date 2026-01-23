@@ -1,5 +1,5 @@
 """
-URL configuration for Democracia Direta project.
+URL configuration for Petição Brasil project.
 """
 from django.contrib import admin
 from django.urls import path, include
@@ -25,6 +25,6 @@ if settings.DEBUG:
         ] + urlpatterns
 
 # Custom admin site configuration
-admin.site.site_header = "Democracia Direta Admin"
-admin.site.site_title = "Democracia Direta"
+admin.site.site_header = "Petição Brasil Admin"
+admin.site.site_title = "Petição Brasil"
 admin.site.index_title = "Platform Administration"

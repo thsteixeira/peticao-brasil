@@ -1,9 +1,10 @@
-# Democracia Direta - Integration Testing
+# Petição Brasil - Integration Testing
 
 **Project Phase:** Planning - Phase 7  
-**Document Version:** 1.0  
-**Last Updated:** November 23, 2025  
-**Status:** Draft
+**Document Version:** 1.1  
+**Last Updated:** January 22, 2026  
+**Status:** Draft  
+**Domain:** peticaobrasil.com.br
 
 ---
 

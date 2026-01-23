@@ -1,15 +1,16 @@
-# Democracia Direta - Overview
+# Petição Brasil - Overview
 
 **Project Phase:** Planning  
-**Document Version:** 1.0  
-**Last Updated:** November 23, 2025  
-**Status:** Draft
+**Document Version:** 1.1  
+**Last Updated:** January 22, 2026  
+**Status:** Draft  
+**Domain:** peticaobrasil.com.br
 
 ---
 
 ## Executive Summary
 
-The **Democracia Direta** app is a platform that empowers citizens to create, sign, and manage public petitions for specific political causes.
+The **Petição Brasil** app is a platform that empowers citizens to create, sign, and manage public petitions for specific political causes.
 
 ### Core Value Proposition
 
@@ -69,7 +70,7 @@ The **Democracia Direta** app is a platform that empowers citizens to create, si
 - **Needs:** Clear instructions, mobile-friendly experience, trust in platform
 
 ### 3. **Platform Administrator**
-- **Profile:** Democracia Direta team member
+- **Profile:** Petição Brasil team member
 - **Goals:** Moderate content, ensure platform integrity, support users
 - **Needs:** Moderation tools, fraud detection, reporting capabilities
 
@@ -80,7 +81,7 @@ The **Democracia Direta** app is a platform that empowers citizens to create, si
 ### Primary Use Cases
 
 #### UC1: Create a Petition (Authenticated Users Only)
-1. User logs in/registers on Democracia Direta (required)
+1. User logs in/registers on Petição Brasil (required)
 2. Navigates to "Create Petition" page
 3. Fills petition form (title, description, category, goal)
 4. Submits petition for publication
@@ -123,7 +124,7 @@ The **Democracia Direta** app is a platform that empowers citizens to create, si
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│           Democracia Direta Platform                │
+│           Petição Brasil Platform                │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
 │  ┌─────────────────────────────────────────────┐   │

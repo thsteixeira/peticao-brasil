@@ -1,5 +1,5 @@
 """
-Django settings for Democracia Direta project.
+Django settings for Petição Brasil project.
 Base settings shared across all environments.
 """
 import os
@@ -130,7 +130,7 @@ EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@democraciadireta.com.br')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@peticaobrasil.com.br')
 
 # Celery Configuration
 CELERY_BROKER_URL = config('REDIS_URL', default='redis://localhost:6379/0')
@@ -141,8 +141,8 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 # Application Settings
-SITE_NAME = config('SITE_NAME', default='Democracia Direta')
-SITE_URL = config('SITE_URL', default='http://localhost:8000')
+SITE_NAME = config('SITE_NAME', default='Petição Brasil')
+SITE_URL = config('SITE_URL', default='https://peticaobrasil.com.br')
 
 # File Upload Settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB

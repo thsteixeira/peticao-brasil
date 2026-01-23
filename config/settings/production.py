@@ -1,5 +1,5 @@
 """
-Production settings for Democracia Direta project.
+Production settings for Petição Brasil project.
 """
 from .base import *
 import dj_database_url

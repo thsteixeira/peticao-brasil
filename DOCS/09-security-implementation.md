@@ -1,6 +1,9 @@
 # Security Measures Documentation
 
-This document outlines the security measures implemented in the Democracia Direta platform.
+**Domain:** peticaobrasil.com.br  
+**Last Updated:** January 22, 2026
+
+This document outlines the security measures implemented in the Petição Brasil platform.
 
 ## File Upload Security
 

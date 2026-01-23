@@ -1,5 +1,5 @@
 """
-Core models for the Democracia Direta application.
+Core models for the Petição Brasil application.
 Contains Category model for petition categorization.
 """
 import uuid

@@ -1,4 +1,7 @@
-# Next Steps - Democracia Direta
+# Next Steps - Petição Brasil
+
+**Domain:** peticaobrasil.com.br  
+**Last Updated:** January 22, 2026
 
 **Current Status:** 10 of 22 steps completed (45%)
 
