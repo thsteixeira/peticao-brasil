@@ -1,23 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    {% load static %}
+    {% include 'partials/meta_tags.html' %}
     
-    <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
-    
-    <meta name="description" content="{% block meta_description %}Plataforma para criar e assinar petições públicas com assinatura digital Gov.br{% endblock %}">
-    <meta name="keywords" content="{% block meta_keywords %}petição, democracia, gov.br, assinatura digital{% endblock %}">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:title" content="{% block og_title %}{{ SITE_NAME }}{% endblock %}">
-    <meta property="og:description" content="{% block og_description %}Plataforma para criar e assinar petições públicas{% endblock %}">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <title>{% block title %}{{ meta_title|default:'Petição Brasil' }}{% endblock %}</title>
     
     <!-- TailwindCSS (will be replaced with compiled CSS later) -->
     <script src="https://cdn.tailwindcss.com"></script>

@@ -10,6 +10,7 @@ from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
+from django.db.models import Value
 
 
 class Petition(models.Model):
@@ -237,11 +238,15 @@ class Petition(models.Model):
     
     def update_search_vector(self):
         """Update the search vector for full-text search"""
-        Petition.objects.filter(pk=self.pk).update(
-            search_vector=SearchVector('title', weight='A') + 
-                         SearchVector('description', weight='B') +
-                         SearchVector('category__name', weight='C')
+        # Get category name to avoid join in update query
+        category_name = self.category.name if self.category else ''
+        
+        self.search_vector = (
+            SearchVector(Value(self.title), weight='A', config='portuguese') + 
+            SearchVector(Value(self.description), weight='B', config='portuguese') +
+            SearchVector(Value(category_name), weight='C', config='portuguese')
         )
+        Petition.objects.filter(pk=self.pk).update(search_vector=self.search_vector)
     
     def get_absolute_url(self):
         from django.urls import reverse
@@ -273,6 +278,30 @@ class Petition(models.Model):
     def is_successful(self):
         """Check if petition reached its goal"""
         return self.signature_count >= self.signature_goal
+    
+    def get_meta_title(self):
+        """Generate SEO-optimized title"""
+        return f"{self.title} | Petição Brasil"
+    
+    def get_meta_description(self):
+        """Generate SEO-optimized description (max 160 chars)"""
+        if len(self.description) <= 157:
+            return self.description
+        return self.description[:157] + "..."
+    
+    def get_og_image_url(self):
+        """Get Open Graph image URL"""
+        # Use category icon or default image
+        from django.conf import settings
+        base_url = settings.SITE_URL.rstrip('/')
+        # TODO: Create category-specific OG images
+        return f"{base_url}/static/images/og-default.jpg"
+    
+    def get_canonical_url(self):
+        """Get canonical URL for SEO"""
+        from django.conf import settings
+        base_url = settings.SITE_URL.rstrip('/')
+        return f"{base_url}{self.get_absolute_url()}"
     
     def increment_signature_count(self):
         """Safely increment signature count and check for milestones"""

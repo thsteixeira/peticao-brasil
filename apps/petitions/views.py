@@ -135,6 +135,17 @@ class PetitionDetailView(DetailView):
         context['recent_signatures'] = self.object.signatures.filter(
             verification_status='approved'
         ).order_by('-verified_at')[:10]
+        
+        # SEO meta tags
+        context['meta_title'] = self.object.get_meta_title()
+        context['meta_description'] = self.object.get_meta_description()
+        context['og_title'] = self.object.title
+        context['og_description'] = self.object.get_meta_description()
+        context['og_image'] = self.object.get_og_image_url()
+        context['og_type'] = 'article'
+        context['og_url'] = self.object.get_canonical_url()
+        context['canonical_url'] = self.object.get_canonical_url()
+        
         return context
 
 

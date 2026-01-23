@@ -1,6 +1,26 @@
 {% extends "base.html" %}
 
-{% block title %}{{ petition.title }} - {{ SITE_NAME }}{% endblock %}
+{% block title %}{{ petition.get_meta_title }}{% endblock %}
+
+{% block structured_data %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Petition",
+  "name": "{{ petition.title }}",
+  "description": "{{ petition.get_meta_description }}",
+  "url": "{{ petition.get_canonical_url }}",
+  "datePublished": "{{ petition.created_at|date:'c' }}",
+  "dateModified": "{{ petition.updated_at|date:'c' }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ petition.creator.get_full_name }}"
+  },
+  "numberOfSignatures": {{ petition.signature_count }},
+  "targetSignatures": {{ petition.signature_goal }}
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <div class="max-w-5xl mx-auto">

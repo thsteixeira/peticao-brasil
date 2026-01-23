@@ -1,0 +1,41 @@
+{% load static %}
+{# Basic Meta Tags #}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="{{ meta_description|default:'Petição Brasil - Plataforma de petições online para mudanças sociais. Crie e assine petições para causas que você acredita.' }}">
+<meta name="keywords" content="petição, petições online, mudança social, Brasil, democracia, ativismo">
+<meta name="author" content="Petição Brasil">
+
+{# Canonical URL #}
+{% if canonical_url %}
+<link rel="canonical" href="{{ canonical_url }}">
+{% endif %}
+
+{# Open Graph Meta Tags #}
+<meta property="og:site_name" content="Petição Brasil">
+<meta property="og:type" content="{% if og_type %}{{ og_type }}{% else %}website{% endif %}">
+<meta property="og:title" content="{{ og_title|default:meta_title|default:'Petição Brasil - Plataforma de Petições Online' }}">
+<meta property="og:description" content="{{ og_description|default:meta_description|default:'Faça a diferença! Crie e assine petições para causas que você acredita.' }}">
+<meta property="og:url" content="{{ og_url|default:canonical_url|default:'' }}">
+<meta property="og:image" content="{{ og_image|default:'' }}{% if not og_image %}https://{{ request.get_host }}{% static 'images/og-default.jpg' %}{% endif %}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="pt_BR">
+
+{# Twitter Card Meta Tags #}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ twitter_title|default:og_title|default:meta_title|default:'Petição Brasil' }}">
+<meta name="twitter:description" content="{{ twitter_description|default:og_description|default:meta_description|default:'Plataforma de petições online para mudanças sociais no Brasil.' }}">
+<meta name="twitter:image" content="{{ twitter_image|default:og_image|default:'' }}{% if not twitter_image and not og_image %}https://{{ request.get_host }}{% static 'images/og-default.jpg' %}{% endif %}">
+
+{# Additional SEO Meta Tags #}
+<meta name="robots" content="{% if noindex %}noindex, nofollow{% else %}index, follow{% endif %}">
+<meta name="googlebot" content="{% if noindex %}noindex, nofollow{% else %}index, follow{% endif %}">
+
+{# Favicon #}
+<link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+<link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/apple-touch-icon.png' %}">
+
+{# Additional Structured Data #}
+{% block structured_data %}
+{% endblock %}
