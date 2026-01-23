@@ -291,11 +291,9 @@ class Petition(models.Model):
     
     def get_og_image_url(self):
         """Get Open Graph image URL"""
-        # Use category icon or default image
-        from django.conf import settings
-        base_url = settings.SITE_URL.rstrip('/')
-        # TODO: Create category-specific OG images
-        return f"{base_url}/static/images/og-default.jpg"
+        # TODO: Upload og-default.jpg to S3 or create category-specific OG images
+        # For now, return None - OG image is optional
+        return None
     
     def get_canonical_url(self):
         """Get canonical URL for SEO"""
