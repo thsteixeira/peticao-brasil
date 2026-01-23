@@ -61,8 +61,4 @@ django-robots==6.1
 # Development (optional, for local development)
 django-debug-toolbar==4.2.0
 ipython==8.20.0
-black==24.1.1
 flake8==7.0.0
-
-# Monitoring
-sentry-sdk==1.39.2
