@@ -26,8 +26,30 @@ if redis_url.startswith('rediss://'):
     app.conf.update(
         broker_url=redis_url,
         result_backend=redis_url,
-        broker_use_ssl={'ssl_cert_reqs': ssl.CERT_NONE},
-        redis_backend_use_ssl={'ssl_cert_reqs': ssl.CERT_NONE},
+        broker_use_ssl={
+            'ssl_cert_reqs': ssl.CERT_NONE,
+            'ssl_check_hostname': False,
+        },
+        redis_backend_use_ssl={
+            'ssl_cert_reqs': ssl.CERT_NONE,
+            'ssl_check_hostname': False,
+        },
+        # Connection pool settings
+        broker_pool_limit=10,
+        broker_connection_retry=True,
+        broker_connection_retry_on_startup=True,
+        broker_connection_max_retries=10,
+        # Result backend settings
+        result_backend_transport_options={
+            'master_name': 'mymaster',
+            'retry_on_timeout': True,
+            'socket_keepalive': True,
+            'socket_keepalive_options': {
+                1: 1,  # TCP_KEEPIDLE
+                2: 1,  # TCP_KEEPINTVL
+                3: 3,  # TCP_KEEPCNT
+            },
+        },
         task_serializer='json',
         accept_content=['json'],
         result_serializer='json',
@@ -36,6 +58,9 @@ if redis_url.startswith('rediss://'):
         task_track_started=True,
         task_time_limit=30 * 60,  # 30 minutes
         task_soft_time_limit=25 * 60,  # 25 minutes
+        # Ignore result by default to reduce Redis load
+        task_ignore_result=False,
+        result_expires=3600,  # Results expire after 1 hour
     )
 else:
     app.conf.update(
