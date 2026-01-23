@@ -47,9 +47,10 @@ class SignatureSubmitView(CreateView):
         return context
     
     def get_form_kwargs(self):
-        """Pass petition to form."""
+        """Pass petition and request to form."""
         kwargs = super().get_form_kwargs()
         kwargs['petition'] = self.petition
+        kwargs['request'] = self.request
         return kwargs
     
     def form_valid(self, form):

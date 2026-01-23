@@ -151,6 +151,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
 # Cloudflare Turnstile
 TURNSTILE_SITE_KEY = config('TURNSTILE_SITE_KEY', default='')
 TURNSTILE_SECRET_KEY = config('TURNSTILE_SECRET_KEY', default='')
+TURNSTILE_ENABLED = config('TURNSTILE_ENABLED', default=True, cast=bool)
 
 # Petition Settings
 PETITION_PDF_STORAGE_PATH = config('PETITION_PDF_STORAGE_PATH', default='petitions/pdfs/')

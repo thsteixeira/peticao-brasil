@@ -4,8 +4,10 @@ File validation and sanitization utilities.
 import os
 import re
 import hashlib
+import requests
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
+from django.conf import settings
 
 
 # PDF magic numbers
@@ -213,3 +215,72 @@ image_file_validator = FileValidator(
     allowed_extensions=['.jpg', '.jpeg', '.png', '.gif'],
     allowed_mime_types=ALLOWED_IMAGE_MIME_TYPES
 )
+
+
+def validate_turnstile_token(token, remote_ip=None):
+    """
+    Validate Cloudflare Turnstile token.
+    
+    Args:
+        token (str): Turnstile token from frontend
+        remote_ip (str, optional): User's IP address
+        
+    Returns:
+        bool: True if validation passes
+        
+    Raises:
+        ValidationError: If validation fails
+    """
+    # Skip validation if Turnstile is disabled (development mode)
+    if not settings.TURNSTILE_ENABLED:
+        return True
+    
+    # Check if token is provided
+    if not token:
+        raise ValidationError('Token de verificação ausente.')
+    
+    # Check if secret key is configured
+    if not settings.TURNSTILE_SECRET_KEY:
+        # In development with no key, allow through but log warning
+        if settings.DEBUG:
+            print("WARNING: TURNSTILE_SECRET_KEY not configured, skipping validation")
+            return True
+        raise ValidationError('Configuração de segurança ausente.')
+    
+    # Prepare verification request
+    verify_url = 'https://challenges.cloudflare.com/turnstile/v0/siteverify'
+    data = {
+        'secret': settings.TURNSTILE_SECRET_KEY,
+        'response': token,
+    }
+    
+    if remote_ip:
+        data['remoteip'] = remote_ip
+    
+    try:
+        # Send verification request to Cloudflare
+        response = requests.post(verify_url, data=data, timeout=5)
+        result = response.json()
+        
+        # Check if verification was successful
+        if result.get('success'):
+            return True
+        
+        # Log error codes for debugging
+        error_codes = result.get('error-codes', [])
+        if settings.DEBUG:
+            print(f"Turnstile validation failed: {error_codes}")
+        
+        # Handle specific error cases
+        if 'timeout-or-duplicate' in error_codes:
+            raise ValidationError('Token expirado ou já utilizado. Por favor, tente novamente.')
+        
+        raise ValidationError('Falha na verificação de segurança. Por favor, tente novamente.')
+        
+    except requests.RequestException as e:
+        # Network error - in production, fail closed; in development, allow through
+        if settings.DEBUG:
+            print(f"WARNING: Turnstile validation failed due to network error: {e}")
+            return True
+        raise ValidationError('Erro ao verificar captcha. Por favor, tente novamente.')
+

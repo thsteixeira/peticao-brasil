@@ -1,3 +1,2 @@
-web: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
-worker: celery -A config worker --loglevel=info
-beat: celery -A config beat --loglevel=info
+web: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 3 --timeout 120
+release: python manage.py migrate --noinput

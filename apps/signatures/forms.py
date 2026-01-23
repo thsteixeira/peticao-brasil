@@ -4,7 +4,7 @@ Forms for signature submission.
 import re
 from django import forms
 from django.core.exceptions import ValidationError
-from apps.core.validators import validate_pdf_file, sanitize_filename, calculate_file_hash
+from apps.core.validators import validate_pdf_file, sanitize_filename, calculate_file_hash, validate_turnstile_token
 from .models import Signature
 
 
@@ -101,14 +101,18 @@ class SignatureSubmissionForm(forms.ModelForm):
             'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
             'accept': '.pdf'
         })
-    )
-    
+    )    
+    turnstile_token = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False  # Not required for when TURNSTILE_ENABLED=False
+    )    
     class Meta:
         model = Signature
         fields = ['full_name', 'email', 'city', 'state', 'signed_pdf']
     
     def __init__(self, *args, **kwargs):
         self.petition = kwargs.pop('petition', None)
+        self.request = kwargs.pop('request', None)  # To get IP address
         super().__init__(*args, **kwargs)
     
     def clean_cpf(self):
@@ -152,6 +156,17 @@ class SignatureSubmissionForm(forms.ModelForm):
     def clean(self):
         """Additional cross-field validation."""
         cleaned_data = super().clean()
+        
+        # Validate Turnstile token
+        turnstile_token = cleaned_data.get('turnstile_token')
+        remote_ip = None
+        if self.request:
+            remote_ip = self.request.META.get('REMOTE_ADDR')
+        
+        try:
+            validate_turnstile_token(turnstile_token, remote_ip)
+        except ValidationError as e:
+            self.add_error('turnstile_token', e)
         
         # Check if petition already has a signature from this CPF
         cpf = cleaned_data.get('cpf')
