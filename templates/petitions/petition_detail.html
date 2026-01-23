@@ -67,8 +67,9 @@
         
         <!-- Call to Action -->
         <div class="flex space-x-4">
-            {% if petition.pdf_url %}
-                <a href="{{ petition.pdf_url }}" 
+            {% with signed_url=petition.get_signed_pdf_url %}
+            {% if signed_url %}
+                <a href="{{ signed_url }}" 
                    download="peticao_{{ petition.uuid }}.pdf"
                    class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold transition-colors text-center">
                     📄 Baixar PDF para Assinar
@@ -78,6 +79,7 @@
                     ⏳ Gerando PDF...
                 </button>
             {% endif %}
+            {% endwith %}
             <button class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors">
                 📤 Compartilhar
             </button>
@@ -106,7 +108,8 @@
     </div>
     
     <!-- How to Sign -->
-    {% if petition.pdf_url %}
+    {% with signed_url=petition.get_signed_pdf_url %}
+    {% if signed_url %}
     <div class="bg-white rounded-lg shadow-md p-8 mb-6">
         <h2 class="text-2xl font-bold text-gray-900 mb-4">Como Assinar esta Petição</h2>
         <div class="space-y-4">
@@ -139,6 +142,7 @@
         </div>
     </div>
     {% endif %}
+    {% endwith %}
     
     <!-- Recent Signatures -->
     {% if recent_signatures %}

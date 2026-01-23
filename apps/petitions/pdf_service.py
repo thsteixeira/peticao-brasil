@@ -269,7 +269,8 @@ class PetitionPDFGenerator:
         
         # Update petition with PDF info
         petition.pdf_url = pdf_url
+        petition.pdf_file_key = saved_path  # Store S3 key for signed URLs
         petition.content_hash = content_hash
-        petition.save(update_fields=['pdf_url', 'content_hash'])
+        petition.save(update_fields=['pdf_url', 'pdf_file_key', 'content_hash'])
         
         return pdf_url

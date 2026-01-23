@@ -130,6 +130,14 @@ class Petition(models.Model):
         help_text="SHA-256 hash do conteúdo da petição para verificação"
     )
     
+    # S3 file key for PDF
+    pdf_file_key = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name="Chave do arquivo PDF",
+        help_text="Chave do arquivo PDF no S3"
+    )
+    
     # Statistics
     signature_count = models.PositiveIntegerField(
         default=0,
@@ -335,6 +343,33 @@ class Petition(models.Model):
         from django.conf import settings
         base_url = settings.SITE_URL.rstrip('/')
         return f"{base_url}{self.get_absolute_url()}"
+    
+    def get_signed_pdf_url(self):
+        """
+        Get a signed URL for the PDF file with expiration.
+        Returns a secure, temporary URL that expires after 1 hour.
+        """
+        if not self.pdf_file_key and not self.pdf_url:
+            return None
+        
+        from django.core.files.storage import default_storage
+        
+        # If we have the file key, generate signed URL
+        if self.pdf_file_key:
+            try:
+                return default_storage.url(self.pdf_file_key)
+            except Exception as e:
+                logger.error('Failed to generate signed URL', extra={
+                    'petition_id': self.id,
+                    'petition_uuid': str(self.uuid),
+                    'pdf_file_key': self.pdf_file_key,
+                    'error': str(e)
+                })
+                # Fall back to pdf_url if it exists
+                return self.pdf_url if self.pdf_url else None
+        
+        # Fallback to stored URL (for backwards compatibility)
+        return self.pdf_url
     
     def increment_signature_count(self):
         """Safely increment signature count and check for milestones"""

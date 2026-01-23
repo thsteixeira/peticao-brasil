@@ -14,6 +14,8 @@ class MediaStorage(S3Boto3Storage):
     location = 'media'
     file_overwrite = False
     default_acl = None  # ACLs disabled - use bucket policy instead
+    querystring_auth = True  # Generate signed URLs for access
+    querystring_expire = 3600  # URLs expire after 1 hour
     
     # Custom cache control for different file types
     def get_object_parameters(self, name):
