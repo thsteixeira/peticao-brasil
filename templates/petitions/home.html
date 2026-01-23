@@ -1,62 +1,312 @@
 {% extends "base.html" %}
 
-{% block title %}{{ SITE_NAME }} - Petições que fazem a diferença{% endblock %}
+{% block title %}{{ SITE_NAME }} - Democracia Digital com Assinatura Eletrônica{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20 mb-12">
-    <div class="container mx-auto text-center">
-        <h1 class="text-5xl font-bold mb-4">Sua voz importa</h1>
-        <p class="text-xl mb-8">Crie e assine petições que transformam o Brasil</p>
-        <div class="flex justify-center space-x-4">
-            {% if user.is_authenticated %}
-                <a href="{% url 'petitions:create' %}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                    Criar Petição
+<div class="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white py-24 mb-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-6xl font-bold mb-6 leading-tight">
+                Democracia Digital<br/>
+                <span class="text-blue-200">com Assinatura Eletrônica</span>
+            </h1>
+            <p class="text-2xl mb-8 text-blue-100">
+                A primeira plataforma brasileira de petições públicas com validação por certificado digital ICP-Brasil
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'petitions:create' %}" class="bg-white text-blue-600 px-10 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        ✍️ Criar Petição
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:register' %}" class="bg-white text-blue-600 px-10 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        🚀 Começar Gratuitamente
+                    </a>
+                {% endif %}
+                <a href="{% url 'petitions:list' %}" class="bg-transparent border-3 border-white text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-blue-600 transition-all shadow-lg">
+                    📋 Ver Petições Ativas
                 </a>
-            {% else %}
-                <a href="{% url 'accounts:register' %}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
-                    Começar Agora
-                </a>
-            {% endif %}
-            <a href="{% url 'petitions:list' %}" class="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
-                Ver Petições
-            </a>
+            </div>
+            <p class="text-sm text-blue-200">
+                🔒 100% Seguro • 🇧🇷 Conforme LGPD • ✅ Assinatura Digital Válida
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<!-- Platform Features -->
+<div class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Por que usar o {{ SITE_NAME }}?</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                A única plataforma brasileira que une democracia participativa e segurança jurídica
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Feature 1: Digital Signature -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-6">
+                    <span class="text-4xl">🔐</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Assinatura Digital ICP-Brasil</h3>
+                <p class="text-gray-600 mb-4">
+                    Validação por certificado digital padrão ICP-Brasil (e-CPF, e-CNPJ), garantindo autenticidade e validade jurídica de cada assinatura.
+                </p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>✓ Validade jurídica</li>
+                    <li>✓ Verificação automática</li>
+                    <li>✓ Não repúdio</li>
+                </ul>
+            </div>
+
+            <!-- Feature 2: PDF Generation -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+                    <span class="text-4xl">📄</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Geração Automática de PDF</h3>
+                <p class="text-gray-600 mb-4">
+                    Cada petição gera automaticamente um PDF padronizado e profissional, pronto para assinatura digital.
+                </p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>✓ Formato oficial</li>
+                    <li>✓ Hash de integridade</li>
+                    <li>✓ Download imediato</li>
+                </ul>
+            </div>
+
+            <!-- Feature 3: Full Transparency -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-6">
+                    <span class="text-4xl">👁️</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Transparência Total</h3>
+                <p class="text-gray-600 mb-4">
+                    Todas as assinaturas são verificadas e validadas. Veja em tempo real o progresso de cada petição.
+                </p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>✓ Contador público</li>
+                    <li>✓ Status de verificação</li>
+                    <li>✓ Histórico completo</li>
+                </ul>
+            </div>
+
+            <!-- Feature 4: LGPD Compliant -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-6">
+                    <span class="text-4xl">🛡️</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Conforme LGPD</h3>
+                <p class="text-gray-600 mb-4">
+                    Proteção total dos dados pessoais com criptografia SHA-256, armazenamento seguro e conformidade com a Lei Geral de Proteção de Dados.
+                </p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>✓ CPF criptografado</li>
+                    <li>✓ Dados anonimizados</li>
+                    <li>✓ Consentimento explícito</li>
+                </ul>
+            </div>
+
+            <!-- Feature 5: Advanced Search -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+                <div class="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center mb-6">
+                    <span class="text-4xl">🔍</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Busca Avançada</h3>
+                <p class="text-gray-600 mb-4">
+                    Sistema de busca full-text em português para encontrar rapidamente petições por tema, categoria ou palavra-chave.
+                </p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>✓ Busca por relevância</li>
+                    <li>✓ Filtros múltiplos</li>
+                    <li>✓ Resultados instantâneos</li>
+                </ul>
+            </div>
+
+            <!-- Feature 6: Categories -->
+            <div class="bg-white rounded-xl shadow-lg p-8 hover:shadow-xl transition-shadow">
+                <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mb-6">
+                    <span class="text-4xl">📁</span>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Categorias Organizadas</h3>
+                <p class="text-gray-600 mb-4">
+                    Petições organizadas por temas como Saúde, Educação, Meio Ambiente, Direitos Humanos e muito mais.
+                </p>
+                <ul class="text-sm text-gray-500 space-y-2">
+                    <li>✓ 10+ categorias</li>
+                    <li>✓ Navegação fácil</li>
+                    <li>✓ Descoberta por tema</li>
+                </ul>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Statistics -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-    <div class="bg-white rounded-lg shadow-md p-6 text-center">
-        <p class="text-4xl font-bold text-blue-600">{{ total_petitions }}</p>
-        <p class="text-gray-600 mt-2">Petições Ativas</p>
+<div class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Impacto Real</h2>
+            <p class="text-xl text-gray-600">Números que fazem a diferença</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg p-8 text-white text-center transform hover:scale-105 transition-transform">
+                <p class="text-5xl font-bold mb-2">{{ total_petitions }}</p>
+                <p class="text-xl opacity-90">Petições Criadas</p>
+            </div>
+            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg p-8 text-white text-center transform hover:scale-105 transition-transform">
+                <p class="text-5xl font-bold mb-2">{{ total_signatures }}</p>
+                <p class="text-xl opacity-90">Assinaturas Validadas</p>
+            </div>
+            <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg p-8 text-white text-center transform hover:scale-105 transition-transform">
+                <p class="text-5xl font-bold mb-2">100%</p>
+                <p class="text-xl opacity-90">Verificação Digital</p>
+            </div>
+        </div>
     </div>
-    <div class="bg-white rounded-lg shadow-md p-6 text-center">
-        <p class="text-4xl font-bold text-green-600">{{ total_signatures }}</p>
-        <p class="text-gray-600 mt-2">Assinaturas Coletadas</p>
-    </div>
-    <div class="bg-white rounded-lg shadow-md p-6 text-center">
-        <p class="text-4xl font-bold text-purple-600">100%</p>
-        <p class="text-gray-600 mt-2">Assinatura Digital Gov.br</p>
+</div>
+
+<!-- How It Works -->
+<div class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Como Funciona</h2>
+            <p class="text-xl text-gray-600">Simples, seguro e efetivo</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto">
+            <!-- Step 1 -->
+            <div class="flex flex-col md:flex-row items-center mb-12">
+                <div class="flex-shrink-0 w-24 h-24 bg-blue-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mb-4 md:mb-0 md:mr-8">
+                    1
+                </div>
+                <div class="flex-1 text-center md:text-left">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Crie sua Petição</h3>
+                    <p class="text-gray-600">Escreva sobre a causa que importa para você. Nossa plataforma gera automaticamente um PDF oficial da petição.</p>
+                </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="flex flex-col md:flex-row items-center mb-12">
+                <div class="flex-shrink-0 w-24 h-24 bg-green-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mb-4 md:mb-0 md:mr-8">
+                    2
+                </div>
+                <div class="flex-1 text-center md:text-left">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Assine Digitalmente</h3>
+                    <p class="text-gray-600">Baixe o PDF e assine com seu certificado digital ICP-Brasil (e-CPF ou e-CNPJ). Envie o arquivo assinado de volta.</p>
+                </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="flex flex-col md:flex-row items-center mb-12">
+                <div class="flex-shrink-0 w-24 h-24 bg-purple-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mb-4 md:mb-0 md:mr-8">
+                    3
+                </div>
+                <div class="flex-1 text-center md:text-left">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Verificação Automática</h3>
+                    <p class="text-gray-600">Nossa plataforma verifica automaticamente a validade da assinatura digital e contabiliza sua participação.</p>
+                </div>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="flex-shrink-0 w-24 h-24 bg-red-600 text-white rounded-full flex items-center justify-center text-3xl font-bold mb-4 md:mb-0 md:mr-8">
+                    4
+                </div>
+                <div class="flex-1 text-center md:text-left">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Acompanhe o Progresso</h3>
+                    <p class="text-gray-600">Veja em tempo real quantas pessoas assinaram. Compartilhe nas redes sociais e amplifique sua voz!</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Featured Petitions -->
-<div class="mb-12">
-    <h2 class="text-3xl font-bold text-gray-900 mb-6">Petições em Destaque</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for petition in featured_petitions %}
-            {% include 'petitions/partials/petition_card.html' %}
-        {% empty %}
-            <div class="col-span-3 text-center py-12">
-                <p class="text-gray-500">Nenhuma petição em destaque no momento.</p>
+<div class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-12">
+            <div>
+                <h2 class="text-4xl font-bold text-gray-900 mb-2">Petições em Destaque</h2>
+                <p class="text-gray-600">Causas que estão mobilizando o Brasil</p>
             </div>
-        {% endfor %}
+            <a href="{% url 'petitions:list' %}" class="hidden md:inline-block text-blue-600 hover:text-blue-700 font-semibold">
+                Ver todas →
+            </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for petition in featured_petitions %}
+                {% include 'petitions/partials/petition_card.html' %}
+            {% empty %}
+                <div class="col-span-3 text-center py-16 bg-gray-50 rounded-xl">
+                    <span class="text-6xl mb-4 block">📋</span>
+                    <p class="text-gray-500 text-lg">Nenhuma petição em destaque no momento.</p>
+                    <a href="{% url 'petitions:create' %}" class="inline-block mt-4 text-blue-600 hover:text-blue-700 font-semibold">
+                        Seja o primeiro a criar uma petição →
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Categories -->
+<div class="py-16 bg-gradient-to-br from-gray-50 to-gray-100">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">Explore por Categoria</h2>
+            <p class="text-xl text-gray-600">Encontre causas que importam para você</p>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-6xl mx-auto">
+            {% for category in categories %}
+                <a href="{% url 'petitions:list' %}?category={{ category.slug }}" 
+                   class="bg-white rounded-xl shadow-md p-6 text-center hover:shadow-xl transition-all transform hover:-translate-y-1 group">
+                    <div class="text-5xl mb-4 group-hover:scale-110 transition-transform">📋</div>
+                    <h3 class="font-bold text-gray-900 mb-1">{{ category.name }}</h3>
+                    <p class="text-sm text-gray-500">{{ category.petition_count }} {% if category.petition_count == 1 %}petição{% else %}petições{% endif %}</p>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="py-20 bg-gradient-to-r from-blue-600 to-indigo-700">
+    <div class="container mx-auto px-4 text-center">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">
+                Pronto para fazer a diferença?
+            </h2>
+            <p class="text-xl text-blue-100 mb-10">
+                Junte-se a milhares de brasileiros que estão usando a tecnologia para transformar o país através da participação democrática.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'petitions:create' %}" class="bg-white text-blue-600 px-10 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl">
+                        Criar Minha Petição Agora
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:register' %}" class="bg-white text-blue-600 px-10 py-4 rounded-lg font-bold text-lg hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl">
+                        Criar Conta Gratuita
+                    </a>
+                {% endif %}
+                <a href="{% url 'petitions:list' %}" class="bg-transparent border-3 border-white text-white px-10 py-4 rounded-lg font-bold text-lg hover:bg-white hover:text-blue-600 transition-all">
+                    Explorar Petições
+                </a>
+            </div>
+            <p class="text-sm text-blue-200 mt-6">
+                ✓ 100% Gratuito • ✓ Sem anúncios • ✓ Código aberto
+            </p>
+        </div>
     </div>
 </div>
 
 <!-- Recent Petitions -->
-<div class="mb-12">
+<div class="container mx-auto px-4" style="display: none;">
     <h2 class="text-3xl font-bold text-gray-900 mb-6">Petições Recentes</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for petition in recent_petitions %}
@@ -75,7 +325,7 @@
 </div>
 
 <!-- Categories -->
-<div class="mb-12">
+<div class="mb-12" style="display: none;">
     <h2 class="text-3xl font-bold text-gray-900 mb-6">Categorias</h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         {% for category in categories %}
@@ -89,3 +339,4 @@
     </div>
 </div>
 {% endblock %}
+
