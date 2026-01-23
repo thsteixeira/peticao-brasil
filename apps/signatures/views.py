@@ -7,18 +7,18 @@ from django.views.generic import CreateView, ListView
 from django.urls import reverse
 from django.utils import timezone
 from django.db import transaction
-from django_ratelimit.decorators import ratelimit
 from django.utils.decorators import method_decorator
 
 from apps.petitions.models import Petition
+from apps.core.rate_limiting import rate_limit
 from .models import Signature
 from .forms import SignatureSubmissionForm
 
 
-@method_decorator(ratelimit(key='ip', rate='5/h', method='POST'), name='post')
+@method_decorator(rate_limit(max_requests=10, window=3600), name='post')  # 10 uploads per hour
 class SignatureSubmitView(CreateView):
     """
-    View for submitting a signed PDF.
+    View for submitting a signed PDF with rate limiting.
     """
     model = Signature
     form_class = SignatureSubmissionForm

@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'apps.core.middleware.SecurityHeadersMiddleware',
+    'apps.core.middleware.SecurityLoggingMiddleware',
     'apps.core.middleware.FileUploadSecurityMiddleware',
     'apps.core.logging_utils.CorrelationIdMiddleware',  # Add correlation IDs
 ]

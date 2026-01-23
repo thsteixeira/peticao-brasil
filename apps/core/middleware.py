@@ -1,8 +1,13 @@
 """
 Security middleware for the application.
 """
+import logging
 from django.utils.deprecation import MiddlewareMixin
 from django.http import HttpResponseForbidden
+from django.contrib.auth.signals import user_logged_in, user_login_failed
+from django.dispatch import receiver
+
+logger = logging.getLogger('apps.core.security')
 
 
 class SecurityHeadersMiddleware(MiddlewareMixin):
@@ -62,8 +67,118 @@ class FileUploadSecurityMiddleware(MiddlewareMixin):
             if request.META.get('CONTENT_LENGTH'):
                 content_length = int(request.META['CONTENT_LENGTH'])
                 if content_length > self.MAX_UPLOAD_SIZE:
+                    logger.warning(
+                        'Upload size exceeded',
+                        extra={
+                            'ip': self._get_client_ip(request),
+                            'size': content_length,
+                            'path': request.path,
+                        }
+                    )
                     return HttpResponseForbidden(
                         'Upload muito grande. Tamanho máximo: 10MB'
                     )
         
         return None
+    
+    def _get_client_ip(self, request):
+        """Get the client's IP address from request."""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+
+class SecurityLoggingMiddleware(MiddlewareMixin):
+    """
+    Log security-related events.
+    """
+    
+    def process_request(self, request):
+        # Log suspicious requests
+        if self._is_suspicious(request):
+            logger.warning(
+                'Suspicious request detected',
+                extra={
+                    'ip': self._get_client_ip(request),
+                    'path': request.path,
+                    'method': request.method,
+                    'user_agent': request.META.get('HTTP_USER_AGENT', ''),
+                }
+            )
+        return None
+    
+    def process_exception(self, request, exception):
+        # Log exceptions that might be security-related
+        if isinstance(exception, (PermissionError, ValueError)):
+            logger.error(
+                f'Security exception: {exception.__class__.__name__}',
+                extra={
+                    'ip': self._get_client_ip(request),
+                    'path': request.path,
+                    'user': str(request.user) if request.user.is_authenticated else 'anonymous',
+                    'exception': str(exception),
+                },
+                exc_info=True
+            )
+        return None
+    
+    def _is_suspicious(self, request):
+        """
+        Check if request has suspicious patterns.
+        """
+        suspicious_patterns = [
+            '/admin/../',
+            '/.env',
+            '/wp-admin',
+            '/phpMyAdmin',
+            '/.git/',
+            '/config.php',
+            '/shell.php',
+            '../',  # Path traversal
+        ]
+        
+        path = request.path.lower()
+        return any(pattern in path for pattern in suspicious_patterns)
+    
+    def _get_client_ip(self, request):
+        """Get the client's IP address from request."""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
+
+
+# Signal handlers for authentication events
+@receiver(user_logged_in)
+def log_user_login(sender, request, user, **kwargs):
+    """
+    Log successful login attempts.
+    """
+    logger.info(
+        'User logged in',
+        extra={
+            'user': user.username,
+            'ip': SecurityLoggingMiddleware()._get_client_ip(request),
+            'user_agent': request.META.get('HTTP_USER_AGENT', ''),
+        }
+    )
+
+
+@receiver(user_login_failed)
+def log_failed_login(sender, credentials, request, **kwargs):
+    """
+    Log failed login attempts.
+    """
+    logger.warning(
+        'Failed login attempt',
+        extra={
+            'username': credentials.get('username', 'unknown'),
+            'ip': SecurityLoggingMiddleware()._get_client_ip(request) if request else 'unknown',
+            'user_agent': request.META.get('HTTP_USER_AGENT', '') if request else '',
+        }
+    )

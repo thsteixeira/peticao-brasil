@@ -8,8 +8,10 @@ from django.contrib import messages
 from django.views.generic import CreateView, FormView
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView as DjangoLoginView, LogoutView as DjangoLogoutView
+from django.utils.decorators import method_decorator
 
 from .forms import UserRegistrationForm, UserLoginForm
+from apps.core.rate_limiting import rate_limit, RateLimiters
 
 
 class RegisterView(CreateView):
@@ -52,11 +54,15 @@ class RegisterView(CreateView):
 
 class LoginView(DjangoLoginView):
     """
-    User login view.
+    User login view with rate limiting.
     """
     form_class = UserLoginForm
     template_name = 'accounts/login.html'
     redirect_authenticated_user = True
+    
+    @method_decorator(rate_limit(max_requests=5, window=300))
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
     
     def get_success_url(self):
         # Redirect to 'next' parameter or home
