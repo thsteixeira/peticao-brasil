@@ -22,22 +22,16 @@ class StructuredLogger:
     
     def _log(self, level, message, **kwargs):
         """Internal method to log structured data"""
-        log_data = {
-            'message': message,
-            'timestamp': time.time(),
-        }
-        
         # Add correlation ID if available
         correlation_id = correlation_id_var.get()
         if correlation_id:
-            log_data['correlation_id'] = correlation_id
+            kwargs['correlation_id'] = correlation_id
         
-        # Add any additional context
-        if kwargs:
-            log_data['context'] = kwargs
+        # Add timestamp
+        kwargs['timestamp'] = time.time()
         
-        # Log as JSON string
-        self.logger.log(level, json.dumps(log_data))
+        # Log message with extra fields (pythonjsonlogger will flatten this)
+        self.logger.log(level, message, extra=kwargs)
     
     def debug(self, message, **kwargs):
         self._log(logging.DEBUG, message, **kwargs)
