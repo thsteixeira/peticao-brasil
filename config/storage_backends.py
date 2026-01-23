@@ -13,7 +13,7 @@ class MediaStorage(S3Boto3Storage):
     """
     location = 'media'
     file_overwrite = False
-    default_acl = 'public-read'  # Public access for petition PDFs
+    default_acl = None  # ACLs disabled - use bucket policy instead
     
     # Custom cache control for different file types
     def get_object_parameters(self, name):
@@ -46,7 +46,7 @@ class PrivateMediaStorage(S3Boto3Storage):
     """
     location = 'private'
     file_overwrite = False
-    default_acl = 'private'
+    default_acl = None  # ACLs disabled - use bucket policy instead
     querystring_auth = True  # Generate signed URLs
     querystring_expire = 3600  # URLs expire in 1 hour
     
