@@ -251,12 +251,19 @@ class PetitionPDFGenerator:
         logger = StructuredLogger(__name__)
         
         try:
-            # Get the default storage backend (lazy loading to respect settings)
-            default_storage = storages['default']
+            # Directly instantiate the storage backend based on settings
+            storage_class = getattr(settings, 'DEFAULT_FILE_STORAGE', 'django.core.files.storage.FileSystemStorage')
+            
+            if storage_class == 'config.storage_backends.MediaStorage':
+                from config.storage_backends import MediaStorage
+                storage = MediaStorage()
+            else:
+                from django.core.files.storage import FileSystemStorage
+                storage = FileSystemStorage()
             
             # Debug Django settings
             logger.info(f"DJANGO_SETTINGS_MODULE: {os.environ.get('DJANGO_SETTINGS_MODULE')}")
-            logger.info(f"DEFAULT_FILE_STORAGE setting: {getattr(settings, 'DEFAULT_FILE_STORAGE', 'NOT SET')}")
+            logger.info(f"DEFAULT_FILE_STORAGE setting: {storage_class}")
             logger.info(f"AWS_STORAGE_BUCKET_NAME: {getattr(settings, 'AWS_STORAGE_BUCKET_NAME', 'NOT SET')}")
             logger.info(f"AWS_S3_REGION_NAME: {getattr(settings, 'AWS_S3_REGION_NAME', 'NOT SET')}")
             
@@ -272,17 +279,17 @@ class PetitionPDFGenerator:
             filename = f"petition_{petition.uuid}.pdf"
             filepath = os.path.join(settings.PETITION_PDF_STORAGE_PATH, filename)
             logger.info(f"Attempting to save to: {filepath}")
-            logger.info(f"Storage backend class: {default_storage.__class__.__name__}")
-            logger.info(f"Storage backend module: {default_storage.__class__.__module__}")
-            logger.info(f"Storage backend full path: {default_storage.__class__.__module__}.{default_storage.__class__.__name__}")
+            logger.info(f"Storage backend class: {storage.__class__.__name__}")
+            logger.info(f"Storage backend module: {storage.__class__.__module__}")
+            logger.info(f"Storage backend full path: {storage.__class__.__module__}.{storage.__class__.__name__}")
             
-            # Save using Django storage
-            saved_path = default_storage.save(filepath, ContentFile(pdf_bytes))
+            # Save using the correct storage
+            saved_path = storage.save(filepath, ContentFile(pdf_bytes))
             logger.info(f"File saved to path: {saved_path}")
             
             # Get URL (works for both local and S3 storage)
-            if hasattr(default_storage, 'url'):
-                pdf_url = default_storage.url(saved_path)
+            if hasattr(storage, 'url'):
+                pdf_url = storage.url(saved_path)
             else:
                 pdf_url = f"{settings.MEDIA_URL}{saved_path}"
             
