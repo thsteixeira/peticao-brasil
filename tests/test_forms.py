@@ -68,7 +68,7 @@ class TestPetitionForm:
         
         data = {
             'title': 'Test Petition',
-            'description': 'Valid description',
+            'description': 'Valid description with enough characters to pass the minimum requirement of 50 characters.',
             'category': category.id,
             'signature_goal': 50,  # Less than minimum (100)
         }
@@ -98,11 +98,13 @@ class TestCPFValidator:
     
     def test_invalid_cpf_format(self):
         """Test invalid CPF format"""
-        with pytest.raises(Exception):
+        from django.core.exceptions import ValidationError
+        with pytest.raises(ValidationError):
             validate_cpf('123')  # Too short
     
     def test_cpf_all_same_digits(self):
         """Test CPF with all same digits is invalid"""
+        from django.core.exceptions import ValidationError
         invalid_cpfs = [
             '11111111111',
             '22222222222',
@@ -110,7 +112,7 @@ class TestCPFValidator:
         ]
         
         for cpf in invalid_cpfs:
-            with pytest.raises(Exception):
+            with pytest.raises(ValidationError):
                 validate_cpf(cpf)
     
     def test_cpf_with_formatting(self):
@@ -127,7 +129,7 @@ class TestCPFValidator:
 class TestSignatureForm:
     """Test signature submission form"""
     
-    def test_valid_signature_form(self, petition):
+    def test_valid_signature_form(self, petition, mock_pdf_file):
         """Test form with valid signature data"""
         data = {
             'full_name': 'João Silva',
@@ -137,9 +139,13 @@ class TestSignatureForm:
             'state': 'SP',
             'display_name_publicly': True,
             'receive_updates': False,
+            'consent_document_sharing': True,
+        }
+        files = {
+            'signed_pdf': mock_pdf_file
         }
         
-        form = SignatureSubmissionForm(data=data, petition=petition)
+        form = SignatureSubmissionForm(data=data, files=files, petition=petition)
         assert form.is_valid()
     
     def test_duplicate_cpf_same_petition(self, petition, signature):

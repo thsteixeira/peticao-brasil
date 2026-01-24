@@ -7,6 +7,7 @@ from django.test.utils import override_settings
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from apps.petitions.models import Petition
+from apps.signatures.models import Signature
 from tests.factories import PetitionFactory, SignatureFactory, CategoryFactory
 
 
@@ -21,7 +22,7 @@ class TestQueryOptimization:
         PetitionFactory.create_batch(20, status='active')
         
         from django.urls import reverse
-        url = reverse('petitions:petition_list')
+        url = reverse('petitions:list')
         
         with CaptureQueriesContext(connection) as context:
             response = api_client.get(url)
@@ -37,7 +38,7 @@ class TestQueryOptimization:
         SignatureFactory.create_batch(100, petition=petition)
         
         from django.urls import reverse
-        url = reverse('petitions:petition_detail', args=[petition.slug])
+        url = reverse('petitions:detail', args=[petition.uuid, petition.slug])
         
         with CaptureQueriesContext(connection) as context:
             response = api_client.get(url)
@@ -78,7 +79,7 @@ class TestResponseTimes:
             )
         
         from django.urls import reverse
-        url = reverse('petitions:petition_list')
+        url = reverse('petitions:list')
         
         start = time.time()
         response = api_client.get(url, {'q': 'Test'})
@@ -132,7 +133,7 @@ class TestScalability:
         PetitionFactory.create_batch(1000, status='active')
         
         from django.urls import reverse
-        url = reverse('petitions:petition_list')
+        url = reverse('petitions:list')
         
         # Should still respond quickly with pagination
         start = time.time()
@@ -144,12 +145,22 @@ class TestScalability:
     
     def test_many_signatures_on_petition(self, petition):
         """Test petition with thousands of signatures"""
-        # Create many signatures
-        SignatureFactory.create_batch(1000, petition=petition)
+        # Create many approved signatures (only approved signatures count)
+        SignatureFactory.create_batch(
+            1000,
+            petition=petition,
+            verification_status=Signature.STATUS_APPROVED
+        )
+        
+        # Manually update count since we're bypassing the verification task
+        petition.signature_count = petition.signatures.filter(
+            verification_status=Signature.STATUS_APPROVED
+        ).count()
+        petition.save()
         
         # Refresh and check performance
         petition.refresh_from_db()
         
         # Should calculate metrics efficiently
         assert petition.signature_count == 1000
-        assert petition.progress_percentage() <= 100
+        assert petition.progress_percentage <= 100

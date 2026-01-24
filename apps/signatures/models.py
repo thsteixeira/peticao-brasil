@@ -134,6 +134,12 @@ class Signature(models.Model):
         help_text="Detalhes do processo de verificação"
     )
     
+    rejection_reason = models.TextField(
+        blank=True,
+        verbose_name="Motivo da rejeição",
+        help_text="Motivo pelo qual a assinatura foi rejeitada"
+    )
+    
     verified_cpf_from_certificate = models.BooleanField(
         default=False,
         verbose_name="CPF verificado do certificado",

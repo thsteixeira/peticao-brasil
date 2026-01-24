@@ -3,6 +3,7 @@ Views for signature submission and management.
 """
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import CreateView, ListView
 from django.urls import reverse
 from django.utils import timezone
@@ -139,9 +140,10 @@ class SignatureSubmitView(CreateView):
         return reverse('petitions:detail', kwargs={'uuid': self.petition.uuid})
 
 
-class MySignaturesView(ListView):
+class MySignaturesView(LoginRequiredMixin, ListView):
     """
     View to list signatures submitted by the current user.
+    Requires authentication.
     """
     model = Signature
     template_name = 'signatures/my_signatures.html'
@@ -149,14 +151,13 @@ class MySignaturesView(ListView):
     paginate_by = 20
     
     def get_queryset(self):
-        """Get signatures filtered by user's email if provided."""
+        """Get signatures filtered by user's email."""
         queryset = Signature.objects.select_related('petition', 'petition__category')
         
-        # Filter by email if user is logged in
-        if self.request.user.is_authenticated:
-            user_email = self.request.user.email
-            if user_email:
-                queryset = queryset.filter(email=user_email)
+        # Filter by user's email
+        user_email = self.request.user.email
+        if user_email:
+            queryset = queryset.filter(email=user_email)
         
         return queryset.order_by('-created_at')
 
@@ -178,7 +179,7 @@ class PetitionSignaturesView(ListView):
         if not (request.user.is_authenticated and 
                 (request.user == self.petition.creator or request.user.is_staff)):
             messages.error(request, 'Você não tem permissão para visualizar estas assinaturas.')
-            return redirect('petitions:detail', uuid=self.petition.uuid)
+            return redirect('petitions:detail', uuid=self.petition.uuid, slug=self.petition.slug)
         
         return super().dispatch(request, *args, **kwargs)
     

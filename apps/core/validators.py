@@ -10,6 +10,50 @@ from django.utils.deconstruct import deconstructible
 from django.conf import settings
 
 
+def validate_cpf(cpf):
+    """
+    Validate Brazilian CPF (Cadastro de Pessoas Físicas) number.
+    
+    Args:
+        cpf (str): CPF number with or without formatting
+        
+    Raises:
+        ValidationError: If CPF is invalid
+        
+    Returns:
+        str: Clean CPF (digits only)
+    """
+    # Remove formatting
+    cpf_clean = re.sub(r'[^0-9]', '', str(cpf))
+    
+    # Check length
+    if len(cpf_clean) != 11:
+        raise ValidationError('CPF deve conter 11 dígitos.')
+    
+    # Check for known invalid CPFs (all same digits)
+    if cpf_clean == cpf_clean[0] * 11:
+        raise ValidationError('CPF inválido.')
+    
+    # Validate check digits
+    # First digit
+    sum_digits = sum(int(cpf_clean[i]) * (10 - i) for i in range(9))
+    remainder = sum_digits % 11
+    first_digit = 0 if remainder < 2 else 11 - remainder
+    
+    if int(cpf_clean[9]) != first_digit:
+        raise ValidationError('CPF inválido.')
+    
+    # Second digit
+    sum_digits = sum(int(cpf_clean[i]) * (11 - i) for i in range(10))
+    remainder = sum_digits % 11
+    second_digit = 0 if remainder < 2 else 11 - remainder
+    
+    if int(cpf_clean[10]) != second_digit:
+        raise ValidationError('CPF inválido.')
+    
+    return cpf_clean
+
+
 # PDF magic numbers
 PDF_MAGIC_NUMBERS = [
     b'%PDF-1.',  # PDF 1.x

@@ -97,8 +97,8 @@ class PetitionForm(forms.ModelForm):
     
     def clean_signature_goal(self):
         goal = self.cleaned_data.get('signature_goal')
-        if goal < 10:
-            raise ValidationError('A meta deve ser de pelo menos 10 assinaturas.')
+        if goal < 100:
+            raise ValidationError('A meta deve ser de pelo menos 100 assinaturas.')
         if goal > 1000000:
             raise ValidationError('A meta não pode exceder 1.000.000 de assinaturas.')
         return goal

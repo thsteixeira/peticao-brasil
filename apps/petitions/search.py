@@ -2,6 +2,8 @@
 Advanced search and filter forms for petitions.
 """
 from django import forms
+from django.db.models import Q
+import re
 from apps.core.models import Category
 
 

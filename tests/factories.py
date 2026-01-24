@@ -25,9 +25,10 @@ class UserFactory(DjangoModelFactory):
 class CategoryFactory(DjangoModelFactory):
     class Meta:
         model = Category
+        django_get_or_create = ('slug',)
     
-    name = factory.Iterator(['Saúde', 'Educação', 'Transporte', 'Segurança'])
-    slug = factory.LazyAttribute(lambda obj: obj.name.lower())
+    name = factory.Sequence(lambda n: f'Categoria {n}')
+    slug = factory.Sequence(lambda n: f'categoria-{n}')
     description = factory.Faker('sentence', locale='pt_BR')
     icon = factory.Iterator(['🏥', '📚', '🚌', '🚨'])
     color = factory.Iterator(['#28a745', '#007bff', '#ffc107', '#dc3545'])

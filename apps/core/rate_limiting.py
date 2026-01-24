@@ -76,6 +76,11 @@ def rate_limit(max_requests=60, window=60):
     def decorator(func):
         @wraps(func)
         def wrapper(request, *args, **kwargs):
+            # Check if rate limiting is enabled
+            from django.conf import settings
+            if not getattr(settings, 'RATELIMIT_ENABLE', True):
+                return func(request, *args, **kwargs)
+            
             limiter = RateLimiter(max_requests, window)
             
             # Use IP address as key

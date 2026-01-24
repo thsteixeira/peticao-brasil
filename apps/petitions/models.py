@@ -281,6 +281,11 @@ class Petition(models.Model):
     
     def update_search_vector(self):
         """Update the search vector for full-text search"""
+        # Skip search vector update for SQLite (testing)
+        from django.conf import settings
+        if 'sqlite' in settings.DATABASES['default']['ENGINE']:
+            return
+            
         # Get category name to avoid join in update query
         category_name = self.category.name if self.category else ''
         
