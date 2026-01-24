@@ -4,7 +4,8 @@ Management command to test signature verification with detailed debug output.
 from django.core.management.base import BaseCommand
 from apps.signatures.models import Signature
 from apps.signatures.verification_service import PDFSignatureVerifier
-import PyPDF2
+from pypdf import PdfReader
+from io import BytesIO
 import os
 
 
@@ -59,7 +60,7 @@ class Command(BaseCommand):
         self.stdout.write(f'\n=== Analyzing PDF Structure ===')
         try:
             signature.signed_pdf.open('rb')
-            pdf_reader = PyPDF2.PdfReader(signature.signed_pdf)
+            pdf_reader = PdfReader(signature.signed_pdf)
             
             self.stdout.write(f'PDF Version: {pdf_reader.pdf_header if hasattr(pdf_reader, "pdf_header") else "Unknown"}')
             self.stdout.write(f'Number of pages: {len(pdf_reader.pages)}')
@@ -172,7 +173,7 @@ class Command(BaseCommand):
                 pdf_data = signature.signed_pdf.read()
                 signature.signed_pdf.close()
                 
-                pdf_reader = PyPDF2.PdfReader(BytesIO(pdf_data))
+                pdf_reader = PdfReader(BytesIO(pdf_data))
                 
                 if '/AcroForm' in pdf_reader.trailer['/Root']:
                     acro_form = pdf_reader.trailer['/Root']['/AcroForm']

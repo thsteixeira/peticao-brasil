@@ -211,7 +211,7 @@
             </div>
 
             <!-- Turnstile CAPTCHA -->
-            {% if TURNSTILE_SITE_KEY %}
+            {% if TURNSTILE_ENABLED and TURNSTILE_SITE_KEY %}
             <div class="flex justify-center">
                 <div class="cf-turnstile" data-sitekey="{{ TURNSTILE_SITE_KEY }}" data-callback="onTurnstileSuccess"></div>
             </div>
@@ -235,7 +235,7 @@
     </div>
 </div>
 
-{% if TURNSTILE_SITE_KEY %}
+{% if TURNSTILE_ENABLED and TURNSTILE_SITE_KEY %}
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script>
 function onTurnstileSuccess(token) {

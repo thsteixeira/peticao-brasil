@@ -116,7 +116,7 @@ class SignatureSubmissionForm(forms.ModelForm):
     
     turnstile_token = forms.CharField(
         widget=forms.HiddenInput(),
-        required=False  # Not required for when TURNSTILE_ENABLED=False
+        required=False  # Will be set dynamically in __init__
     )    
     class Meta:
         model = Signature
@@ -126,6 +126,11 @@ class SignatureSubmissionForm(forms.ModelForm):
         self.petition = kwargs.pop('petition', None)
         self.request = kwargs.pop('request', None)  # To get IP address
         super().__init__(*args, **kwargs)
+        
+        # Make Turnstile token required if enabled
+        from django.conf import settings
+        if settings.TURNSTILE_ENABLED:
+            self.fields['turnstile_token'].required = True
     
     def clean_cpf(self):
         """Validate and clean CPF."""
