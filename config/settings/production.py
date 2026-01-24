@@ -89,49 +89,34 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# AWS S3 Settings (if using S3 for media files)
-USE_S3 = config('USE_S3', default=False, cast=bool)
+# AWS S3 Settings - Always use S3 in production
+# AWS Credentials
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='us-west-2')
 
-# Debug logging
-import logging
-logger = logging.getLogger(__name__)
-logger.info(f"USE_S3 environment variable: {config('USE_S3', default='NOT_SET')}")
-logger.info(f"USE_S3 parsed value: {USE_S3}")
-logger.info(f"USE_S3 type: {type(USE_S3)}")
+# S3 URL Configuration
+AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+AWS_S3_OBJECT_PARAMETERS = {
+    'CacheControl': 'max-age=86400',  # 24 hours cache for public files
+}
 
-if USE_S3:
-    # AWS Credentials
-    AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-    AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-    AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='us-west-2')
-    
-    # S3 URL Configuration
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
-    AWS_S3_OBJECT_PARAMETERS = {
-        'CacheControl': 'max-age=86400',  # 24 hours cache for public files
-    }
-    
-    # Security Settings
-    AWS_DEFAULT_ACL = None  # ACLs disabled - use bucket policy
-    AWS_S3_FILE_OVERWRITE = False  # Don't overwrite files with same name
-    AWS_S3_VERIFY = True  # Verify SSL certificates
-    
-    # Signature Configuration (v4 required for newer regions)
-    AWS_S3_SIGNATURE_VERSION = 's3v4'
-    AWS_S3_ADDRESSING_STYLE = 'virtual'
-    
-    # Media files storage
-    DEFAULT_FILE_STORAGE = 'config.storage_backends.MediaStorage'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-    
-    # Static files (use WhiteNoise for static, S3 for media only)
-    # STATICFILES_STORAGE remains WhiteNoise for better performance
-    
-else:
-    # Local file storage (development)
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
+# Security Settings
+AWS_DEFAULT_ACL = None  # ACLs disabled - use bucket policy
+AWS_S3_FILE_OVERWRITE = False  # Don't overwrite files with same name
+AWS_S3_VERIFY = True  # Verify SSL certificates
+
+# Signature Configuration (v4 required for newer regions)
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_ADDRESSING_STYLE = 'virtual'
+
+# Media files storage - FORCE S3 in production
+DEFAULT_FILE_STORAGE = 'config.storage_backends.MediaStorage'
+MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+
+# Static files (use WhiteNoise for static, S3 for media only)
+# STATICFILES_STORAGE remains WhiteNoise for better performance
 
 # Email Configuration
 # Default to console backend if not configured
