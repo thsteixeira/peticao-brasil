@@ -106,7 +106,7 @@ if USE_S3:
     }
     
     # Security Settings
-    AWS_DEFAULT_ACL = 'public-read'  # Set files as publicly readable
+    AWS_DEFAULT_ACL = None  # ACLs disabled - use bucket policy
     AWS_S3_FILE_OVERWRITE = False  # Don't overwrite files with same name
     AWS_S3_VERIFY = True  # Verify SSL certificates
     

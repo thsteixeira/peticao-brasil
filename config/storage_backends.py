@@ -13,8 +13,8 @@ class MediaStorage(S3Boto3Storage):
     """
     location = 'media'
     file_overwrite = False
-    default_acl = 'public-read'  # Explicitly set public read ACL
-    querystring_auth = False  # Files are public, no signed URLs needed
+    default_acl = None  # ACLs disabled - use bucket policy
+    querystring_auth = False  # Files are public via bucket policy
     
     # Custom cache control for different file types
     def get_object_parameters(self, name):
