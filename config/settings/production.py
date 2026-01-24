@@ -92,6 +92,13 @@ AUTH_PASSWORD_VALIDATORS = [
 # AWS S3 Settings (if using S3 for media files)
 USE_S3 = config('USE_S3', default=False, cast=bool)
 
+# Debug logging
+import logging
+logger = logging.getLogger(__name__)
+logger.info(f"USE_S3 environment variable: {config('USE_S3', default='NOT_SET')}")
+logger.info(f"USE_S3 parsed value: {USE_S3}")
+logger.info(f"USE_S3 type: {type(USE_S3)}")
+
 if USE_S3:
     # AWS Credentials
     AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
