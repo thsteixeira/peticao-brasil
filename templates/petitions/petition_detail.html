@@ -78,7 +78,7 @@
                     ⏳ Gerando PDF...
                 </button>
             {% endif %}
-            <button class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors">
+            <button id="share-button" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors">
                 📤 Compartilhar
             </button>
         </div>
@@ -183,4 +183,15 @@
         </div>
     {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% load static %}
+<script>
+    // Share configuration
+    const PETITION_UUID = "{{ petition.uuid }}";
+    const PETITION_TITLE = "{{ petition.title|escapejs }}";
+    const PETITION_URL = "{{ petition.get_canonical_url }}";
+</script>
+<script src="{% static 'js/share.js' %}"></script>
 {% endblock %}

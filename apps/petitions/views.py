@@ -305,3 +305,32 @@ def terms_view(request):
 def privacy_policy_view(request):
     """Privacy Policy page"""
     return render(request, 'static_pages/privacy.html')
+
+
+def petition_share(request, uuid):
+    """
+    API endpoint to track petition shares and return share data.
+    Returns JSON with share URLs and increments share count.
+    """
+    petition = get_object_or_404(Petition, uuid=uuid)
+    
+    # Increment share count
+    petition.increment_share_count()
+    
+    # Build share URLs
+    petition_url = request.build_absolute_uri(petition.get_absolute_url())
+    share_text = f"{petition.title} - Petição Brasil"
+    
+    share_urls = {
+        'whatsapp': f"https://wa.me/?text={share_text}%0A{petition_url}",
+        'twitter': f"https://twitter.com/intent/tweet?text={share_text}&url={petition_url}",
+        'facebook': f"https://www.facebook.com/sharer/sharer.php?u={petition_url}",
+        'email': f"mailto:?subject={share_text}&body=Confira esta petição: {petition_url}",
+        'url': petition_url
+    }
+    
+    return JsonResponse({
+        'success': True,
+        'share_count': petition.share_count,
+        'share_urls': share_urls
+    })

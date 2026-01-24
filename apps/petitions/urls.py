@@ -17,4 +17,5 @@ urlpatterns = [
     path('petitions/create/', views.PetitionCreateView.as_view(), name='create'),
     path('petitions/<uuid:uuid>/<slug:slug>/', views.PetitionDetailView.as_view(), name='detail'),
     path('petitions/<uuid:uuid>/edit/', views.PetitionUpdateView.as_view(), name='edit'),
+    path('petitions/<uuid:uuid>/share/', views.petition_share, name='share'),
 ]
