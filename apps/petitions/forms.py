@@ -15,6 +15,17 @@ class PetitionForm(forms.ModelForm):
     Form for creating and editing petitions.
     """
     
+    accept_terms = forms.BooleanField(
+        label='Aceito os Termos de Uso e Política de Privacidade',
+        required=True,
+        error_messages={
+            'required': 'Você deve aceitar os Termos de Uso e Política de Privacidade para criar uma petição.'
+        },
+        widget=forms.CheckboxInput(attrs={
+            'class': 'h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded'
+        })
+    )
+    
     class Meta:
         model = Petition
         fields = ['title', 'category', 'description', 'signature_goal', 'deadline']

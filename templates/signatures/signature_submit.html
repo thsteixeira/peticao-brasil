@@ -45,12 +45,6 @@
                 Não modifique o conteúdo do PDF após o download, pois isso invalidará a verificação.
             </p>
         </div>
-        <div class="mt-4 p-4 bg-yellow-100 rounded border border-yellow-400">
-            <p class="text-sm text-gray-800">
-                <strong>📄 Compartilhamento de Documento:</strong> Seu documento assinado será compartilhado com o(a) criador(a) da petição, 
-                que terá controle total sobre ele e poderá publicizá-lo. Veja detalhes completos no formulário abaixo.
-            </p>
-        </div>
         <div class="mt-4">
             <p class="text-sm text-gray-700">
                 <strong>💡 Primeira vez assinando?</strong> Veja nosso 
@@ -156,58 +150,29 @@
                 {% endif %}
             </div>
 
-            <!-- Document Sharing Warning -->
-            <div class="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-5 mb-4">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <svg class="h-6 w-6 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                    </div>
-                    <div class="ml-3">
-                        <h3 class="text-sm font-bold text-yellow-800 mb-2">⚠️ AVISO IMPORTANTE SOBRE COMPARTILHAMENTO DE DOCUMENTO</h3>
-                        <p class="text-sm text-yellow-800 mb-2">
-                            Ao enviar sua assinatura, você está <strong>consentindo expressamente</strong> que:
-                        </p>
-                        <ul class="list-disc list-inside text-sm text-yellow-800 space-y-1 ml-2">
-                            <li>Seu documento PDF assinado será <strong>compartilhado com o(a) criador(a) desta petição</strong></li>
-                            <li>O(a) criador(a) da petição terá <strong>controle total sobre os documentos</strong> assinados</li>
-                            <li>O(a) criador(a) poderá <strong>publicizar, divulgar e utilizar</strong> seu documento assinado para fins relacionados à petição</li>
-                            <li>Esta ação é <strong>irreversível</strong> após o envio da assinatura</li>
-                        </ul>
-                        <p class="text-sm text-yellow-800 mt-3">
-                            <strong>Importante:</strong> Certifique-se de que confia no(a) criador(a) desta petição antes de enviar sua assinatura.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Consent Checkbox -->
-            <div class="bg-red-50 border-2 border-red-300 rounded-lg p-4">
+            <!-- Terms and Privacy Policy Acceptance -->
+            <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
                 <div class="flex items-start">
                     <div class="flex items-center h-5">
-                        {{ form.consent_document_sharing }}
+                        {{ form.accept_terms }}
                     </div>
                     <div class="ml-3">
-                        <label for="{{ form.consent_document_sharing.id_for_label }}" class="text-sm font-semibold text-red-900">
-                            Li e aceito que meu documento assinado será compartilhado com o(a) criador(a) da petição, que terá controle total e poderá publicizá-lo.
+                        <label for="{{ form.accept_terms.id_for_label }}" class="text-sm font-semibold text-blue-900">
+                            Li e aceito os 
+                            <a href="{% url 'petitions:terms' %}" target="_blank" class="text-blue-600 hover:text-blue-800 underline">Termos de Uso</a> 
+                            e a 
+                            <a href="{% url 'petitions:privacy_policy' %}" target="_blank" class="text-blue-600 hover:text-blue-800 underline">Política de Privacidade</a>
                             <span class="text-red-600">*</span>
                         </label>
-                        {% if form.consent_document_sharing.errors %}
-                            <p class="mt-1 text-sm text-red-600">{{ form.consent_document_sharing.errors.0 }}</p>
+                        {% if form.accept_terms.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.accept_terms.errors.0 }}</p>
                         {% endif %}
+                        <p class="mt-2 text-xs text-gray-600">
+                            ⚠️ Ao assinar, você reconhece que esta é uma plataforma sem fins lucrativos que não se responsabiliza 
+                            por perdas financeiras ou divulgação de dados nas situações descritas nos Termos de Uso.
+                        </p>
                     </div>
                 </div>
-            </div>
-
-            <!-- Privacy Notice -->
-            <div class="bg-gray-50 border border-gray-200 rounded p-4">
-                <p class="text-xs text-gray-600">
-                    <strong>🔒 Privacidade e Segurança:</strong> Seus dados pessoais (CPF e IP) são armazenados 
-                    de forma criptografada (hash SHA-256) em conformidade com a LGPD. O PDF assinado será 
-                    verificado automaticamente e armazenado de forma segura. Seus dados não serão 
-                    compartilhados com terceiros.
-                </p>
             </div>
 
             <!-- Turnstile CAPTCHA -->

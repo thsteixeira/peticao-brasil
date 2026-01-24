@@ -103,14 +103,14 @@ class SignatureSubmissionForm(forms.ModelForm):
         })
     )
     
-    consent_document_sharing = forms.BooleanField(
-        label='Aceito compartilhar meu documento',
+    accept_terms = forms.BooleanField(
+        label='Aceito os Termos de Uso e Política de Privacidade',
         required=True,
         error_messages={
-            'required': 'Você deve consentir com o compartilhamento do documento para enviar a assinatura.'
+            'required': 'Você deve aceitar os Termos de Uso e Política de Privacidade para assinar a petição.'
         },
         widget=forms.CheckboxInput(attrs={
-            'class': 'h-5 w-5 text-red-600 focus:ring-red-500 border-gray-300 rounded'
+            'class': 'h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded'
         })
     )
     

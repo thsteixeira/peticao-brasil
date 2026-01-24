@@ -93,6 +93,33 @@
                 </div>
             </div>
             
+            <!-- Terms and Privacy Policy Acceptance -->
+            <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 md:p-5">
+                <div class="flex items-start">
+                    <div class="flex items-center h-5">
+                        {{ form.accept_terms }}
+                    </div>
+                    <div class="ml-3">
+                        <label for="{{ form.accept_terms.id_for_label }}" class="text-sm font-semibold text-blue-900">
+                            Li e aceito os 
+                            <a href="{% url 'petitions:terms' %}" target="_blank" class="text-blue-600 hover:text-blue-800 underline">Termos de Uso</a> 
+                            e a 
+                            <a href="{% url 'petitions:privacy_policy' %}" target="_blank" class="text-blue-600 hover:text-blue-800 underline">Política de Privacidade</a>
+                            <span class="text-red-600">*</span>
+                        </label>
+                        {% if form.accept_terms.errors %}
+                            <p class="mt-1 text-sm text-red-600">{{ form.accept_terms.errors.0 }}</p>
+                        {% endif %}
+                        <p class="mt-2 text-xs text-gray-600">
+                            ⚠️ <strong>Importante:</strong> Ao criar uma petição, você declara ser maior de 18 anos, 
+                            que as informações fornecidas são verdadeiras, e assume total responsabilidade pelo conteúdo publicado. 
+                            Esta é uma plataforma sem fins lucrativos que não se responsabiliza por perdas financeiras 
+                            ou divulgação de dados nas situações descritas nos Termos de Uso.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
             <div class="flex justify-between items-center pt-6 border-t">
                 <a href="{% url 'petitions:home' %}" class="text-gray-600 hover:text-gray-800">
                     Cancelar

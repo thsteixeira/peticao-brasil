@@ -1,140 +1,256 @@
 # Petição Brasil
 
-A platform that empowers Brazilian citizens to create, sign, and manage public petitions for specific political causes using official Gov.br digital signatures.
+**Plataforma de Democracia Participativa com Assinatura Digital Gov.br**
 
-**Domain:** peticaobrasil.com.br
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/django-4.2+-green.svg)](https://www.djangoproject.com/)
 
-## Features
+---
 
-- **Petition Creation**: Authenticated users can create petitions with rich text formatting
-- **Digital Signatures**: Integration with Brazil's official Gov.br electronic signature system
-- **Signature Verification**: Automated validation of signed PDFs
-- **Security**: LGPD-compliant data protection, file sanitization, and fraud prevention
-- **Transparency**: Public petition counts and signature tracking
+## 📋 Sobre o Projeto
 
-## Technology Stack
+O **Petição Brasil** é uma plataforma digital sem fins lucrativos que facilita o exercício da cidadania através de petições públicas com validade legal. Nossa missão é democratizar o acesso à participação política, permitindo que qualquer cidadão brasileiro possa criar, assinar e acompanhar petições de forma segura, transparente e legalmente válida.
 
-- **Backend**: Django 5.0, Python 3.11+
-- **Database**: PostgreSQL
-- **Task Queue**: Celery + Redis
-- **PDF Generation**: ReportLab
-- **File Storage**: AWS S3 (production) / Local (development)
-- **Frontend**: TailwindCSS, Alpine.js
-- **Deployment**: Heroku
+### Principais Funcionalidades
 
-## Setup Instructions
+- ✅ Criação de petições públicas com validação
+- ✅ Assinatura digital através do Gov.br (ICP-Brasil)
+- ✅ Verificação automática de assinaturas digitais
+- ✅ PDFs com hash criptográfico (SHA-256)
+- ✅ Conformidade com LGPD (Lei Geral de Proteção de Dados)
+- ✅ Interface responsiva e acessível
+- ✅ Sistema de moderação de conteúdo
+- ✅ Transparência total das assinaturas
 
-### Prerequisites
+---
 
-- Python 3.11+
-- PostgreSQL (optional for development, can use SQLite)
-- Redis (for Celery)
-- Git
+## ⚠️ AVISOS IMPORTANTES - LEIA COM ATENÇÃO
 
-### Installation
+### 1. Serviço Sem Fins Lucrativos
 
-1. **Clone the repository**
+O **Petição Brasil** é uma plataforma **SEM FINS LUCRATIVOS** e **GRATUITA** dedicada à promoção da democracia participativa.
+
+**NÃO NOS RESPONSABILIZAMOS POR:**
+- ❌ Quaisquer perdas financeiras, diretas ou indiretas, decorrentes do uso da plataforma
+- ❌ Custos com certificados digitais, internet, dispositivos ou equipamentos
+- ❌ Despesas com assessoria jurídica, contábil ou administrativa
+- ❌ Resultados ou efetividade de petições criadas
+- ❌ Danos materiais, lucros cessantes ou custos de oportunidade
+
+**A PLATAFORMA É FORNECIDA "NO ESTADO EM QUE SE ENCONTRA" (AS IS), SEM GARANTIAS DE QUALQUER TIPO.**
+
+### 2. Limitação de Responsabilidade sobre Dados
+
+Embora implementemos as melhores práticas de segurança da informação, **NÃO NOS RESPONSABILIZAMOS POR DIVULGAÇÃO DE DADOS** resultante de:
+
+- 🔓 Dados intrinsecamente públicos (petições e assinaturas públicas)
+- 🔓 Compartilhamento voluntário pelo usuário (redes sociais, etc.)
+- 🔓 Violações em sistemas de terceiros (Gov.br, provedores de email, etc.)
+- 🔓 Ataques cibernéticos sofisticados (hackers, ransomware, zero-day exploits)
+- 🔓 Engenharia social (phishing, pretexting)
+- 🔓 Dispositivos comprometidos (malware no dispositivo do usuário)
+- 🔓 Ordens judiciais ou requisições de autoridades
+- 🔓 Caso fortuito ou força maior (desastres naturais, guerras, etc.)
+
+**NENHUM SISTEMA É 100% SEGURO. VOCÊ RECONHECE E ACEITA OS RISCOS INERENTES AO ARMAZENAMENTO E TRANSMISSÃO DE DADOS PELA INTERNET.**
+
+### 3. Medidas de Segurança Implementadas
+
+Apesar das limitações acima, implementamos:
+
+- 🔒 Criptografia TLS/SSL em todas as transmissões
+- 🔒 Armazenamento criptografado de dados sensíveis (CPF, senhas)
+- 🔒 Sanitização automática de conteúdo (prevenção XSS)
+- 🔒 Validação contra certificados ICP-Brasil
+- 🔒 Backups criptografados e redundantes
+- 🔒 Monitoramento de segurança contínuo
+- 🔒 Controle de acesso baseado em menor privilégio
+- 🔒 Conformidade com LGPD
+
+### 4. Documentação Legal
+
+Para informações completas sobre termos de uso e privacidade, consulte:
+
+- 📄 [Termos de Uso](templates/static_pages/terms.html) - Seções 9 e 10
+- 📄 [Política de Privacidade](templates/static_pages/privacy.html) - Seção 11
+- 📄 [Sobre a Plataforma](templates/static_pages/about.html) - Aviso de responsabilidade
+
+---
+
+## 🚀 Tecnologias Utilizadas
+
+- **Backend:** Django 4.2+, Python 3.9+
+- **Frontend:** TailwindCSS, Alpine.js
+- **Banco de Dados:** PostgreSQL
+- **Assinatura Digital:** Gov.br / ICP-Brasil
+- **Armazenamento:** AWS S3
+- **Task Queue:** Celery + Redis
+- **Verificação PDF:** PyPDF2, cryptography
+- **Deploy:** Heroku / Railway
+
+---
+
+## 📦 Instalação e Desenvolvimento
+
+### Pré-requisitos
+
+- Python 3.9+
+- PostgreSQL 12+
+- Redis (para Celery)
+- Conta AWS (para S3)
+
+### Configuração Local
+
 ```bash
-git clone <repository-url>
-cd "PETICAO-BRASIL"
-```
+# Clone o repositório
+git clone https://github.com/seu-usuario/peticao-brasil.git
+cd peticao-brasil
 
-2. **Create virtual environment**
-```bash
+# Crie um ambiente virtual
 python -m venv venv
-venv\Scripts\activate  # On Windows
-# source venv/bin/activate  # On Linux/Mac
-```
+source venv/bin/activate  # No Windows: venv\Scripts\activate
 
-3. **Install dependencies**
-```bash
+# Instale as dependências
 pip install -r requirements.txt
-```
 
-4. **Environment configuration**
-```bash
-copy .env.example .env
-# Edit .env with your configuration
-```
+# Configure as variáveis de ambiente
+cp .env.example .env
+# Edite o arquivo .env com suas configurações
 
-5. **Run migrations**
-```bash
+# Execute as migrações
 python manage.py migrate
-```
 
-6. **Create superuser**
-```bash
+# Crie um superusuário
 python manage.py createsuperuser
-```
 
-7. **Run development server**
-```bash
+# Colete arquivos estáticos
+python manage.py collectstatic
+
+# Inicie o servidor de desenvolvimento
 python manage.py runserver
 ```
 
-8. **Run Celery worker** (in another terminal)
-```bash
-celery -A config worker -l info
-```
-
-9. **Run Celery beat** (in another terminal, for scheduled tasks)
-```bash
-celery -A config beat -l info
-```
-
-## Project Structure
-
-```
-PETICAO-BRASIL/
-├── apps/
-│   ├── accounts/       # User authentication and management
-│   ├── petitions/      # Petition creation and listing
-│   ├── signatures/     # Signature submission and verification
-│   └── core/           # Shared utilities and base classes
-├── config/
-│   ├── settings/       # Django settings (base, development, production)
-│   ├── urls.py         # Main URL configuration
-│   ├── wsgi.py         # WSGI configuration
-│   ├── asgi.py         # ASGI configuration
-│   └── celery.py       # Celery configuration
-├── DOCS/               # Project documentation
-├── static/             # Static files (CSS, JS, images)
-├── templates/          # HTML templates
-├── media/              # User-uploaded files
-├── manage.py           # Django management script
-├── requirements.txt    # Python dependencies
-└── .env                # Environment variables (not in git)
-```
-
-## Development Workflow
-
-1. Always activate the virtual environment before working
-2. Run migrations after pulling changes: `python manage.py migrate`
-3. Keep .env file updated with required variables
-4. Run tests before committing: `pytest`
-5. Format code with Black: `black .`
-
-## Testing
+### Variáveis de Ambiente Necessárias
 
 ```bash
-# Run all tests
+# Django
+SECRET_KEY=sua-chave-secreta-aqui
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Banco de Dados
+DATABASE_URL=postgresql://user:password@localhost:5432/dbname
+
+# AWS S3
+AWS_ACCESS_KEY_ID=sua-access-key
+AWS_SECRET_ACCESS_KEY=sua-secret-key
+AWS_STORAGE_BUCKET_NAME=seu-bucket
+
+# Email (SendGrid)
+SENDGRID_API_KEY=sua-api-key
+DEFAULT_FROM_EMAIL=noreply@peticaobrasil.com.br
+
+# Celery / Redis
+CELERY_BROKER_URL=redis://localhost:6379/0
+```
+
+---
+
+## 🧪 Testes
+
+Execute os testes com pytest:
+
+```bash
+# Todos os testes
 pytest
 
-# Run with coverage
-pytest --cov=apps
+# Testes específicos
+pytest tests/test_views.py
+pytest tests/test_security.py
 
-# Run specific test file
-pytest apps/petitions/tests/test_models.py
+# Com cobertura
+pytest --cov=apps --cov-report=html
 ```
 
-## Deployment
+---
 
-See [DOCS/08-deployment-checklist.md](DOCS/08-deployment-checklist.md) for complete deployment instructions.
+## 📚 Documentação
 
-## License
+A documentação completa do projeto está em `/DOCS/`:
 
-[License information to be added]
+- [00-overview.md](DOCS/00-overview.md) - Visão geral do projeto
+- [01-requirements-and-architecture.md](DOCS/01-requirements-and-architecture.md) - Requisitos e arquitetura
+- [02-data-models.md](DOCS/02-data-models.md) - Modelos de dados
+- [03-pdf-generation-and-signing.md](DOCS/03-pdf-generation-and-signing.md) - Geração e assinatura de PDFs
+- [04-signature-verification.md](DOCS/04-signature-verification.md) - Verificação de assinaturas
+- [05-user-interface-and-ux.md](DOCS/05-user-interface-and-ux.md) - Interface e UX
+- [06-security-and-sanitization.md](DOCS/06-security-and-sanitization.md) - Segurança e sanitização
+- [07-integration-testing.md](DOCS/07-integration-testing.md) - Testes de integração
+- [08-deployment-checklist.md](DOCS/08-deployment-checklist.md) - Checklist de deploy
+- [09-security-implementation.md](DOCS/09-security-implementation.md) - Implementação de segurança
+- [10-next-steps.md](DOCS/10-next-steps.md) - Próximos passos
+- [11-mobile-responsiveness.md](DOCS/11-mobile-responsiveness.md) - Responsividade mobile
+- [12-custody-chain-certification.md](DOCS/12-custody-chain-certification.md) - Certificação de cadeia de custódia
 
-## Contributors
+---
 
-[Contributors list to be added]
+## 🔐 Fundamentação Legal
+
+A plataforma está em conformidade com:
+
+- **Decreto nº 10.543/2020** - Assinatura eletrônica em documentos
+- **MP 2.200-2/2001** - Infraestrutura de Chaves Públicas Brasileira (ICP-Brasil)
+- **Lei nº 13.709/2018 (LGPD)** - Proteção de dados pessoais
+- **Constituição Federal Art. 5º, XXXIV** - Direito de petição
+
+---
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Por favor:
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/MinhaFeature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona MinhaFeature'`)
+4. Push para a branch (`git push origin feature/MinhaFeature`)
+5. Abra um Pull Request
+
+### Diretrizes de Contribuição
+
+- Escreva testes para novas funcionalidades
+- Mantenha o código limpo e documentado
+- Siga as convenções PEP 8 para Python
+- Atualize a documentação quando necessário
+
+---
+
+## 📄 Licença
+
+Este projeto é open source e está licenciado sob a [Licença MIT](LICENSE).
+
+---
+
+## 📧 Contato
+
+- **Email:** contato@peticaobrasil.com.br
+- **Website:** [peticaobrasil.com.br](https://peticaobrasil.com.br)
+
+---
+
+## ⚖️ Disclaimer Final
+
+**AO UTILIZAR ESTA PLATAFORMA, VOCÊ RECONHECE E ACEITA:**
+
+1. Esta é uma plataforma **sem fins lucrativos** que não oferece garantias de resultados
+2. Não nos responsabilizamos por **perdas financeiras** de qualquer natureza
+3. Não nos responsabilizamos por **divulgação de dados** nas circunstâncias descritas acima
+4. Nenhum sistema digital é 100% seguro, e você aceita os **riscos inerentes** ao uso da internet
+5. Esta plataforma **não constitui assessoria jurídica, política ou administrativa**
+6. Você leu e concorda com os [Termos de Uso](templates/static_pages/terms.html) e [Política de Privacidade](templates/static_pages/privacy.html)
+
+**USE POR SUA CONTA E RISCO. A PLATAFORMA É FORNECIDA "AS IS" SEM GARANTIAS.**
+
+---
+
+**Última atualização:** Janeiro de 2026

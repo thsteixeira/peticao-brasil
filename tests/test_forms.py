@@ -24,6 +24,7 @@ class TestPetitionForm:
             'description': 'This is a test petition description with enough content.',
             'category': category.id,
             'signature_goal': 1000,
+            'accept_terms': True,
         }
         
         form = PetitionForm(data=data)
@@ -39,6 +40,7 @@ class TestPetitionForm:
             'description': 'Valid description with enough content.',
             'category': category.id,
             'signature_goal': 1000,
+            'accept_terms': True,
         }
         
         form = PetitionForm(data=data)
@@ -54,6 +56,7 @@ class TestPetitionForm:
             'description': '<script>alert("XSS")</script>Safe content',
             'category': category.id,
             'signature_goal': 1000,
+            'accept_terms': True,
         }
         
         form = PetitionForm(data=data)
@@ -71,6 +74,7 @@ class TestPetitionForm:
             'description': 'Valid description with enough characters to pass the minimum requirement of 50 characters.',
             'category': category.id,
             'signature_goal': 50,  # Less than minimum (100)
+            'accept_terms': True,
         }
         
         form = PetitionForm(data=data)
@@ -139,7 +143,7 @@ class TestSignatureForm:
             'state': 'SP',
             'display_name_publicly': True,
             'receive_updates': False,
-            'consent_document_sharing': True,
+            'accept_terms': True,
         }
         files = {
             'signed_pdf': mock_pdf_file
