@@ -21,11 +21,12 @@ class MediaStorage(S3Boto3Storage):
         params = super().get_object_parameters(name)
         
         # Petition PDFs - cache for 7 days (they don't change)
-        if name.startswith('media/petitions/'):
+        # Note: name might or might not include 'media/' prefix depending on storage backend
+        if 'petitions/' in name:
             params['CacheControl'] = 'max-age=604800, public'  # 7 days
         
         # Signature PDFs - cache for 24 hours (may be updated)
-        elif name.startswith('media/signatures/'):
+        elif 'signatures/' in name:
             params['CacheControl'] = 'max-age=86400, public'  # 24 hours
         
         # Other media - standard cache
