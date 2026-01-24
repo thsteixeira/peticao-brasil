@@ -68,7 +68,7 @@
                 {% if form.password1.errors %}
                     <p class="mt-1 text-sm text-red-600">{{ form.password1.errors.0 }}</p>
                 {% elif form.password1.help_text %}
-                    <p class="mt-1 text-xs text-gray-500">{{ form.password1.help_text }}</p>
+                    <div class="mt-1">{{ form.password1.help_text|safe }}</div>
                 {% endif %}
             </div>
             

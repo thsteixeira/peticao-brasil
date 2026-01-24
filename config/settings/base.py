@@ -84,7 +84,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
         'OPTIONS': {
-            'min_length': 8,
+            'min_length': 12,  # Strong password requires at least 12 characters
         }
     },
     {
@@ -92,6 +92,30 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    {
+        'NAME': 'apps.core.password_validators.UppercaseValidator',
+    },
+    {
+        'NAME': 'apps.core.password_validators.LowercaseValidator',
+    },
+    {
+        'NAME': 'apps.core.password_validators.DigitValidator',
+    },
+    {
+        'NAME': 'apps.core.password_validators.SpecialCharacterValidator',
+    },
+    {
+        'NAME': 'apps.core.password_validators.MaximumLengthValidator',
+        'OPTIONS': {
+            'max_length': 128,
+        }
+    },
+    {
+        'NAME': 'apps.core.password_validators.NoSequentialCharactersValidator',
+    },
+    {
+        'NAME': 'apps.core.password_validators.NoCommonPatternsValidator',
     },
 ]
 

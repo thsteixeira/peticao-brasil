@@ -68,7 +68,20 @@ class UserRegistrationForm(UserCreationForm):
         
         # Update help texts
         self.fields['username'].help_text = 'Obrigatório. 150 caracteres ou menos. Letras, números e @/./+/-/_ apenas.'
-        self.fields['password1'].help_text = 'Sua senha deve conter pelo menos 8 caracteres.'
+        
+        # Detailed password requirements help text
+        password_help = (
+            '<ul class="text-xs text-gray-600 mt-1 ml-4 list-disc">'
+            '<li>Mínimo de 12 caracteres</li>'
+            '<li>Pelo menos uma letra maiúscula (A-Z)</li>'
+            '<li>Pelo menos uma letra minúscula (a-z)</li>'
+            '<li>Pelo menos um número (0-9)</li>'
+            '<li>Pelo menos um caractere especial (!@#$%^&*)</li>'
+            '<li>Não pode conter sequências (123, abc) ou repetições (aaa, 111)</li>'
+            '<li>Não pode conter palavras comuns (senha, admin, qwerty)</li>'
+            '</ul>'
+        )
+        self.fields['password1'].help_text = password_help
     
     def save(self, commit=True):
         user = super().save(commit=False)
