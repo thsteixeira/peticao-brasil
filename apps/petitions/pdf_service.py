@@ -9,7 +9,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
+from django.core.files.storage import storages
 
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
@@ -251,6 +251,9 @@ class PetitionPDFGenerator:
         logger = StructuredLogger(__name__)
         
         try:
+            # Get the default storage backend (lazy loading to respect settings)
+            default_storage = storages['default']
+            
             # Debug Django settings
             logger.info(f"DJANGO_SETTINGS_MODULE: {os.environ.get('DJANGO_SETTINGS_MODULE')}")
             logger.info(f"DEFAULT_FILE_STORAGE setting: {getattr(settings, 'DEFAULT_FILE_STORAGE', 'NOT SET')}")
