@@ -14,7 +14,7 @@ from cryptography.x509 import load_der_x509_certificate, load_pem_x509_certifica
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.serialization import pkcs7
 
-import PyPDF2
+from pypdf import PdfReader
 
 
 class SignatureVerificationError(Exception):
@@ -105,7 +105,7 @@ class PDFSignatureVerifier:
                 pdf_data = pdf_file.read()
             
             # Parse PDF
-            pdf_reader = PyPDF2.PdfReader(BytesIO(pdf_data))
+            pdf_reader = PdfReader(BytesIO(pdf_data))
             
             # Check if PDF is signed
             if '/AcroForm' not in pdf_reader.trailer['/Root']:
@@ -354,7 +354,7 @@ class PDFSignatureVerifier:
             # Method 2: Extract text from pages and search
             # This handles cases where UUID is in rendered text but encoded differently
             try:
-                pdf_reader = PyPDF2.PdfReader(BytesIO(pdf_data))
+                pdf_reader = PdfReader(BytesIO(pdf_data))
                 all_text = ""
                 
                 for page in pdf_reader.pages:
