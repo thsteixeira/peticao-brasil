@@ -38,9 +38,17 @@ def verify_signature(self, signature_id):
         # Initialize verifier
         verifier = PDFSignatureVerifier()
         
+        # Get PDF file content from storage (works with both S3 and local)
+        try:
+            signature.signed_pdf.open('rb')
+            pdf_file = signature.signed_pdf
+        except Exception as e:
+            logger.error(f"Failed to open signed PDF: {str(e)}")
+            raise
+        
         # Verify the signature
         result = verifier.verify_pdf_signature(
-            signature.signed_pdf,
+            pdf_file,
             signature.petition
         )
         

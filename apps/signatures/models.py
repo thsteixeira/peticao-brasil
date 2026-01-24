@@ -8,6 +8,9 @@ from django.utils import timezone
 from django.core.validators import EmailValidator
 from apps.core.logging_utils import StructuredLogger, log_model_event
 
+# Import storage backend for S3
+from config.storage_backends import MediaStorage
+
 logger = StructuredLogger(__name__)
 
 
@@ -99,6 +102,7 @@ class Signature(models.Model):
     # PDF file
     signed_pdf = models.FileField(
         upload_to='signatures/pdfs/',
+        storage=MediaStorage(),
         blank=True,
         null=True,
         verbose_name="PDF Assinado",
