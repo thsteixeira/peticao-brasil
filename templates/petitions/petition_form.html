@@ -4,14 +4,14 @@
 
 {% block content %}
 <div class="max-w-4xl mx-auto">
-    <div class="bg-white rounded-lg shadow-md p-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-6">
+    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 md:p-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 md:mb-6">
             {% if object.pk %}Editar Petição{% else %}Criar Nova Petição{% endif %}
         </h1>
         
-        <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <h3 class="font-semibold text-blue-900 mb-2">📝 Dicas para uma boa petição:</h3>
-            <ul class="text-sm text-blue-800 space-y-1">
+        <div class="mb-4 md:mb-6 p-3 md:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 class="font-semibold text-blue-900 mb-2 text-sm md:text-base">📝 Dicas para uma boa petição:</h3>
+            <ul class="text-xs md:text-sm text-blue-800 space-y-1">
                 <li>• Seja claro e específico no título</li>
                 <li>• Explique detalhadamente a causa e seus objetivos</li>
                 <li>• Defina uma meta realista de assinaturas</li>
@@ -19,11 +19,11 @@
             </ul>
         </div>
         
-        <form method="post" class="space-y-6">
+        <form method="post" class="space-y-4 md:space-y-6">
             {% csrf_token %}
             
             {% if form.non_field_errors %}
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <div class="bg-red-100 border border-red-400 text-red-700 px-3 md:px-4 py-3 rounded text-sm md:text-base">
                     {{ form.non_field_errors }}
                 </div>
             {% endif %}

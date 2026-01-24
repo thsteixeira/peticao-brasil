@@ -3,11 +3,11 @@
 {% block title %}Entrar - {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto">
-    <div class="bg-white rounded-lg shadow-md p-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">Entrar</h1>
+<div class="max-w-md mx-auto px-4">
+    <div class="bg-white rounded-lg shadow-md p-6 sm:p-8">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6 text-center">Entrar</h1>
         
-        <form method="post" class="space-y-4">
+        <form method="post" class="space-y-3 sm:space-y-4">
             {% csrf_token %}
             
             {% if form.non_field_errors %}

@@ -25,19 +25,19 @@
 {% block content %}
 <div class="max-w-5xl mx-auto">
     <!-- Petition Header -->
-    <div class="bg-white rounded-lg shadow-md p-8 mb-6">
-        <div class="flex items-start justify-between mb-4">
-            <div class="flex-1">
-                <span class="inline-block px-3 py-1 rounded-full text-sm font-semibold mb-2" 
+    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 md:p-8 mb-4 md:mb-6">
+        <div class="flex flex-col sm:flex-row items-start justify-between mb-4 gap-3">
+            <div class="flex-1 w-full">
+                <span class="inline-block px-3 py-1 rounded-full text-xs sm:text-sm font-semibold mb-2" 
                       style="background-color: {{ petition.category.color }}22; color: {{ petition.category.color }}">
                     {{ petition.category.name }}
                 </span>
-                <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ petition.title }}</h1>
-                <div class="flex items-center space-x-4 text-sm text-gray-600">
+                <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2">{{ petition.title }}</h1>
+                <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600">
                     <span>Por {{ petition.creator.get_full_name }}</span>
-                    <span>•</span>
+                    <span class="hidden sm:inline">•</span>
                     <span>{{ petition.created_at|date:"d/m/Y" }}</span>
-                    <span>•</span>
+                    <span class="hidden sm:inline">•</span>
                     <span>{{ petition.view_count }} visualizações</span>
                 </div>
             </div>
@@ -49,16 +49,16 @@
         </div>
         
         <!-- Progress Bar -->
-        <div class="mb-6">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-2xl font-bold text-gray-900">
+        <div class="mb-4 md:mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-1">
+                <span class="text-xl sm:text-2xl font-bold text-gray-900">
                     {{ petition.signature_count }} assinaturas
                 </span>
-                <span class="text-gray-600">
+                <span class="text-sm sm:text-base text-gray-600">
                     Meta: {{ petition.signature_goal }}
                 </span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
+            <div class="w-full bg-gray-200 rounded-full h-2 md:h-3">
                 <div class="bg-blue-600 h-3 rounded-full transition-all" 
                      style="width: {{ petition.progress_percentage }}%"></div>
             </div>
@@ -66,19 +66,19 @@
         </div>
         
         <!-- Call to Action -->
-        <div class="flex space-x-4">
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
             {% if petition.pdf_url %}
                 <a href="{{ petition.pdf_url }}" 
                    target="_blank"
-                   class="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold transition-colors text-center">
+                   class="flex-1 bg-blue-600 text-white px-4 sm:px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold transition-colors text-center text-sm sm:text-base">
                     📄 Baixar PDF para Assinar
                 </a>
             {% else %}
-                <button class="flex-1 bg-gray-400 text-white px-6 py-3 rounded-lg cursor-not-allowed font-semibold" disabled>
+                <button class="flex-1 bg-gray-400 text-white px-4 sm:px-6 py-3 rounded-lg cursor-not-allowed font-semibold text-sm sm:text-base" disabled>
                     ⏳ Gerando PDF...
                 </button>
             {% endif %}
-            <button id="share-button" class="bg-gray-100 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors">
+            <button id="share-button" class="bg-gray-100 text-gray-700 px-4 sm:px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors text-sm sm:text-base">
                 📤 Compartilhar
             </button>
         </div>
@@ -98,42 +98,42 @@
     </div>
     
     <!-- Petition Description -->
-    <div class="bg-white rounded-lg shadow-md p-8 mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 mb-4">Sobre esta Petição</h2>
-        <div class="prose max-w-none text-gray-700">
+    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 md:p-8 mb-4 md:mb-6">
+        <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-3 md:mb-4">Sobre esta Petição</h2>
+        <div class="prose max-w-none text-gray-700 text-sm sm:text-base">
             {{ petition.description|linebreaks }}
         </div>
     </div>
     
     <!-- How to Sign -->
     {% if petition.pdf_url %}
-    <div class="bg-white rounded-lg shadow-md p-8 mb-6">
-        <div class="flex items-start justify-between mb-4">
-            <h2 class="text-2xl font-bold text-gray-900">Como Assinar esta Petição</h2>
-            <a href="{% url 'petitions:how_to_sign' %}" class="text-sm text-blue-600 hover:text-blue-800 font-semibold whitespace-nowrap">
+    <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 md:p-8 mb-4 md:mb-6">
+        <div class="flex flex-col sm:flex-row items-start justify-between mb-4 gap-3">
+            <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Como Assinar esta Petição</h2>
+            <a href="{% url 'petitions:how_to_sign' %}" class="text-xs sm:text-sm text-blue-600 hover:text-blue-800 font-semibold whitespace-nowrap">
                 📖 Guia completo →
             </a>
         </div>
-        <div class="space-y-4">
-            <div class="flex items-start space-x-3">
-                <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</span>
+        <div class="space-y-3 md:space-y-4">
+            <div class="flex items-start space-x-2 sm:space-x-3">
+                <span class="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base">1</span>
                 <div class="flex-1">
-                    <h3 class="font-semibold text-gray-900">Baixe o PDF da petição</h3>
-                    <p class="text-gray-600 text-sm">Clique no botão acima para baixar o documento PDF oficial desta petição.</p>
+                    <h3 class="font-semibold text-gray-900 text-sm sm:text-base">Baixe o PDF da petição</h3>
+                    <p class="text-gray-600 text-xs sm:text-sm">Clique no botão acima para baixar o documento PDF oficial desta petição.</p>
                 </div>
             </div>
-            <div class="flex items-start space-x-3">
-                <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</span>
+            <div class="flex items-start space-x-2 sm:space-x-3">
+                <span class="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base">2</span>
                 <div class="flex-1">
-                    <h3 class="font-semibold text-gray-900">Assine digitalmente com Gov.br</h3>
-                    <p class="text-gray-600 text-sm">Acesse o <a href="https://assinador.iti.br/assinatura/" target="_blank" class="text-blue-600 hover:underline">Assinador Gov.br</a> e assine o PDF com sua conta Gov.br (nível prata ou ouro).</p>
+                    <h3 class="font-semibold text-gray-900 text-sm sm:text-base">Assine digitalmente com Gov.br</h3>
+                    <p class="text-gray-600 text-xs sm:text-sm">Acesse o <a href="https://assinador.iti.br/assinatura/" target="_blank" class="text-blue-600 hover:underline">Assinador Gov.br</a> e assine o PDF com sua conta Gov.br (nível prata ou ouro).</p>
                 </div>
             </div>
-            <div class="flex items-start space-x-3">
-                <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">3</span>
+            <div class="flex items-start space-x-2 sm:space-x-3">
+                <span class="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm sm:text-base">3</span>
                 <div class="flex-1">
-                    <h3 class="font-semibold text-gray-900">Envie o PDF assinado</h3>
-                    <p class="text-gray-600 text-sm">Após assinar, retorne aqui e faça o upload do PDF assinado para validação.</p>
+                    <h3 class="font-semibold text-gray-900 text-sm sm:text-base">Envie o PDF assinado</h3>
+                    <p class="text-gray-600 text-xs sm:text-sm">Após assinar, retorne aqui e faça o upload do PDF assinado para validação.</p>
                 </div>
             </div>
         </div>
