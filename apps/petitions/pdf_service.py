@@ -247,30 +247,44 @@ class PetitionPDFGenerator:
         Generate PDF and save to storage.
         Returns the file path/URL.
         """
-        # Generate PDF
-        generator = cls(petition)
-        pdf_bytes = generator.generate()
+        from apps.core.logging_utils import StructuredLogger
+        logger = StructuredLogger(__name__)
         
-        # Calculate content hash
-        content_hash = cls.calculate_content_hash(petition)
-        
-        # Save to storage
-        filename = f"petition_{petition.uuid}.pdf"
-        filepath = os.path.join(settings.PETITION_PDF_STORAGE_PATH, filename)
-        
-        # Save using Django storage
-        saved_path = default_storage.save(filepath, ContentFile(pdf_bytes))
-        
-        # Get URL (works for both local and S3 storage)
-        if hasattr(default_storage, 'url'):
-            pdf_url = default_storage.url(saved_path)
-        else:
-            pdf_url = f"{settings.MEDIA_URL}{saved_path}"
-        
-        # Update petition with PDF info
-        petition.pdf_url = pdf_url
-        petition.pdf_file_key = saved_path  # Store S3 key for signed URLs
-        petition.content_hash = content_hash
-        petition.save(update_fields=['pdf_url', 'pdf_file_key', 'content_hash'])
-        
-        return pdf_url
+        try:
+            # Generate PDF
+            generator = cls(petition)
+            pdf_bytes = generator.generate()
+            logger.info(f"PDF bytes generated: {len(pdf_bytes)} bytes")
+            
+            # Calculate content hash
+            content_hash = cls.calculate_content_hash(petition)
+            
+            # Save to storage
+            filename = f"petition_{petition.uuid}.pdf"
+            filepath = os.path.join(settings.PETITION_PDF_STORAGE_PATH, filename)
+            logger.info(f"Attempting to save to: {filepath}")
+            logger.info(f"Storage backend: {default_storage.__class__.__name__}")
+            
+            # Save using Django storage
+            saved_path = default_storage.save(filepath, ContentFile(pdf_bytes))
+            logger.info(f"File saved to path: {saved_path}")
+            
+            # Get URL (works for both local and S3 storage)
+            if hasattr(default_storage, 'url'):
+                pdf_url = default_storage.url(saved_path)
+            else:
+                pdf_url = f"{settings.MEDIA_URL}{saved_path}"
+            
+            logger.info(f"Generated PDF URL: {pdf_url}")
+            
+            # Update petition with PDF info
+            petition.pdf_url = pdf_url
+            petition.pdf_file_key = saved_path  # Store S3 key for signed URLs
+            petition.content_hash = content_hash
+            petition.save(update_fields=['pdf_url', 'pdf_file_key', 'content_hash'])
+            
+            return pdf_url
+            
+        except Exception as e:
+            logger.error(f"Error saving PDF: {type(e).__name__}: {str(e)}")
+            raise
