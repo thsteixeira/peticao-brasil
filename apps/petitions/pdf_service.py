@@ -251,6 +251,12 @@ class PetitionPDFGenerator:
         logger = StructuredLogger(__name__)
         
         try:
+            # Debug Django settings
+            logger.info(f"DJANGO_SETTINGS_MODULE: {os.environ.get('DJANGO_SETTINGS_MODULE')}")
+            logger.info(f"DEFAULT_FILE_STORAGE setting: {getattr(settings, 'DEFAULT_FILE_STORAGE', 'NOT SET')}")
+            logger.info(f"AWS_STORAGE_BUCKET_NAME: {getattr(settings, 'AWS_STORAGE_BUCKET_NAME', 'NOT SET')}")
+            logger.info(f"AWS_S3_REGION_NAME: {getattr(settings, 'AWS_S3_REGION_NAME', 'NOT SET')}")
+            
             # Generate PDF
             generator = cls(petition)
             pdf_bytes = generator.generate()
@@ -263,7 +269,9 @@ class PetitionPDFGenerator:
             filename = f"petition_{petition.uuid}.pdf"
             filepath = os.path.join(settings.PETITION_PDF_STORAGE_PATH, filename)
             logger.info(f"Attempting to save to: {filepath}")
-            logger.info(f"Storage backend: {default_storage.__class__.__name__}")
+            logger.info(f"Storage backend class: {default_storage.__class__.__name__}")
+            logger.info(f"Storage backend module: {default_storage.__class__.__module__}")
+            logger.info(f"Storage backend full path: {default_storage.__class__.__module__}.{default_storage.__class__.__name__}")
             
             # Save using Django storage
             saved_path = default_storage.save(filepath, ContentFile(pdf_bytes))
