@@ -17,11 +17,13 @@ O **Petição Brasil** é uma plataforma digital sem fins lucrativos que facilit
 - ✅ Criação de petições públicas com validação
 - ✅ Assinatura digital através do Gov.br (ICP-Brasil)
 - ✅ Verificação automática de assinaturas digitais
+- ✅ **Certificado de Cadeia de Custódia** - Prova criptográfica de cada assinatura
 - ✅ PDFs com hash criptográfico (SHA-256)
 - ✅ Conformidade com LGPD (Lei Geral de Proteção de Dados)
 - ✅ Interface responsiva e acessível
 - ✅ Sistema de moderação de conteúdo
 - ✅ Transparência total das assinaturas
+- ✅ Download em lote para criadores (PDFs + certificados)
 
 ---
 
@@ -78,6 +80,31 @@ Para informações completas sobre termos de uso e privacidade, consulte:
 
 ---
 
+## � Certificado de Cadeia de Custódia
+
+Cada assinatura verificada recebe automaticamente um **certificado oficial de cadeia de custódia** que comprova:
+
+- ✅ **Autenticidade**: Assinatura verificada com certificado ICP-Brasil válido
+- ✅ **Integridade**: Texto da petição não foi alterado após assinatura
+- ✅ **Auditoria Completa**: Timeline cronológica de todo o processo
+- ✅ **Não-Repúdio**: Hash SHA-256 impede negação ou adulteração
+- ✅ **Valor Legal**: Evidência criptográfica juridicamente válida
+
+**Conteúdo do Certificado:**
+- Dados da verificação (timestamp, status, validações)
+- Informações do certificado digital ICP-Brasil
+- Hash SHA-256 das evidências de verificação
+- Cadeia de custódia cronológica completa
+- QR Code para verificação instantânea
+- Hash do conteúdo da petição assinada
+
+**Distribuição:**
+- Signatários recebem certificado individual por email
+- Criadores podem baixar pacote ZIP com todos PDFs + certificados
+- Verificação pública via URL ou QR Code
+
+---
+
 ## 🚀 Tecnologias Utilizadas
 
 - **Backend:** Django 4.2+, Python 3.9+
@@ -87,6 +114,7 @@ Para informações completas sobre termos de uso e privacidade, consulte:
 - **Armazenamento:** AWS S3
 - **Task Queue:** Celery + Redis
 - **Verificação PDF:** PyPDF2, cryptography
+- **Geração PDF:** ReportLab, qrcode
 - **Deploy:** Heroku / Railway
 
 ---

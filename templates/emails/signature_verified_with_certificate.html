@@ -1,0 +1,63 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h1 style="color: #1E40AF; text-align: center;">Assinatura Verificada com Sucesso! ✓</h1>
+    
+    <p>Olá, <strong>{{ signature.full_name }}</strong>,</p>
+    
+    <p>Sua assinatura digital na petição "<strong>{{ signature.petition.title }}</strong>" foi <strong>verificada e aprovada</strong> com sucesso!</p>
+    
+    <div style="background-color: #EFF6FF; border-left: 4px solid #3B82F6; padding: 15px; margin: 20px 0;">
+        <h3 style="margin-top: 0; color: #1E40AF;">Certificado de Cadeia de Custódia</h3>
+        <p>Geramos um certificado oficial que comprova a autenticidade e integridade da sua assinatura digital.</p>
+        <p style="text-align: center; margin: 20px 0;">
+            <a href="{{ signature.custody_certificate_url }}" 
+               style="background-color: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+                📄 Baixar Certificado de Custódia
+            </a>
+        </p>
+    </div>
+    
+    <h3>Detalhes da Verificação:</h3>
+    <ul>
+        <li><strong>Petição:</strong> {{ signature.petition.title }}</li>
+        <li><strong>Assinado em:</strong> {{ signature.signed_at|date:"d/m/Y H:i" }}</li>
+        <li><strong>Verificado em:</strong> {{ signature.verified_at|date:"d/m/Y H:i" }}</li>
+        <li><strong>Certificado:</strong> {{ signature.certificate_issuer }}</li>
+        <li><strong>Status:</strong> <span style="color: #10B981; font-weight: bold;">APROVADA</span></li>
+    </ul>
+    
+    <h3>O que é o Certificado de Custódia?</h3>
+    <p>O Certificado de Cadeia de Custódia é um documento que comprova:</p>
+    <ul>
+        <li>Que sua assinatura digital foi verificada com certificado ICP-Brasil válido</li>
+        <li>Que todos os procedimentos de segurança foram cumpridos</li>
+        <li>A data e hora exata de cada etapa do processo</li>
+        <li>A integridade do documento assinado</li>
+        <li><strong>A integridade do conteúdo da petição</strong> que você assinou</li>
+    </ul>
+    
+    <p>Este certificado possui <strong>valor legal</strong> como evidência do processo de verificação e pode ser utilizado para comprovar sua participação na petição.</p>
+    
+    <div style="background-color: #F3F4F6; padding: 15px; border-radius: 6px; margin-top: 20px;">
+        <h3 style="margin-top: 0;">Próximos Passos:</h3>
+        <ol>
+            <li>Baixe e guarde seu certificado de custódia</li>
+            <li>Acompanhe o progresso da petição</li>
+            <li>Compartilhe a petição com outras pessoas</li>
+        </ol>
+        <p style="text-align: center; margin-top: 20px;">
+            <a href="{{ site_url }}/peticoes/{{ signature.petition.uuid }}/" 
+               style="color: #3B82F6; text-decoration: none; font-weight: bold;">
+                Ver Petição →
+            </a>
+        </p>
+    </div>
+    
+    <p style="margin-top: 30px; color: #6B7280; font-size: 14px;">
+        Obrigado por participar da democracia direta!<br>
+        <strong>Equipe Petição Brasil</strong>
+    </p>
+</div>
+{% endblock %}

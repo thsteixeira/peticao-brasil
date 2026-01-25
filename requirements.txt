@@ -33,6 +33,7 @@ django-ratelimit==4.1.0
 # PDF Generation
 reportlab==4.0.9
 Pillow==11.1.0
+qrcode[pil]==7.4.2
 
 # PDF Verification
 pypdf>=3.1.0  # Updated from PyPDF2 3.0.1 for CVE-2023-36464

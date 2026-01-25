@@ -31,9 +31,10 @@ def verify_signature(self, signature_id):
             task_id=self.request.id
         )
         
-        # Update status to processing
+        # Update status to processing + set timestamp
         signature.verification_status = Signature.STATUS_PROCESSING
-        signature.save(update_fields=['verification_status'])
+        signature.processing_started_at = timezone.now()
+        signature.save(update_fields=['verification_status', 'processing_started_at'])
         
         # Initialize verifier
         verifier = PDFSignatureVerifier()
@@ -57,18 +58,38 @@ def verify_signature(self, signature_id):
             signature.verification_status = Signature.STATUS_APPROVED
             signature.verified = True
             signature.verified_at = timezone.now()
+            signature.processing_completed_at = timezone.now()
             
             # Store certificate information
             if result['certificate_info']:
                 cert_info = result['certificate_info']
+                signature.certificate_info = cert_info
                 signature.certificate_subject = cert_info.get('subject', '')
                 signature.certificate_issuer = cert_info.get('issuer', '')
                 signature.certificate_serial = cert_info.get('serial_number', '')
+                signature.verified_cpf_from_certificate = result.get('cpf_verified', False)
             
             signature.save()
             
             # Increment petition signature count
             signature.petition.increment_signature_count()
+            
+            # Generate custody chain certificate
+            try:
+                from apps.signatures.custody_service import generate_custody_certificate
+                certificate_url = generate_custody_certificate(signature, result)
+                logger.info(
+                    "Custody certificate generated",
+                    signature_uuid=str(signature.uuid),
+                    certificate_url=certificate_url
+                )
+            except Exception as cert_error:
+                logger.error(
+                    f"Failed to generate custody certificate: {str(cert_error)}",
+                    signature_uuid=str(signature.uuid),
+                    exc_info=True
+                )
+                # Don't fail the whole verification if certificate generation fails
             
             duration = time.time() - start_time
             logger.info(
@@ -90,12 +111,14 @@ def verify_signature(self, signature_id):
             return {
                 'success': True,
                 'signature_uuid': str(signature.uuid),
-                'status': 'approved'
+                'status': 'approved',
+                'custody_certificate_url': signature.custody_certificate_url
             }
         else:
             # Signature verification failed
             signature.verification_status = Signature.STATUS_REJECTED
             signature.rejection_reason = result.get('error', 'Verificação falhou')
+            signature.processing_completed_at = timezone.now()
             signature.save()
             
             duration = time.time() - start_time

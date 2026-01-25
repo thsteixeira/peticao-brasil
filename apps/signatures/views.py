@@ -213,3 +213,69 @@ class PetitionSignaturesView(ListView):
 
 # Import Count for statistics
 from django.db import models
+from django.views.generic import View
+from django.http import HttpResponse, JsonResponse
+import hashlib
+import json
+
+
+class DownloadCustodyCertificateView(View):
+    """Allow users to download their custody certificate."""
+    
+    def get(self, request, uuid):
+        """Serve the custody certificate PDF."""
+        signature = get_object_or_404(
+            Signature.objects.select_related('petition'),
+            uuid=uuid,
+            verification_status=Signature.STATUS_APPROVED
+        )
+        
+        if not signature.custody_certificate_url:
+            return HttpResponse(
+                'Certificado de custódia não disponível. '
+                'Entre em contato com o suporte se você acredita que isto é um erro.',
+                status=404
+            )
+        
+        # Redirect to S3 URL
+        return redirect(signature.custody_certificate_url)
+
+
+class VerifyCustodyCertificateView(View):
+    """API endpoint to verify certificate authenticity."""
+    
+    def get(self, request, uuid):
+        """Return certificate verification data."""
+        signature = get_object_or_404(
+            Signature.objects.select_related('petition'),
+            uuid=uuid,
+            verification_status=Signature.STATUS_APPROVED
+        )
+        
+        # Recalculate hash to verify integrity
+        integrity_verified = False
+        if signature.verification_evidence and signature.verification_hash:
+            evidence_json = json.dumps(
+                signature.verification_evidence,
+                sort_keys=True,
+                ensure_ascii=False
+            )
+            calculated_hash = hashlib.sha256(
+                evidence_json.encode('utf-8')
+            ).hexdigest()
+            
+            integrity_verified = (calculated_hash == signature.verification_hash)
+        
+        return JsonResponse({
+            'signature_uuid': str(signature.uuid),
+            'petition_title': signature.petition.title,
+            'petition_uuid': str(signature.petition.uuid),
+            'signer_name': signature.full_name,
+            'signed_at': signature.signed_at.isoformat() if signature.signed_at else None,
+            'verified_at': signature.verified_at.isoformat() if signature.verified_at else None,
+            'verification_hash': signature.verification_hash,
+            'integrity_verified': integrity_verified,
+            'certificate_url': signature.custody_certificate_url,
+            'certificate_generated_at': signature.certificate_generated_at.isoformat() if signature.certificate_generated_at else None,
+            'status': 'valid' if integrity_verified else 'integrity_check_failed',
+        })

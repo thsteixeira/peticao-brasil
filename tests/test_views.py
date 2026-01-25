@@ -2,6 +2,7 @@
 Integration tests for views
 """
 import pytest
+from unittest.mock import patch
 from django.urls import reverse
 from django.contrib.auth.models import User
 from apps.petitions.models import Petition
@@ -66,6 +67,7 @@ class TestPetitionViews:
             'description': 'This is a test petition with enough content to pass validation.',
             'category': category.id,
             'signature_goal': 1000,
+            'accept_terms': True,
         }
         
         response = authenticated_client.post(url, data)
@@ -93,7 +95,10 @@ class TestSignatureViews:
         assert response.status_code == 200
         assert 'form' in response.context
     
-    def test_signature_submission(self, api_client, petition):
+    @patch('apps.core.validators.validate_turnstile_token', return_value=True)
+    @patch('config.storage_backends.MediaStorage.save', return_value='signatures/pdfs/test.pdf')
+    @patch('config.storage_backends.MediaStorage.url', return_value='https://test.s3.amazonaws.com/test.pdf')
+    def test_signature_submission(self, mock_s3_url, mock_s3_save, mock_turnstile, api_client, petition):
         """Test signature submission creates pending signature"""
         # Create a fresh PDF for this test
         pdf_content = b"""%PDF-1.4
@@ -125,6 +130,7 @@ startxref
             'receive_updates': True,
             'consent_document_sharing': True,
             'signed_pdf': pdf_file,
+            'accept_terms': True,
         }
         
         response = api_client.post(url, data=data)

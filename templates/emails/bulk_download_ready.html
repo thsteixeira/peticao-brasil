@@ -1,0 +1,72 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h1 style="color: #1E40AF; text-align: center;">📦 Pacote de Assinaturas Pronto!</h1>
+    
+    <p>Olá,</p>
+    
+    <p>O pacote completo de assinaturas da petição "<strong>{{ petition.title }}</strong>" está pronto para download.</p>
+    
+    <div style="background-color: #EFF6FF; border: 2px solid #3B82F6; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+        <h3 style="margin-top: 0; color: #1E40AF;">Seu Download Está Pronto</h3>
+        <p style="font-size: 18px; margin: 15px 0;">
+            <strong>{{ signature_count }}</strong> assinaturas incluídas
+        </p>
+        <a href="{{ download_url }}" 
+           style="background-color: #3B82F6; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">
+            📥 Baixar Pacote Completo
+        </a>
+        <p style="font-size: 13px; color: #6B7280; margin-top: 15px;">
+            ⏰ Link válido por <strong>{{ expiration_days }} dias</strong>
+        </p>
+    </div>
+    
+    <h3>O que está incluído:</h3>
+    <ul style="line-height: 1.8;">
+        <li>📄 <strong>{{ signature_count }}</strong> PDFs assinados digitalmente</li>
+        <li>🔒 <strong>{{ signature_count }}</strong> certificados de cadeia de custódia</li>
+        <li>📊 Planilha CSV com todos os metadados</li>
+        <li>📝 Arquivo README com instruções</li>
+    </ul>
+    
+    <div style="background-color: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0;">
+        <h4 style="margin-top: 0; color: #92400E;">⚠️ Importante</h4>
+        <ul style="margin: 10px 0; color: #78350F;">
+            <li>O link de download expira em {{ expiration_days }} dias</li>
+            <li>Guarde os arquivos em local seguro</li>
+            <li>Não modifique os PDFs para preservar as assinaturas digitais</li>
+            <li>Os certificados possuem valor legal como evidência</li>
+            <li>Os certificados comprovam a integridade do texto da petição</li>
+        </ul>
+    </div>
+    
+    <h3>Detalhes da Petição:</h3>
+    <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+        <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;"><strong>Título:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;">{{ petition.title }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;"><strong>UUID:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;"><code>{{ petition.uuid }}</code></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;"><strong>Total de Assinaturas:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;">{{ signature_count }}</td>
+        </tr>
+    </table>
+    
+    <p style="text-align: center; margin: 30px 0;">
+        <a href="{{ site_url }}/peticoes/{{ petition.uuid }}/{{ petition.slug }}/" 
+           style="color: #3B82F6; text-decoration: none; font-weight: bold;">
+            Ver Petição →
+        </a>
+    </p>
+    
+    <p style="margin-top: 30px; color: #6B7280; font-size: 14px;">
+        Se você não solicitou este download ou tem dúvidas, entre em contato conosco.<br>
+        <strong>Equipe Petição Brasil</strong>
+    </p>
+</div>
+{% endblock %}

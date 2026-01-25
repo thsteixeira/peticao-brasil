@@ -81,7 +81,7 @@ def send_template_email(
 
 def send_signature_verified_email(signature):
     """
-    Send notification when signature is verified.
+    Send notification when signature is verified, including custody certificate link.
     """
     if not signature.email:
         return 0
@@ -90,11 +90,12 @@ def send_signature_verified_email(signature):
         'signature': signature,
         'petition': signature.petition,
         'signer_name': signature.full_name,
+        'site_url': settings.SITE_URL,
     }
     
     return send_template_email(
         subject=f'Assinatura Verificada - {signature.petition.title}',
-        template_name='signature_verified',
+        template_name='signature_verified_with_certificate',
         context=context,
         recipient_list=[signature.email]
     )

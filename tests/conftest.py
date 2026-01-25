@@ -106,6 +106,7 @@ def signature(db, petition):
 @pytest.fixture
 def approved_signature(db, petition):
     """Create an approved signature"""
+    from django.utils import timezone
     return Signature.objects.create(
         petition=petition,
         full_name='Maria Santos',
@@ -113,7 +114,24 @@ def approved_signature(db, petition):
         email='maria@example.com',
         city='Rio de Janeiro',
         state='RJ',
-        verification_status=Signature.STATUS_APPROVED
+        verification_status=Signature.STATUS_APPROVED,
+        verified_at=timezone.now(),
+        processing_started_at=timezone.now() - timezone.timedelta(seconds=10),
+        processing_completed_at=timezone.now() - timezone.timedelta(seconds=2)
+    )
+
+
+@pytest.fixture
+def pending_signature(db, petition):
+    """Create a pending signature (alias for signature fixture)"""
+    return Signature.objects.create(
+        petition=petition,
+        full_name='Carlos Oliveira',
+        cpf_hash=Signature.hash_cpf('11122233344'),
+        email='carlos@example.com',
+        city='Brasília',
+        state='DF',
+        verification_status=Signature.STATUS_PENDING
     )
 
 

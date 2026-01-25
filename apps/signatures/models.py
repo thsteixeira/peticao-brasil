@@ -157,6 +157,91 @@ class Signature(models.Model):
         help_text="Dados extraídos do certificado digital (JSON)"
     )
     
+    # Certificate details (extracted from certificate_info for quick access)
+    certificate_subject = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name="Assunto do Certificado",
+        help_text="Subject DN do certificado digital"
+    )
+    
+    certificate_issuer = models.CharField(
+        max_length=500,
+        blank=True,
+        verbose_name="Emissor do Certificado",
+        help_text="Issuer DN do certificado digital"
+    )
+    
+    certificate_serial = models.CharField(
+        max_length=100,
+        blank=True,
+        verbose_name="Número de Série",
+        help_text="Número de série do certificado digital"
+    )
+    
+    # Custody Chain Certificate
+    custody_certificate_pdf = models.FileField(
+        upload_to='signatures/custody_certificates/',
+        storage=MediaStorage(),
+        blank=True,
+        null=True,
+        verbose_name="Certificado de Custódia",
+        help_text="Certificado PDF da cadeia de custódia"
+    )
+    
+    custody_certificate_url = models.URLField(
+        max_length=500,
+        blank=True,
+        verbose_name="URL do Certificado de Custódia",
+        help_text="URL do certificado de custódia no S3"
+    )
+    
+    # Verification Evidence (immutable record)
+    verification_evidence = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name="Evidências de Verificação",
+        help_text="Registro completo de todas as etapas de verificação (JSON)"
+    )
+    
+    # Verification Hash (tamper detection)
+    verification_hash = models.CharField(
+        max_length=64,
+        blank=True,
+        verbose_name="Hash de Verificação",
+        help_text="SHA-256 hash das evidências de verificação"
+    )
+    
+    # Chain of Custody Timeline
+    chain_of_custody = models.JSONField(
+        null=True,
+        blank=True,
+        verbose_name="Cadeia de Custódia",
+        help_text="Timeline completa de eventos (JSON)"
+    )
+    
+    # Processing timestamps
+    processing_started_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Processamento Iniciado em",
+        help_text="Quando a verificação começou"
+    )
+    
+    processing_completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Processamento Concluído em",
+        help_text="Quando a verificação terminou"
+    )
+    
+    certificate_generated_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Certificado Gerado em",
+        help_text="Quando o certificado de custódia foi gerado"
+    )
+    
     # Privacy settings
     display_name_publicly = models.BooleanField(
         default=False,

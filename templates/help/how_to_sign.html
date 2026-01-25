@@ -299,6 +299,54 @@
                     e confirma que o documento não foi modificado após a assinatura.
                 </p>
             </div>
+            
+            <div class="bg-white rounded-lg p-6 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-2">❓ O que é o Certificado de Cadeia de Custódia?</h3>
+                <p class="text-gray-700">
+                    Após a verificação da sua assinatura, você receberá por email um Certificado de Cadeia de Custódia oficial. 
+                    Este certificado possui valor legal e comprova a integridade do texto da petição que você assinou, 
+                    além de toda a timeline do processo de verificação.
+                    <a href="{% url 'help:custody_certificate' %}" class="text-blue-600 hover:underline font-semibold">Saiba mais →</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- What You Receive Section -->
+    <div class="mb-12 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-8 border border-green-200">
+        <h2 class="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+            <span class="text-3xl mr-3">📜</span>
+            O que você recebe após assinar
+        </h2>
+        
+        <div class="bg-white rounded-lg p-6 shadow-sm mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 mb-3">Certificado de Cadeia de Custódia</h3>
+            <p class="text-gray-700 mb-3">
+                Assim que sua assinatura for verificada, você receberá por email um 
+                <strong>Certificado de Cadeia de Custódia</strong> que comprova:
+            </p>
+            <ul class="list-disc ml-6 space-y-1 text-gray-700">
+                <li>Que você assinou digitalmente a petição com certificado ICP-Brasil válido</li>
+                <li>A <strong>integridade do texto da petição</strong> que você assinou</li>
+                <li>A data e hora exatas de cada etapa da verificação</li>
+                <li>Todas as validações de segurança realizadas</li>
+                <li>Hash criptográfico que impede adulteração</li>
+            </ul>
+        </div>
+        
+        <div class="bg-white rounded-lg p-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">💼 Valor Legal</h3>
+            <p class="text-sm text-gray-700">
+                O certificado possui validade jurídica como evidência da sua participação 
+                e pode ser utilizado para comprovar que você assinou o texto exato da 
+                petição, sem alterações posteriores.
+            </p>
+        </div>
+        
+        <div class="mt-4">
+            <a href="{% url 'help:custody_certificate' %}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                📖 Saiba mais sobre o Certificado de Custódia
+            </a>
         </div>
     </div>
 

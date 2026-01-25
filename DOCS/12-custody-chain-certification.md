@@ -33,7 +33,7 @@ Create a comprehensive **Custody Chain Certification System** that generates imm
 
 ### Distribution Strategy
 
-The custody chain certificate and signed petition are distributed to users in **three distinct scenarios**:
+The custody chain certificate and signed petition are distributed to users in **two distinct scenarios**:
 
 #### 📧 **Scenario 1: Email to Signer (After Verification)**
 **When:** Immediately after signature is approved  
@@ -48,21 +48,7 @@ The custody chain certificate and signed petition are distributed to users in **
 
 ---
 
-#### 📧 **Scenario 2: Email to Petition Creator (New Signature Notification)**
-**When:** Immediately after a signature is approved on their petition  
-**To:** The petition creator  
-**Contains:**
-- Notification of new signature
-- Signer information (name/initials, location)
-- Link to download the signed petition PDF
-- Link to download the custody chain certificate
-- Petition progress update (current count/goal)
-
-**Purpose:** Keep creators informed and provide evidence for each signature
-
----
-
-#### 📦 **Scenario 3: Bulk Download by Creator (On-Demand)**
+#### � **Scenario 2: Bulk Download by Creator (On-Demand)**
 **When:** Petition creator requests download  
 **To:** The petition creator  
 **Contains:** ZIP file with:
@@ -106,28 +92,24 @@ A chain of custody is a chronological documentation that records the sequence of
 3. ✅ **Calculate verification hash** for tamper detection
 4. ✅ **Track complete chain of custody** with timestamps
 5. ✅ **Deliver certificate to signers** via email and download
-6. ✅ **Notify petition creators** when signatures are received (with certificate)
-7. ✅ **Enable bulk download** for petition creators (all PDFs + certificates)
-8. ✅ **Provide admin access** to view all certificates
-9. ✅ **Enable API access** for programmatic certificate retrieval
+6. ✅ **Enable bulk download** for petition creators (all PDFs + certificates)
+7. ✅ **Provide admin access** to view all certificates
+8. ✅ **Enable API access** for programmatic certificate retrieval
 
 ### Distribution Scenarios
 
-The custody chain certificate is distributed in **three distinct scenarios**:
+The custody chain certificate is distributed in **two distinct scenarios**:
 
 **Scenario 1: To the Signer (After Signature Verification)**
 - Email sent immediately after signature approval
 - Contains: Link to custody certificate + signed petition
 - Purpose: Proof of participation and verification
 
-**Scenario 2: To the Petition Creator (When Someone Signs)**
-- Email sent when a new signature is verified on their petition
-- Contains: Link to both signed PDF + custody certificate
-- Purpose: Evidence collection and petition progress tracking
-
-**Scenario 3: Bulk Download by Creator (On Demand)**
-- ZIP file generated on request by petition creator
+**Scenario 2: Bulk Download by Creator (On Demand)**
+- Asynchronous ZIP generation triggered by petition creator
+- Email sent with download link when ready
 - Contains: All signed PDFs + all custody certificates + CSV manifest
+- Download link valid for 7 days
 - Purpose: Complete evidence package for legal/archival purposes
 
 ### Success Criteria
@@ -244,19 +226,16 @@ The custody chain certificate is distributed in **three distinct scenarios**:
 │  6. Store URL and hash in database                          │
 └────────────────────┬────────────────────────────────────────┘
                      │
-                     ├──────────────────────────────────────────┐
-                     │                                          │
-                     ▼                                          ▼
-┌─────────────────────────────────────┐  ┌────────────────────────────────────┐
-│   Send Certificate to Signer        │  │ Send Notification to Creator       │
-│   (Email with custody cert)          │  │ (Email with signed PDF + cert)     │
-│                                      │  │                                    │
-│  - Verification confirmation         │  │ - New signature alert              │
-│  - Link to custody certificate       │  │ - Signer information               │
-│  - Link to signed petition           │  │ - Link to signed PDF               │
-│  - Verification details              │  │ - Link to custody certificate      │
-└──────────────────────────────────────┘  │ - Petition progress update         │
-                                          └────────────────────────────────────┘
+                     ▼
+┌─────────────────────────────────────────────────────────────┐
+│            Send Certificate to Signer                       │
+│            (Email with custody cert)                        │
+│                                                             │
+│  - Verification confirmation                                │
+│  - Link to custody certificate                              │
+│  - Link to signed petition                                  │
+│  - Verification details                                     │
+└────────────────────┬────────────────────────────────────────┘
                      │
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
@@ -303,13 +282,7 @@ Signature Record
 | Scenario | Trigger | Recipient | Delivery Method | Content |
 |----------|---------|-----------|-----------------|---------|
 | **1. Signer Notification** | Signature approved | Person who signed | Email | Custody cert + signed PDF (links) |
-| **2. Creator Notification** | Signature approved | Petition creator | Email | Custody cert + signed PDF (links) |
-| **3. Bulk Download** | Creator requests | Petition creator | ZIP download | All signed PDFs + all custody certs + manifest |
-
----
-
-### Step 1: Enhance Signature Model
-
+| **2. Bulk Download** | Creator requests | Petition creator | Email (async) | ZIP download link (all PDFs + certs + manifest) |
 **File:** `apps/signatures/models.py`
 
 **Action:** Add new fields to store custody chain data
@@ -414,7 +387,7 @@ Page 1:
 │           Plataforma de Petições Públicas               │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  [LOGO]                           [QR CODE to verify]   │
+│  [LOGO]                           [QR CODE]             │
 │                                                         │
 │  CERTIFICADO Nº: [signature.uuid]                       │
 │  Emitido em: [certificate_generated_at]                 │
@@ -531,7 +504,7 @@ Page 1:
 │  acesse:                                                │
 │  https://peticaobrasil.com.br/verificar/[uuid]          │
 │                                                         │
-│  Ou escaneie o QR Code no topo deste documento.         │
+│  Ou escaneie o QR Code acima para verificação rápida.   │
 │                                                         │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
@@ -894,7 +867,7 @@ def verify_signature(self, signature_id):
 
 ---
 
-### Step 5: Create Email Templates
+### Step 5: Create Email Template
 
 #### 5.1 Email to Signer (After Signature Verification)
 
@@ -1000,167 +973,6 @@ def send_signature_verified_notification(signature_id):
 
 ---
 
-#### 5.2 Email to Petition Creator (When Someone Signs Their Petition)
-
-**File:** `templates/emails/new_signature_notification_creator.html` (NEW)
-
-**Purpose:** Notify petition creator about new signature with custody certificate attached
-
-**Template:**
-
-```html
-{% extends "emails/base.html" %}
-
-{% block content %}
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    <h1 style="color: #1E40AF; text-align: center;">Nova Assinatura Recebida! ✓</h1>
-    
-    <p>Olá, <strong>{{ petition.creator.get_full_name }}</strong>,</p>
-    
-    <p>Sua petição "<strong>{{ petition.title }}</strong>" recebeu uma nova assinatura verificada!</p>
-    
-    <div style="background-color: #ECFDF5; border-left: 4px solid #10B981; padding: 15px; margin: 20px 0;">
-        <h3 style="margin-top: 0; color: #047857;">Detalhes da Assinatura</h3>
-        <ul style="margin: 10px 0;">
-            <li><strong>Assinante:</strong> {{ signature.display_name }}</li>
-            <li><strong>Localização:</strong> {{ signature.city }}/{{ signature.state }}</li>
-            <li><strong>Data:</strong> {{ signature.verified_at|date:"d/m/Y H:i" }}</li>
-            <li><strong>Status:</strong> <span style="color: #10B981; font-weight: bold;">APROVADA</span></li>
-        </ul>
-    </div>
-    
-    <div style="background-color: #EFF6FF; border-left: 4px solid #3B82F6; padding: 15px; margin: 20px 0;">
-        <h3 style="margin-top: 0; color: #1E40AF;">Documentação</h3>
-        <p>Documentos relacionados a esta assinatura:</p>
-        
-        <p style="text-align: center; margin: 15px 0;">
-            <a href="{{ signature.signed_pdf_url }}" 
-               style="background-color: #3B82F6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 5px;">
-                📄 Petição Assinada
-            </a>
-            <a href="{{ signature.custody_certificate_url }}" 
-               style="background-color: #059669; color: white; padding: 10px 20px; text-decoration: none; border-radius: 6px; display: inline-block; margin: 5px;">
-                🔒 Certificado de Custódia
-            </a>
-        </p>
-        
-        <p style="font-size: 13px; color: #6B7280;">
-            <strong>Certificado de Custódia:</strong> Comprova a autenticidade e integridade da assinatura digital através de cadeia de verificação completa.
-        </p>
-    </div>
-    
-    <h3>Progresso da Petição:</h3>
-    <div style="background-color: #F3F4F6; padding: 15px; border-radius: 6px;">
-        <p style="margin: 0;">
-            <strong>Total de assinaturas:</strong> {{ petition.signature_count }} / {{ petition.signature_goal }}
-        </p>
-        <div style="background-color: #E5E7EB; height: 20px; border-radius: 10px; margin: 10px 0;">
-            <div style="background-color: #3B82F6; width: {{ progress_percentage }}%; height: 100%; border-radius: 10px;"></div>
-        </div>
-        <p style="margin: 0; font-size: 14px; color: #6B7280;">
-            {{ progress_percentage|floatformat:1 }}% da meta alcançada
-        </p>
-    </div>
-    
-    <div style="text-align: center; margin: 30px 0;">
-        <a href="{{ site_url }}/peticoes/{{ petition.uuid }}/" 
-           style="background-color: #1E40AF; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
-            Ver Petição →
-        </a>
-        <br><br>
-        <a href="{{ site_url }}/peticoes/{{ petition.uuid }}/assinaturas/" 
-           style="color: #3B82F6; text-decoration: none; font-weight: bold;">
-            Ver Todas as Assinaturas →
-        </a>
-    </div>
-    
-    <p style="margin-top: 30px; color: #6B7280; font-size: 14px;">
-        Continue compartilhando sua petição para alcançar mais pessoas!<br>
-        <strong>Equipe Petição Brasil</strong>
-    </p>
-</div>
-{% endblock %}
-```
-
-**Email Task for Petition Creator:**
-
-```python
-# In apps/core/tasks.py
-
-@shared_task
-def send_new_signature_notification_to_creator(signature_id):
-    """Send notification to petition creator when someone signs their petition."""
-    from apps.signatures.models import Signature
-    
-    try:
-        signature = Signature.objects.select_related('petition', 'petition__creator').get(id=signature_id)
-        petition = signature.petition
-        
-        # Calculate progress percentage
-        progress_percentage = (petition.signature_count / petition.signature_goal * 100) if petition.signature_goal > 0 else 0
-        
-        context = {
-            'signature': signature,
-            'petition': petition,
-            'progress_percentage': progress_percentage,
-            'site_url': settings.SITE_URL,
-        }
-        
-        # Send to petition creator
-        creator_email = petition.creator.email
-        if creator_email:
-            send_email(
-                subject=f'Nova assinatura na sua petição: {petition.title}',
-                template_name='emails/new_signature_notification_creator.html',
-                context=context,
-                recipient_list=[creator_email],
-            )
-            
-            logger.info(
-                "New signature notification sent to creator",
-                petition_uuid=str(petition.uuid),
-                signature_uuid=str(signature.uuid),
-                creator_email=creator_email
-            )
-        
-    except Exception as e:
-        logger.error(f"Error sending creator notification: {str(e)}")
-```
-
-**Integration in Verification Task:**
-
-Update `apps/signatures/tasks.py` to trigger both notifications:
-
-```python
-# In verify_signature() task, after approval:
-
-# Send verification email to signer
-try:
-    from apps.core.tasks import send_signature_verified_notification
-    send_signature_verified_notification.delay(signature.id)
-except Exception as e:
-    logger.error(f"Failed to queue verification email: {str(e)}")
-
-# NEW: Send notification to petition creator
-try:
-    from apps.core.tasks import send_new_signature_notification_to_creator
-    send_new_signature_notification_to_creator.delay(signature.id)
-except Exception as e:
-    logger.error(f"Failed to queue creator notification: {str(e)}")
-```
-
----
-
----
-
-#### 5.3 Bulk Download for Petition Creator
-
-**Purpose:** Allow petition creators to download all signed documents and custody certificates in one package
-
-**Implementation:** This will be handled in Step 6 with a dedicated download view.
-
----
-
 ### Step 6: Create Download Endpoints
 
 #### 6.1 Individual Certificate Download
@@ -1194,7 +1006,7 @@ urlpatterns = [
 
 **File:** `apps/petitions/urls.py`
 
-**Add URL for Bulk Download:**
+**Add URL for Bulk Download Request:**
 
 ```python
 from django.urls import path
@@ -1206,9 +1018,9 @@ urlpatterns = [
     # ... existing URLs ...
     
     path(
-        '<uuid:uuid>/download-all-signatures/',
-        views.DownloadAllSignaturesView.as_view(),
-        name='download_all_signatures'
+        '<uuid:uuid>/request-bulk-download/',
+        views.RequestBulkDownloadView.as_view(),
+        name='request_bulk_download'
     ),
 ]
 ```
@@ -1287,46 +1099,117 @@ class VerifyCustodyCertificateView(View):
 
 ---
 
-#### 6.2 Bulk Download for Petition Creator
+#### 6.2 Bulk Download for Petition Creator (Async)
 
-**File:** `apps/petitions/views.py`
+**Files:**
+- `apps/petitions/views.py` - Request view
+- `apps/petitions/tasks.py` - Async ZIP generation task
+- `templates/emails/bulk_download_ready.html` - Email notification
 
-**Add Bulk Download View:**
+**Process Flow:**
+1. Creator clicks download button → triggers async task
+2. Task generates ZIP file and uploads to S3
+3. Email sent with pre-signed download URL (7-day expiration)
+
+---
+
+**Add Request View:**
 
 ```python
-import zipfile
-from io import BytesIO
-import requests
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
+from django.shortcuts import redirect
 from apps.core.logging_utils import StructuredLogger
 
 logger = StructuredLogger(__name__)
 
 
-class DownloadAllSignaturesView(LoginRequiredMixin, View):
+class RequestBulkDownloadView(LoginRequiredMixin, View):
     """
-    Allow petition creator to download all signed PDFs and custody certificates.
-    Creates a ZIP file containing:
-    - All signed petition PDFs
-    - All custody chain certificates
-    - A CSV manifest with signature details
+    Request async generation of bulk download package.
+    User will receive email with download link when ready.
     """
     
-    def get(self, request, uuid):
-        """Generate and download ZIP file with all signatures."""
+    def post(self, request, uuid):
+        """Queue async task to generate ZIP file."""
         from apps.petitions.models import Petition
-        from apps.signatures.models import Signature
+        from apps.petitions.tasks import generate_bulk_download_package
         
         # Get petition
         petition = get_object_or_404(Petition, uuid=uuid)
         
         # Check permission - only creator can download
         if petition.creator != request.user:
-            raise PermissionDenied("Apenas o criador da petição pode baixar todas as assinaturas.")
+            raise PermissionDenied("Apenas o criador da petição pode solicitar download.")
+        
+        # Check if petition has signatures
+        if petition.signature_count == 0:
+            messages.error(request, 'Esta petição ainda não possui assinaturas aprovadas.')
+            return redirect('petitions:detail', uuid=uuid)
+        
+        logger.info(
+            "Bulk download requested",
+            petition_uuid=str(petition.uuid),
+            user_id=request.user.id,
+            user_email=request.user.email
+        )
+        
+        # Queue async task
+        generate_bulk_download_package.delay(
+            petition_id=petition.id,
+            user_id=request.user.id,
+            user_email=request.user.email
+        )
+        
+        messages.success(
+            request,
+            'Seu pacote de assinaturas está sendo preparado. '
+            'Você receberá um email com o link para download em alguns minutos.'
+        )
+        
+        return redirect('petitions:detail', uuid=uuid)
+```
+
+---
+
+**Add Async Task:**
+
+**File:** `apps/petitions/tasks.py`
+
+```python
+import zipfile
+from io import BytesIO
+import requests
+from datetime import timedelta
+from celery import shared_task
+from django.utils import timezone
+from django.conf import settings
+from apps.core.logging_utils import StructuredLogger
+from config.storage_backends import MediaStorage
+
+logger = StructuredLogger(__name__)
+
+
+@shared_task(bind=True, max_retries=3)
+def generate_bulk_download_package(self, petition_id, user_id, user_email):
+    """
+    Generate ZIP file with all signatures and send email with download link.
+    
+    Args:
+        petition_id: ID of the petition
+        user_id: ID of the requesting user
+        user_email: Email to send download link
+    """
+    from apps.petitions.models import Petition
+    from apps.signatures.models import Signature
+    from apps.core.tasks import send_email
+    
+    try:
+        petition = Petition.objects.get(id=petition_id)
         
         # Get all approved signatures
         signatures = Signature.objects.filter(
@@ -1335,16 +1218,17 @@ class DownloadAllSignaturesView(LoginRequiredMixin, View):
         ).select_related('petition').order_by('verified_at')
         
         if not signatures.exists():
-            return HttpResponse(
-                'Nenhuma assinatura aprovada encontrada.',
-                status=404
+            logger.warning(
+                "No approved signatures found for bulk download",
+                petition_id=petition_id
             )
+            return
         
         logger.info(
-            "Bulk download initiated",
+            "Starting bulk download generation",
             petition_uuid=str(petition.uuid),
             signature_count=signatures.count(),
-            user_id=request.user.id
+            user_id=user_id
         )
         
         # Create ZIP file in memory
@@ -1352,11 +1236,11 @@ class DownloadAllSignaturesView(LoginRequiredMixin, View):
         
         with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             # Add manifest CSV
-            manifest_csv = self._generate_manifest_csv(signatures)
+            manifest_csv = _generate_manifest_csv(signatures)
             zip_file.writestr('MANIFEST.csv', manifest_csv)
             
             # Add README
-            readme_content = self._generate_readme(petition, signatures.count())
+            readme_content = _generate_readme(petition, signatures.count())
             zip_file.writestr('README.txt', readme_content)
             
             # Process each signature
@@ -1365,7 +1249,7 @@ class DownloadAllSignaturesView(LoginRequiredMixin, View):
                     # Download signed PDF
                     if signature.signed_pdf_url:
                         signed_pdf_name = f"{idx:04d}_signed_{signature.uuid}.pdf"
-                        signed_pdf_data = self._download_file(signature.signed_pdf_url)
+                        signed_pdf_data = _download_file(signature.signed_pdf_url)
                         if signed_pdf_data:
                             zip_file.writestr(
                                 f"signed_pdfs/{signed_pdf_name}",
@@ -1375,7 +1259,7 @@ class DownloadAllSignaturesView(LoginRequiredMixin, View):
                     # Download custody certificate
                     if signature.custody_certificate_url:
                         cert_name = f"{idx:04d}_custody_{signature.uuid}.pdf"
-                        cert_data = self._download_file(signature.custody_certificate_url)
+                        cert_data = _download_file(signature.custody_certificate_url)
                         if cert_data:
                             zip_file.writestr(
                                 f"custody_certificates/{cert_name}",
@@ -1386,40 +1270,72 @@ class DownloadAllSignaturesView(LoginRequiredMixin, View):
                     logger.error(
                         f"Error adding signature {signature.uuid} to ZIP: {str(e)}"
                     )
-                    # Add error note to manifest but continue
+                    # Add error note but continue
                     error_note = f"Erro ao processar assinatura {signature.uuid}: {str(e)}\n"
                     zip_file.writestr(
                         f"errors/{signature.uuid}.txt",
                         error_note
                     )
         
-        # Prepare response
+        # Upload ZIP to S3
         zip_buffer.seek(0)
+        storage = MediaStorage()
         
-        response = HttpResponse(zip_buffer.getvalue(), content_type='application/zip')
-        filename = f"assinaturas_{petition.uuid}.zip"
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        from django.core.files.base import ContentFile
+        filename = f"bulk_downloads/assinaturas_{petition.uuid}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.zip"
+        saved_path = storage.save(filename, ContentFile(zip_buffer.getvalue()))
+        
+        # Generate pre-signed URL (valid for 7 days)
+        download_url = storage.url(saved_path, expire=604800)  # 7 days in seconds
         
         logger.info(
-            "Bulk download completed",
+            "Bulk download package generated",
             petition_uuid=str(petition.uuid),
-            user_id=request.user.id,
-            zip_size_bytes=len(zip_buffer.getvalue())
+            user_id=user_id,
+            zip_size_bytes=len(zip_buffer.getvalue()),
+            download_url=download_url
         )
         
-        return response
-    
-    def _download_file(self, url):
-        """Download file from URL and return bytes."""
-        try:
-            response = requests.get(url, timeout=30)
-            response.raise_for_status()
-            return response.content
-        except Exception as e:
-            logger.error(f"Error downloading file from {url}: {str(e)}")
-            return None
-    
-    def _generate_manifest_csv(self, signatures):
+        # Send email with download link
+        context = {
+            'petition': petition,
+            'signature_count': signatures.count(),
+            'download_url': download_url,
+            'expiration_days': 7,
+            'site_url': settings.SITE_URL,
+        }
+        
+        send_email(
+            subject=f'Pacote de Assinaturas Pronto - {petition.title}',
+            template_name='emails/bulk_download_ready.html',
+            context=context,
+            recipient_list=[user_email],
+        )
+        
+        logger.info(
+            "Bulk download email sent",
+            petition_uuid=str(petition.uuid),
+            user_email=user_email
+        )
+        
+    except Exception as e:
+        logger.error(f"Error generating bulk download: {str(e)}")
+        # Retry the task
+        raise self.retry(exc=e, countdown=60)
+
+
+def _download_file(url):
+    """Download file from URL and return bytes."""
+    try:
+        response = requests.get(url, timeout=30)
+        response.raise_for_status()
+        return response.content
+    except Exception as e:
+        logger.error(f"Error downloading file from {url}: {str(e)}")
+        return None
+
+
+def _generate_manifest_csv(signatures):
         """Generate CSV manifest of all signatures."""
         import csv
         from io import StringIO
@@ -1432,9 +1348,7 @@ class DownloadAllSignaturesView(LoginRequiredMixin, View):
             'Número',
             'UUID da Assinatura',
             'Nome Completo',
-            'Email',
-            'Cidade',
-            'Estado',
+            'CPF (hash)',
             'Data de Assinatura',
             'Data de Verificação',
             'Status',
@@ -1451,9 +1365,7 @@ class DownloadAllSignaturesView(LoginRequiredMixin, View):
                 idx,
                 str(sig.uuid),
                 sig.full_name,
-                sig.email,
-                sig.city,
-                sig.state,
+                sig.cpf_hash,
                 sig.signed_at.strftime('%d/%m/%Y %H:%M:%S') if sig.signed_at else '',
                 sig.verified_at.strftime('%d/%m/%Y %H:%M:%S') if sig.verified_at else '',
                 sig.get_verification_status_display(),
@@ -1526,20 +1438,108 @@ Equipe Petição Brasil
         """.strip()
 ```
 
-**Template Update for Petition Detail Page:**
+---
 
-Add download button for petition creators in `templates/petitions/petition_detail.html`:
+**Add Email Template:**
+
+**File:** `templates/emails/bulk_download_ready.html`
 
 ```html
-{% if user == petition.creator %}
-<div class="creator-actions mt-4">
-    <h3>Ações do Criador</h3>
-    <a href="{% url 'petitions:download_all_signatures' petition.uuid %}" 
-       class="btn btn-primary">
-        📦 Baixar Todas as Assinaturas
-    </a>
+{% extends "emails/base.html" %}
+
+{% block content %}
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h1 style="color: #1E40AF; text-align: center;">📦 Pacote de Assinaturas Pronto!</h1>
+    
+    <p>Olá,</p>
+    
+    <p>O pacote completo de assinaturas da petição "<strong>{{ petition.title }}</strong>" está pronto para download.</p>
+    
+    <div style="background-color: #EFF6FF; border: 2px solid #3B82F6; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
+        <h3 style="margin-top: 0; color: #1E40AF;">Seu Download Está Pronto</h3>
+        <p style="font-size: 18px; margin: 15px 0;">
+            <strong>{{ signature_count }}</strong> assinaturas incluídas
+        </p>
+        <a href="{{ download_url }}" 
+           style="background-color: #3B82F6; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold; font-size: 16px;">
+            📥 Baixar Pacote Completo
+        </a>
+        <p style="font-size: 13px; color: #6B7280; margin-top: 15px;">
+            ⏰ Link válido por <strong>{{ expiration_days }} dias</strong>
+        </p>
+    </div>
+    
+    <h3>O que está incluído:</h3>
+    <ul style="line-height: 1.8;">
+        <li>📄 <strong>{{ signature_count }}</strong> PDFs assinados digitalmente</li>
+        <li>🔒 <strong>{{ signature_count }}</strong> certificados de cadeia de custódia</li>
+        <li>📊 Planilha CSV com todos os metadados</li>
+        <li>📝 Arquivo README com instruções</li>
+    </ul>
+    
+    <div style="background-color: #FEF3C7; border-left: 4px solid #F59E0B; padding: 15px; margin: 20px 0;">
+        <h4 style="margin-top: 0; color: #92400E;">⚠️ Importante</h4>
+        <ul style="margin: 10px 0; color: #78350F;">
+            <li>O link de download expira em {{ expiration_days }} dias</li>
+            <li>Guarde os arquivos em local seguro</li>
+            <li>Não modifique os PDFs para preservar as assinaturas digitais</li>
+            <li>Os certificados possuem valor legal como evidência</li>
+        </ul>
+    </div>
+    
+    <h3>Detalhes da Petição:</h3>
+    <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+        <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;"><strong>Título:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;">{{ petition.title }}</td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;"><strong>UUID:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;"><code>{{ petition.uuid }}</code></td>
+        </tr>
+        <tr>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;"><strong>Total de Assinaturas:</strong></td>
+            <td style="padding: 8px 0; border-bottom: 1px solid #E5E7EB;">{{ signature_count }}</td>
+        </tr>
+    </table>
+    
+    <p style="text-align: center; margin: 30px 0;">
+        <a href="{{ site_url }}/peticoes/{{ petition.uuid }}/" 
+           style="color: #3B82F6; text-decoration: none; font-weight: bold;">
+            Ver Petição →
+        </a>
+    </p>
+    
+    <p style="margin-top: 30px; color: #6B7280; font-size: 14px;">
+        Se você não solicitou este download ou tem dúvidas, entre em contato conosco.<br>
+        <strong>Equipe Petição Brasil</strong>
+    </p>
+</div>
+{% endblock %}
+```
+
+---
+
+**Template Update for Petition Detail Page:**
+
+Add download request form for petition creators in `templates/petitions/petition_detail.html`:
+
+```html
+{% if user == petition.creator and petition.signature_count > 0 %}
+<div class="creator-actions mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+    <h3 class="text-lg font-bold mb-2">Ações do Criador</h3>
+    <form method="post" action="{% url 'petitions:request_bulk_download' petition.uuid %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">
+            📦 Solicitar Pacote Completo de Assinaturas
+        </button>
+    </form>
     <p class="text-sm text-gray-600 mt-2">
-        Baixa um arquivo ZIP contendo todos os PDFs assinados e certificados de custódia.
+        Você receberá um email com link para download de um arquivo ZIP contendo:<br>
+        • Todos os PDFs assinados ({{ petition.signature_count }})<br>
+        • Todos os certificados de custódia<br>
+        • Planilha CSV com metadados<br>
+        <em class="text-xs">Link válido por 7 dias</em>
     </p>
 </div>
 {% endif %}
@@ -1781,7 +1781,7 @@ class SignatureAdmin(admin.ModelAdmin):
 
 ---
 
-### Step 8: Add QR Code Support (Optional Enhancement)
+### Step 8: Add QR Code Support
 
 **Purpose:** Add QR code to certificate for easy verification
 
@@ -1817,6 +1817,228 @@ def _generate_qr_code(self, url):
     
     img = qr.make_image(fill_color="black", back_color="white")
     return img
+```
+
+---
+
+### Step 9: Update User-Facing Pages
+
+**Purpose:** Inform users about the new custody chain certificate feature
+
+#### 9.1 Update Home Page
+
+**File:** `templates/index.html` or `templates/static_pages/home.html`
+
+**Add to features section:**
+
+```html
+<div class="feature-card">
+    <div class="feature-icon">🔒</div>
+    <h3>Certificado de Cadeia de Custódia</h3>
+    <p>
+        Toda assinatura verificada recebe um <strong>certificado oficial</strong> 
+        que comprova a autenticidade, integridade do conteúdo da petição, e todo 
+        o processo de verificação. Valor legal garantido.
+    </p>
+    <ul class="feature-benefits">
+        <li>✓ Prova criptográfica de participação</li>
+        <li>✓ Verificação de integridade do texto da petição</li>
+        <li>✓ Timeline completa do processo</li>
+        <li>✓ Documento com validade jurídica</li>
+    </ul>
+</div>
+```
+
+#### 9.2 Update README.md
+
+**File:** `README.md`
+
+**Add to Features section:**
+
+```markdown
+### 🔒 Custody Chain Certification
+
+Every verified signature receives an **official custody chain certificate** that provides:
+
+- **Legal Evidence**: Cryptographically verifiable proof of signature verification
+- **Content Integrity**: Guarantees the petition text wasn't altered after signing
+- **Complete Audit Trail**: Full timeline of all verification steps
+- **ICP-Brasil Compliance**: Validates digital signatures against Brazilian standards
+- **Downloadable Certificate**: Users receive PDF certificate via email
+- **Bulk Download**: Petition creators can download all signatures + certificates
+
+**Certificate includes:**
+- Verification timestamp and details
+- ICP-Brasil certificate information
+- SHA-256 hash of verification evidence
+- QR code for instant verification
+- Complete chain of custody timeline
+- Content integrity verification
+
+#### 9.3 Update How to Sign Page
+
+**File:** `templates/help/how_to_sign.html` or similar
+
+**Add new section after signature steps:**
+
+```html
+<div class="info-section mt-6 p-6 bg-blue-50 border-l-4 border-blue-500">
+    <h3 class="text-xl font-bold mb-3">📜 O que você recebe após assinar</h3>
+    
+    <div class="mb-4">
+        <h4 class="font-semibold text-lg mb-2">Certificado de Cadeia de Custódia</h4>
+        <p class="mb-2">
+            Assim que sua assinatura for verificada, você receberá por email um 
+            <strong>Certificado de Cadeia de Custódia</strong> que comprova:
+        </p>
+        <ul class="list-disc ml-6 space-y-1">
+            <li>Que você assinou digitalmente a petição com certificado ICP-Brasil válido</li>
+            <li>A <strong>integridade do texto da petição</strong> que você assinou</li>
+            <li>A data e hora exatas de cada etapa da verificação</li>
+            <li>Todas as validações de segurança realizadas</li>
+            <li>Hash criptográfico que impede adulteração</li>
+        </ul>
+    </div>
+    
+    <div class="bg-white p-4 rounded-lg border border-blue-200 mt-4">
+        <h5 class="font-semibold mb-2">💼 Valor Legal</h5>
+        <p class="text-sm">
+            O certificado possui validade jurídica como evidência da sua participação 
+            e pode ser utilizado para comprovar que você assinou o texto exato da 
+            petição, sem alterações posteriores.
+        </p>
+    </div>
+    
+    <div class="mt-4">
+        <h5 class="font-semibold mb-2">📥 Como acessar seu certificado:</h5>
+        <ol class="list-decimal ml-6 space-y-1 text-sm">
+            <li>Aguarde o email de confirmação após assinar</li>
+            <li>Clique no link "Baixar Certificado de Custódia"</li>
+            <li>Guarde o PDF em local seguro</li>
+            <li>Use o QR code no certificado para verificação rápida</li>
+        </ol>
+    </div>
+</div>
+```
+
+#### 9.4 Add New Help Article
+
+**File:** `templates/help/custody_certificate.html` (NEW)
+
+**Create dedicated help page:**
+
+```html
+{% extends "base.html" %}
+
+{% block title %}Certificado de Cadeia de Custódia - Ajuda{% endblock %}
+
+{% block content %}
+<div class="container max-w-4xl mx-auto py-8 px-4">
+    <h1 class="text-3xl font-bold mb-6">🔒 Certificado de Cadeia de Custódia</h1>
+    
+    <div class="prose max-w-none">
+        <h2>O que é o Certificado de Cadeia de Custódia?</h2>
+        <p>
+            O Certificado de Cadeia de Custódia é um documento oficial gerado 
+            automaticamente para cada assinatura verificada. Ele funciona como 
+            uma <strong>prova criptográfica e juridicamente válida</strong> de 
+            todo o processo de verificação da sua assinatura digital.
+        </p>
+        
+        <h2>O que o certificado comprova?</h2>
+        <ul>
+            <li><strong>Autenticidade:</strong> Sua assinatura foi verificada com certificado ICP-Brasil válido</li>
+            <li><strong>Integridade do Conteúdo:</strong> O texto da petição que você assinou não foi alterado</li>
+            <li><strong>Timeline Completa:</strong> Data e hora de cada etapa do processo</li>
+            <li><strong>Validações de Segurança:</strong> Todas as verificações realizadas</li>
+            <li><strong>Não-Repúdio:</strong> Hash criptográfico impede negação ou adulteração</li>
+        </ul>
+        
+        <h2>Informações incluídas no certificado</h2>
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <ul class="space-y-2">
+                <li>✓ UUID único da assinatura</li>
+                <li>✓ Dados da petição (título, UUID)</li>
+                <li>✓ Informações do certificado digital ICP-Brasil</li>
+                <li>✓ Lista completa de verificações realizadas</li>
+                <li>✓ Cadeia de custódia cronológica</li>
+                <li>✓ Hash SHA-256 das evidências de verificação</li>
+                <li>✓ Hash SHA-256 do conteúdo da petição</li>
+                <li>✓ QR code para verificação instantânea</li>
+            </ul>
+        </div>
+        
+        <h2>Como verificar a autenticidade do certificado?</h2>
+        <ol>
+            <li>Acesse a URL de verificação no certificado ou escaneie o QR code</li>
+            <li>Compare o hash exibido com o hash impresso no certificado</li>
+            <li>Se coincidirem, o certificado é autêntico e não foi adulterado</li>
+        </ol>
+        
+        <h2>Valor Legal</h2>
+        <p class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+            <strong>Importante:</strong> O Certificado de Cadeia de Custódia possui 
+            validade jurídica como evidência eletrônica. Ele comprova que você 
+            participou da petição e assinou o texto exato publicado, sem alterações 
+            posteriores. Guarde-o em local seguro.
+        </p>
+        
+        <h2>Perguntas Frequentes</h2>
+        
+        <h3>Quando recebo o certificado?</h3>
+        <p>
+            Imediatamente após a verificação da sua assinatura ser concluída com 
+            sucesso, você receberá um email com link para download.
+        </p>
+        
+        <h3>Posso baixar novamente se perder?</h3>
+        <p>
+            Sim, o certificado fica armazenado permanentemente e pode ser baixado 
+            a qualquer momento através do seu perfil ou do link no email.
+        </p>
+        
+        <h3>O criador da petição tem acesso ao meu certificado?</h3>
+        <p>
+            Sim, quando o criador solicita o pacote completo de assinaturas, ele 
+            recebe todos os certificados junto com as assinaturas. Isso é necessário 
+            para fins legais e comprovação da petição.
+        </p>
+        
+        <h3>O certificado pode ser adulterado?</h3>
+        <p>
+            Não. O certificado contém um hash criptográfico (SHA-256) que funciona 
+            como uma "impressão digital" única. Qualquer alteração, por menor que 
+            seja, mudaria completamente o hash, tornando a adulteração detectável.
+        </p>
+    </div>
+</div>
+{% endblock %}
+```
+
+#### 9.5 Update Navigation/Help Menu
+
+**File:** `templates/partials/header.html` or navigation template
+
+**Add link to help menu:**
+
+```html
+<a href="{% url 'help:custody_certificate' %}" class="dropdown-item">
+    🔒 Certificado de Custódia
+</a>
+```
+
+#### 9.6 Update Footer
+
+**File:** `templates/partials/footer.html`
+
+**Add to "Recursos" or "Features" section:**
+
+```html
+<li>
+    <a href="{% url 'help:custody_certificate' %}" class="text-gray-600 hover:text-blue-600">
+        Certificado de Custódia
+    </a>
+</li>
 ```
 
 ---

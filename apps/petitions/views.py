@@ -12,6 +12,11 @@ from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.utils import timezone
 from datetime import timedelta
 from django.http import JsonResponse
+from django.views.generic import View
+from django.core.exceptions import PermissionDenied
+from apps.core.logging_utils import StructuredLogger
+
+logger = StructuredLogger(__name__)
 
 from .models import Petition, FlaggedContent
 from .forms import PetitionForm
@@ -292,6 +297,11 @@ def how_to_sign_view(request):
     return render(request, 'help/how_to_sign.html')
 
 
+def custody_certificate_view(request):
+    """Help page explaining custody chain certificates"""
+    return render(request, 'help/custody_certificate.html')
+
+
 def about_view(request):
     """About page with platform information"""
     return render(request, 'static_pages/about.html')
@@ -334,3 +344,48 @@ def petition_share(request, uuid):
         'share_count': petition.share_count,
         'share_urls': share_urls
     })
+
+
+class RequestBulkDownloadView(LoginRequiredMixin, View):
+    """
+    Request async generation of bulk download package.
+    User will receive email with download link when ready.
+    """
+    
+    def post(self, request, uuid):
+        """Queue async task to generate ZIP file."""
+        from apps.petitions.tasks import generate_bulk_download_package
+        
+        # Get petition
+        petition = get_object_or_404(Petition, uuid=uuid)
+        
+        # Check permission - only creator can download
+        if petition.creator != request.user:
+            raise PermissionDenied("Apenas o criador da petição pode solicitar download.")
+        
+        # Check if petition has signatures
+        if petition.signature_count == 0:
+            messages.error(request, 'Esta petição ainda não possui assinaturas aprovadas.')
+            return redirect('petitions:detail', uuid=uuid, slug=petition.slug)
+        
+        logger.info(
+            "Bulk download requested",
+            petition_uuid=str(petition.uuid),
+            user_id=request.user.id,
+            user_email=request.user.email
+        )
+        
+        # Queue async task
+        generate_bulk_download_package.delay(
+            petition_id=petition.id,
+            user_id=request.user.id,
+            user_email=request.user.email
+        )
+        
+        messages.success(
+            request,
+            'Seu pacote de assinaturas está sendo preparado. '
+            'Você receberá um email com o link para download em alguns minutos.'
+        )
+        
+        return redirect('petitions:detail', uuid=uuid, slug=petition.slug)

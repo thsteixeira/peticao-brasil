@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Certificado de Cadeia de Custódia - Ajuda{% endblock %}
+
+{% block content %}
+<div class="container max-w-4xl mx-auto py-8 px-4">
+    <h1 class="text-3xl font-bold mb-6">🔒 Certificado de Cadeia de Custódia</h1>
+    
+    <div class="prose max-w-none">
+        <h2>O que é o Certificado de Cadeia de Custódia?</h2>
+        <p>
+            O Certificado de Cadeia de Custódia é um documento oficial gerado 
+            automaticamente para cada assinatura verificada. Ele funciona como 
+            uma <strong>prova criptográfica e juridicamente válida</strong> de 
+            todo o processo de verificação da sua assinatura digital.
+        </p>
+        
+        <h2>O que o certificado comprova?</h2>
+        <ul>
+            <li><strong>Autenticidade:</strong> Sua assinatura foi verificada com certificado ICP-Brasil válido</li>
+            <li><strong>Integridade do Conteúdo:</strong> O texto da petição que você assinou não foi alterado</li>
+            <li><strong>Timeline Completa:</strong> Data e hora de cada etapa do processo</li>
+            <li><strong>Validações de Segurança:</strong> Todas as verificações realizadas</li>
+            <li><strong>Não-Repúdio:</strong> Hash criptográfico impede negação ou adulteração</li>
+        </ul>
+        
+        <h2>Informações incluídas no certificado</h2>
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <ul class="space-y-2">
+                <li>✓ UUID único da assinatura</li>
+                <li>✓ Dados da petição (título, UUID)</li>
+                <li>✓ Informações do certificado digital ICP-Brasil</li>
+                <li>✓ Lista completa de verificações realizadas</li>
+                <li>✓ Cadeia de custódia cronológica</li>
+                <li>✓ Hash SHA-256 das evidências de verificação</li>
+                <li>✓ Hash SHA-256 do conteúdo da petição</li>
+                <li>✓ QR code para verificação instantânea</li>
+            </ul>
+        </div>
+        
+        <h2>Como verificar a autenticidade do certificado?</h2>
+        <ol>
+            <li>Acesse a URL de verificação no certificado ou escaneie o QR code</li>
+            <li>Compare o hash exibido com o hash impresso no certificado</li>
+            <li>Se coincidirem, o certificado é autêntico e não foi adulterado</li>
+        </ol>
+        
+        <h2>Valor Legal</h2>
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+            <p>
+                <strong>Importante:</strong> O Certificado de Cadeia de Custódia possui 
+                validade jurídica como evidência eletrônica. Ele comprova que você 
+                participou da petição e assinou o texto exato publicado, sem alterações 
+                posteriores. Guarde-o em local seguro.
+            </p>
+        </div>
+        
+        <h2>Perguntas Frequentes</h2>
+        
+        <h3>Quando recebo o certificado?</h3>
+        <p>
+            Imediatamente após a verificação da sua assinatura ser concluída com 
+            sucesso, você receberá um email com link para download.
+        </p>
+        
+        <h3>Posso baixar novamente se perder?</h3>
+        <p>
+            Sim, o certificado fica armazenado permanentemente e pode ser baixado 
+            a qualquer momento através do link no email de confirmação.
+        </p>
+        
+        <h3>O criador da petição tem acesso ao meu certificado?</h3>
+        <p>
+            Sim, quando o criador solicita o pacote completo de assinaturas, ele 
+            recebe todos os certificados junto com as assinaturas. Isso é necessário 
+            para fins legais e comprovação da petição. No entanto, seus dados pessoais 
+            sensíveis (como email e localização) não são compartilhados - apenas nome 
+            e CPF hash.
+        </p>
+        
+        <h3>O certificado pode ser adulterado?</h3>
+        <p>
+            Não. O certificado contém um hash criptográfico (SHA-256) que funciona 
+            como uma "impressão digital" única. Qualquer alteração, por menor que 
+            seja, mudaria completamente o hash, tornando a adulteração detectável.
+        </p>
+        
+        <h3>O que acontece se o texto da petição for modificado depois que assinei?</h3>
+        <p>
+            O certificado de custódia comprova exatamente qual texto você assinou. 
+            Se o criador tentar modificar o conteúdo da petição posteriormente, isso 
+            ficará evidente porque o hash do conteúdo não corresponderá mais ao hash 
+            registrado no seu certificado. Essa é uma proteção importante para os 
+            signatários.
+        </p>
+        
+        <div class="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="text-lg font-bold mb-2">Ainda tem dúvidas?</h3>
+            <p>Entre em contato conosco através do email: <a href="mailto:contato@peticaobrasil.com.br" class="text-blue-600 hover:underline">contato@peticaobrasil.com.br</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

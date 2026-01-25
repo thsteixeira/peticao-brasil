@@ -42,10 +42,40 @@ class PendingReviewFilter(admin.SimpleListFilter):
 
 @admin.register(Signature)
 class SignatureAdmin(admin.ModelAdmin):
-    list_display = ['full_name', 'petition_link', 'status_badge', 'city', 'state', 'created_at', 'verified_at']
-    list_filter = [PendingReviewFilter, 'verification_status', 'state', 'verified_cpf_from_certificate', 'created_at']
-    search_fields = ['full_name', 'email', 'petition__title', 'cpf_hash', 'city']
-    readonly_fields = ['uuid', 'cpf_hash', 'ip_address_hash', 'created_at', 'signed_at', 'verified_at', 'certificate_info']
+    list_display = [
+        'full_name',
+        'petition_link',
+        'status_badge',
+        'city',
+        'state',
+        'created_at',
+        'verified_at',
+        'custody_certificate_link'
+    ]
+    list_filter = [
+        PendingReviewFilter,
+        'verification_status',
+        'state',
+        'verified_cpf_from_certificate',
+        'created_at'
+    ]
+    search_fields = ['full_name', 'email', 'petition__title', 'cpf_hash', 'city', 'uuid']
+    readonly_fields = [
+        'uuid',
+        'cpf_hash',
+        'ip_address_hash',
+        'created_at',
+        'signed_at',
+        'verified_at',
+        'processing_started_at',
+        'processing_completed_at',
+        'certificate_generated_at',
+        'certificate_info',
+        'verification_hash',
+        'verification_evidence_display',
+        'chain_of_custody_display',
+        'custody_certificate_preview'
+    ]
     date_hierarchy = 'created_at'
     list_per_page = 50
     
@@ -60,7 +90,29 @@ class SignatureAdmin(admin.ModelAdmin):
             'fields': ('signed_pdf_url', 'signed_pdf_size')
         }),
         ('Verificação', {
-            'fields': ('verification_status', 'verification_notes', 'verified_cpf_from_certificate', 'certificate_info')
+            'fields': (
+                'verification_status',
+                'verification_notes',
+                'rejection_reason',
+                'verified_cpf_from_certificate',
+            )
+        }),
+        ('Certificado Digital ICP-Brasil', {
+            'fields': (
+                'certificate_subject',
+                'certificate_issuer',
+                'certificate_serial',
+                'certificate_info'
+            )
+        }),
+        ('Cadeia de Custódia', {
+            'fields': (
+                'custody_certificate_preview',
+                'verification_hash',
+                'verification_evidence_display',
+                'chain_of_custody_display'
+            ),
+            'classes': ('collapse',)
         }),
         ('Privacidade', {
             'fields': ('display_name_publicly', 'receive_updates')
@@ -68,12 +120,19 @@ class SignatureAdmin(admin.ModelAdmin):
         ('Segurança', {
             'fields': ('ip_address_hash', 'user_agent')
         }),
-        ('Datas', {
-            'fields': ('created_at', 'signed_at', 'verified_at')
+        ('Timestamps', {
+            'fields': (
+                'created_at',
+                'signed_at',
+                'processing_started_at',
+                'processing_completed_at',
+                'verified_at',
+                'certificate_generated_at'
+            )
         }),
     )
     
-    actions = ['approve_signatures', 'reject_signatures_action', 'mark_for_review']
+    actions = ['approve_signatures', 'reject_signatures_action', 'mark_for_review', 'regenerate_custody_certificates']
     
     def petition_link(self, obj):
         """Display petition title as clickable link"""
@@ -180,6 +239,81 @@ class SignatureAdmin(admin.ModelAdmin):
         )
         self.message_user(request, f"{count} assinatura(s) marcada(s) para revisão.")
     mark_for_review.short_description = "⚠ Marcar para revisão manual"
+    
+    def custody_certificate_link(self, obj):
+        """Display link to custody certificate in list view."""
+        if obj.custody_certificate_url and obj.verification_status == Signature.STATUS_APPROVED:
+            return format_html(
+                '<a href="{}" target="_blank">📄 Ver</a>',
+                obj.custody_certificate_url
+            )
+        return '-'
+    custody_certificate_link.short_description = 'Certificado'
+    
+    def custody_certificate_preview(self, obj):
+        """Display custody certificate with download link in detail view."""
+        if obj.custody_certificate_url:
+            return format_html(
+                '<a href="{}" target="_blank" class="button">📄 Baixar Certificado de Custódia</a><br>'
+                '<small>Hash de Verificação: <code>{}</code></small><br>'
+                '<small>Gerado em: {}</small>',
+                obj.custody_certificate_url,
+                obj.verification_hash or 'N/A',
+                obj.certificate_generated_at.strftime('%d/%m/%Y %H:%M:%S') if obj.certificate_generated_at else 'N/A'
+            )
+        return format_html('<em>Certificado não gerado</em>')
+    custody_certificate_preview.short_description = 'Certificado de Custódia'
+    
+    def verification_evidence_display(self, obj):
+        """Display verification evidence as formatted JSON."""
+        if obj.verification_evidence:
+            import json
+            evidence_pretty = json.dumps(obj.verification_evidence, indent=2, ensure_ascii=False)
+            return format_html('<pre style="font-size: 11px; max-height: 400px; overflow: auto;">{}</pre>', evidence_pretty)
+        return '-'
+    verification_evidence_display.short_description = 'Evidências de Verificação'
+    
+    def chain_of_custody_display(self, obj):
+        """Display chain of custody timeline."""
+        if obj.chain_of_custody:
+            import json
+            chain_pretty = json.dumps(obj.chain_of_custody, indent=2, ensure_ascii=False)
+            return format_html('<pre style="font-size: 11px; max-height: 400px; overflow: auto;">{}</pre>', chain_pretty)
+        return '-'
+    chain_of_custody_display.short_description = 'Cadeia de Custódia'
+    
+    def regenerate_custody_certificates(self, request, queryset):
+        """Admin action to regenerate custody certificates."""
+        from apps.signatures.custody_service import generate_custody_certificate
+        
+        count = 0
+        errors = 0
+        for signature in queryset.filter(verification_status=Signature.STATUS_APPROVED):
+            try:
+                generate_custody_certificate(signature)
+                count += 1
+            except Exception as e:
+                errors += 1
+                self.message_user(
+                    request,
+                    f'Erro ao regenerar certificado para {signature.uuid}: {str(e)}',
+                    level='error'
+                )
+        
+        if count > 0:
+            self.message_user(
+                request,
+                f'{count} certificado(s) regenerado(s) com sucesso.',
+                level='success'
+            )
+        if errors > 0:
+            self.message_user(
+                request,
+                f'{errors} erro(s) ao regenerar certificados.',
+                level='warning'
+            )
+    
+    regenerate_custody_certificates.short_description = '🔄 Regenerar certificados de custódia'
     
     def get_queryset(self, request):
         """Optimize queries with select_related"""
