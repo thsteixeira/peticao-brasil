@@ -12,6 +12,9 @@
     <!-- Mobile-specific CSS -->
     <link rel="stylesheet" href="{% static 'css/mobile.css' %}">
     
+    <!-- PWA-specific CSS -->
+    <link rel="stylesheet" href="{% static 'css/pwa.css' %}">
+    
     {% block extra_css %}{% endblock %}
 </head>
 <body class="bg-gray-50 min-h-screen flex flex-col">
@@ -104,6 +107,9 @@
                     <p class="text-gray-400 text-xs sm:text-sm">
                         Plataforma democrática para petições públicas com assinatura digital Gov.br
                     </p>
+                    <button id="pwa-install-link" class="mt-3 text-blue-400 hover:text-blue-300 text-xs sm:text-sm hidden">
+                        📱 Instalar Aplicativo
+                    </button>
                 </div>
                 <div>
                     <h3 class="font-bold mb-2 text-sm sm:text-base">Links</h3>
@@ -135,6 +141,9 @@
     </footer>
     
     {% block extra_js %}{% endblock %}
+    
+    <!-- PWA Service Worker Registration -->
+    <script src="{% static 'js/pwa-register.js' %}"></script>
     
     <!-- Mobile Menu Script -->
     <script>

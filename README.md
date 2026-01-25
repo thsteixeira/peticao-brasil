@@ -20,6 +20,7 @@ O **Petição Brasil** é uma plataforma digital sem fins lucrativos que facilit
 - ✅ **Certificado de Cadeia de Custódia** - Prova criptográfica de cada assinatura
 - ✅ PDFs com hash criptográfico (SHA-256)
 - ✅ Conformidade com LGPD (Lei Geral de Proteção de Dados)
+- ✅ **Progressive Web App (PWA)** - Funciona offline, instalável em dispositivos
 - ✅ Interface responsiva e acessível
 - ✅ Sistema de moderação de conteúdo
 - ✅ Transparência total das assinaturas
@@ -220,6 +221,30 @@ A documentação completa do projeto está em `/DOCS/`:
 - [10-next-steps.md](DOCS/10-next-steps.md) - Próximos passos
 - [11-mobile-responsiveness.md](DOCS/11-mobile-responsiveness.md) - Responsividade mobile
 - [12-custody-chain-certification.md](DOCS/12-custody-chain-certification.md) - Certificação de cadeia de custódia
+- [13-pwa-implementation.md](DOCS/13-pwa-implementation.md) - **Implementação PWA** ⭐ NOVO
+
+### 🚀 PWA (Progressive Web App)
+
+O projeto agora é uma **Progressive Web App** completa! Veja [PWA_README.md](PWA_README.md) para início rápido.
+
+**Recursos PWA:**
+- 📱 Instalável em dispositivos móveis e desktop
+- 🌐 Funciona offline com cache inteligente
+- ⚡ Carregamento ultrarrápido
+- 🔔 Suporte para notificações push
+- 🔄 Atualizações automáticas
+
+**Quick Start:**
+```bash
+# Gerar ícones
+.\generate_pwa_icons.ps1
+
+# Verificar configuração
+python pwa_health_check.py
+
+# Coletar arquivos estáticos
+python manage.py collectstatic
+```
 
 ---
 

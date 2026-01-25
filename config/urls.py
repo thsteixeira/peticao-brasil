@@ -7,6 +7,13 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from apps.core.sitemaps import PetitionSitemap, StaticViewSitemap
+from apps.core.pwa_views import (
+    manifest_view,
+    service_worker_view,
+    offline_view,
+    browserconfig_view,
+    PWAInstallView
+)
 
 # Sitemap configuration
 sitemaps = {
@@ -20,6 +27,14 @@ urlpatterns = [
     path('signatures/', include('apps.signatures.urls')),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('robots.txt', include('robots.urls')),
+    
+    # PWA URLs
+    path('manifest.json', manifest_view, name='manifest'),
+    path('service-worker.js', service_worker_view, name='service-worker'),
+    path('offline/', offline_view, name='offline'),
+    path('browserconfig.xml', browserconfig_view, name='browserconfig'),
+    path('pwa/install/', PWAInstallView.as_view(), name='pwa-install'),
+    
     path('', include('apps.petitions.urls')),
 ]
 

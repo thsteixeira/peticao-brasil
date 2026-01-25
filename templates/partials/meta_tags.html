@@ -1,10 +1,31 @@
 {% load static %}
 {# Basic Meta Tags #}
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="{{ meta_description|default:'Petição Brasil - Plataforma de petições online para mudanças sociais. Crie e assine petições para causas que você acredita.' }}">
 <meta name="keywords" content="petição, petições online, mudança social, Brasil, democracia, ativismo">
 <meta name="author" content="Petição Brasil">
+
+{# Favicons #}
+<link rel="icon" type="image/x-icon" href="{% static 'images/favicon_io/favicon.ico' %}">
+<link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon_io/favicon-32x32.png' %}">
+<link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon_io/favicon-16x16.png' %}">
+<link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon_io/apple-touch-icon.png' %}">
+
+{# PWA Meta Tags #}
+<meta name="theme-color" content="#1e4d7b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Petição Brasil">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="Petição Brasil">
+<meta name="msapplication-TileColor" content="#1e4d7b">
+<meta name="msapplication-TileImage" content="{% static 'images/favicon_io/android-chrome-192x192.png' %}">
+<meta name="msapplication-config" content="{% static 'browserconfig.xml' %}">
+
+{# PWA Links #}
+<link rel="manifest" href="/manifest.json">
+<link rel="shortcut icon" href="{% static 'images/favicon_io/favicon.ico' %}">
 
 {# Canonical URL #}
 {% if canonical_url %}
@@ -19,9 +40,12 @@
 <meta property="og:url" content="{% firstof og_url canonical_url request.build_absolute_uri %}">
 {% if og_image %}
 <meta property="og:image" content="{{ og_image }}">
+{% else %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/social/og-image.png' %}">
+{% endif %}
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-{% endif %}
+<meta property="og:image:alt" content="Petição Brasil - Democracia Digital">
 <meta property="og:locale" content="pt_BR">
 
 {# Twitter Card Meta Tags #}
@@ -32,7 +56,10 @@
 <meta name="twitter:image" content="{{ twitter_image }}">
 {% elif og_image %}
 <meta name="twitter:image" content="{{ og_image }}">
+{% else %}
+<meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/social/twitter-card.png' %}">
 {% endif %}
+<meta name="twitter:image:alt" content="Petição Brasil - Plataforma de Democracia Digital">
 
 {# Additional SEO Meta Tags #}
 <meta name="robots" content="{% if noindex %}noindex, nofollow{% else %}index, follow{% endif %}">

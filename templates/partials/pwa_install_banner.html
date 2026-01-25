@@ -1,0 +1,223 @@
+<!-- PWA Install Prompt Component -->
+<!-- Include this in pages where you want to show the install prompt -->
+
+<div id="pwa-install-banner" class="hidden fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-2xl z-50 transform transition-all duration-300" style="animation: slideUp 0.5s ease-out;">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <!-- Icon and Message -->
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 bg-white bg-opacity-20 p-3 rounded-lg">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-lg mb-1">Instale o App Petição Brasil</h3>
+                    <p class="text-sm text-blue-100">
+                        Acesse mais rápido e receba notificações sobre suas petições
+                    </p>
+                    <div class="flex gap-2 mt-2 text-xs text-blue-100">
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            Acesso offline
+                        </span>
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            Notificações
+                        </span>
+                        <span class="flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            Mais rápido
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex gap-2 flex-shrink-0">
+                <button 
+                    id="pwa-install-banner-install-btn"
+                    class="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-colors shadow-md">
+                    Instalar
+                </button>
+                <button 
+                    id="pwa-install-banner-close-btn"
+                    class="bg-blue-800 bg-opacity-50 text-white px-4 py-2 rounded-lg hover:bg-opacity-70 transition-colors">
+                    Agora não
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+#pwa-install-banner.hiding {
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+</style>
+
+<script>
+(function() {
+    'use strict';
+    
+    const banner = document.getElementById('pwa-install-banner');
+    const installBtn = document.getElementById('pwa-install-banner-install-btn');
+    const closeBtn = document.getElementById('pwa-install-banner-close-btn');
+    
+    let deferredPrompt = null;
+    
+    // Check if already installed or dismissed
+    const isInstalled = window.matchMedia('(display-mode: standalone)').matches || 
+                       window.navigator.standalone === true;
+    const isDismissed = localStorage.getItem('pwa-install-dismissed') === 'true';
+    const dismissedTime = localStorage.getItem('pwa-install-dismissed-time');
+    
+    // Show banner again after 7 days if previously dismissed
+    const shouldShowAgain = dismissedTime && 
+                           (Date.now() - parseInt(dismissedTime)) > (7 * 24 * 60 * 60 * 1000);
+    
+    if (shouldShowAgain) {
+        localStorage.removeItem('pwa-install-dismissed');
+        localStorage.removeItem('pwa-install-dismissed-time');
+    }
+    
+    // Listen for install prompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Show banner if not installed and not dismissed
+        if (!isInstalled && (!isDismissed || shouldShowAgain)) {
+            // Show banner after 5 seconds
+            setTimeout(() => {
+                banner.classList.remove('hidden');
+            }, 5000);
+        }
+    });
+    
+    // Install button click
+    if (installBtn) {
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) {
+                console.log('No install prompt available');
+                return;
+            }
+            
+            // Show the install prompt
+            deferredPrompt.prompt();
+            
+            // Wait for the user to respond
+            const { outcome } = await deferredPrompt.userChoice;
+            console.log(`User response: ${outcome}`);
+            
+            // Track installation attempt
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pwa_install_prompt', {
+                    event_category: 'PWA',
+                    event_label: outcome
+                });
+            }
+            
+            // Hide banner
+            hideBanner();
+            
+            // Clear the prompt
+            deferredPrompt = null;
+        });
+    }
+    
+    // Close button click
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            localStorage.setItem('pwa-install-dismissed', 'true');
+            localStorage.setItem('pwa-install-dismissed-time', Date.now().toString());
+            hideBanner();
+            
+            // Track dismissal
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'pwa_install_dismissed', {
+                    event_category: 'PWA'
+                });
+            }
+        });
+    }
+    
+    // Hide banner with animation
+    function hideBanner() {
+        banner.classList.add('hiding');
+        setTimeout(() => {
+            banner.classList.add('hidden');
+            banner.classList.remove('hiding');
+        }, 300);
+    }
+    
+    // Track successful installation
+    window.addEventListener('appinstalled', () => {
+        console.log('PWA installed successfully');
+        hideBanner();
+        
+        // Track installation
+        if (typeof gtag !== 'undefined') {
+            gtag('event', 'pwa_installed', {
+                event_category: 'PWA'
+            });
+        }
+        
+        // Send to backend for analytics
+        fetch('/pwa/install/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                installed_at: new Date().toISOString()
+            })
+        }).catch(err => console.error('Failed to track installation:', err));
+    });
+    
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+})();
+</script>
