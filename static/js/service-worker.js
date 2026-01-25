@@ -1,7 +1,7 @@
 // Service Worker for Petição Brasil PWA
 // IMPORTANT: Update this version on every deploy to invalidate old caches
 // Last updated: 2025-01-24
-const CACHE_VERSION = 'v1.0.2-20250124';
+const CACHE_VERSION = 'v2.0.0-network-first-fix';
 const CACHE_NAME = `peticao-brasil-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline/';
 
