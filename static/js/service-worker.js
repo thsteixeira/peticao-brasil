@@ -1,5 +1,7 @@
 // Service Worker for Petição Brasil PWA
-const CACHE_VERSION = 'v1.0.0';
+// IMPORTANT: Update this version on every deploy to invalidate old caches
+// Last updated: 2025-01-24
+const CACHE_VERSION = 'v1.0.2-20250124';
 const CACHE_NAME = `peticao-brasil-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline/';
 
@@ -7,16 +9,23 @@ const OFFLINE_URL = '/offline/';
 const STATIC_CACHE_URLS = [
   '/',
   '/offline/',
-  '/static/css/mobile.css',
-  '/static/js/share.js',
+  // Don't pre-cache CSS files - let them be cached on first request
+  // This prevents caching old versions
   '/static/manifest.json',
 ];
 
 // Dynamic cache configuration
 const CACHE_STRATEGIES = {
-  // Cache first, fallback to network
+  // Network first for CSS to always get latest styles (with fallback to cache when offline)
+  networkFirst: [
+    '/static/css/',
+    '/static/js/pwa',
+    '/static/js/share',
+  ],
+  // Cache first for truly static assets (images, fonts)
   static: [
-    '/static/',
+    '/static/images/',
+    '/static/fonts/',
     '/media/',
   ],
   // Network first, fallback to cache
@@ -85,7 +94,13 @@ self.addEventListener('fetch', (event) => {
   if (!url.protocol.startsWith('http')) {
     return;
   }
+  Network first for CSS and dynamic JS
+  if (shouldUseNetworkFirst(url.pathname)) {
+    event.respondWith(networkFirst(request));
+    return;
+  }
   
+  // Static resources - Cache First strategy (images, fonts)
   // Network only strategy for specific paths
   if (shouldUseNetworkOnly(url.pathname)) {
     event.respondWith(fetch(request));
@@ -101,7 +116,12 @@ self.addEventListener('fetch', (event) => {
   // Dynamic content - Network First strategy
   event.respondWith(networkFirst(request));
 });
+network-first strategy
+function shouldUseNetworkFirst(pathname) {
+  return CACHE_STRATEGIES.networkFirst.some(pattern => pathname.startsWith(pattern));
+}
 
+// Check if URL should use 
 // Check if URL should use network-only strategy
 function shouldUseNetworkOnly(pathname) {
   return CACHE_STRATEGIES.networkOnly.some(pattern => pathname.startsWith(pattern));

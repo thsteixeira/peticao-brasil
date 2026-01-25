@@ -88,15 +88,21 @@ def manifest_view(request):
 
 
 @require_GET
-@cache_page(60 * 60 * 24)  # Cache for 24 hours
 def service_worker_view(request):
     """
     Serve the service worker JavaScript file.
+    IMPORTANT: No caching! Service worker needs to check for updates frequently.
     """
     with open(settings.BASE_DIR / 'static' / 'js' / 'service-worker.js', 'r', encoding='utf-8') as f:
         content = f.read()
     
-    return HttpResponse(content, content_type='application/javascript')
+    response = HttpResponse(content, content_type='application/javascript')
+    # Prevent caching of service worker - browsers need to check for updates
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    
+    return response
 
 
 @require_GET

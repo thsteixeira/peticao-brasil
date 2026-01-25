@@ -102,6 +102,11 @@ AWS_S3_OBJECT_PARAMETERS = {
     'CacheControl': 'max-age=86400',  # 24 hours cache for public files
 }
 
+# WhiteNoise Configuration for Static Files
+# Add immutable flag and increase max-age for hashed files
+WHITENOISE_MAX_AGE = 31536000  # 1 year for hashed files
+WHITENOISE_IMMUTABLE_FILE_TEST = lambda path, url: True  # All files are versioned by manifest
+
 # Security Settings
 AWS_DEFAULT_ACL = None  # ACLs disabled - use bucket policy
 AWS_S3_FILE_OVERWRITE = False  # Don't overwrite files with same name
