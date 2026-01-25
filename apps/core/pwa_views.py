@@ -110,7 +110,7 @@ def offline_view(request):
     """
     Offline fallback page.
     """
-    return render(request, 'offline.html')
+    return render(request, 'static_pages/offline.html')
 
 
 @require_GET

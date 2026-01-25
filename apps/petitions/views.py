@@ -289,7 +289,7 @@ def home_view(request):
         'total_signatures': total_signatures,
     }
     
-    return render(request, 'petitions/home.html', context)
+    return render(request, 'static_pages/home.html', context)
 
 
 def how_to_sign_view(request):
