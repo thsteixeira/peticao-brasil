@@ -242,10 +242,10 @@ class DownloadCustodyCertificateView(View):
 
 
 class VerifyCustodyCertificateView(View):
-    """API endpoint to verify certificate authenticity."""
+    """View to verify certificate authenticity - supports both HTML and JSON."""
     
     def get(self, request, uuid):
-        """Return certificate verification data."""
+        """Return certificate verification data as HTML or JSON."""
         signature = get_object_or_404(
             Signature.objects.select_related('petition'),
             uuid=uuid,
@@ -266,16 +266,25 @@ class VerifyCustodyCertificateView(View):
             
             integrity_verified = (calculated_hash == signature.verification_hash)
         
-        return JsonResponse({
-            'signature_uuid': str(signature.uuid),
-            'petition_title': signature.petition.title,
-            'petition_uuid': str(signature.petition.uuid),
-            'signer_name': signature.full_name,
-            'signed_at': signature.signed_at.isoformat() if signature.signed_at else None,
-            'verified_at': signature.verified_at.isoformat() if signature.verified_at else None,
-            'verification_hash': signature.verification_hash,
+        # Return JSON if requested via Accept header or query parameter
+        if request.GET.get('format') == 'json' or request.META.get('HTTP_ACCEPT', '').startswith('application/json'):
+            return JsonResponse({
+                'signature_uuid': str(signature.uuid),
+                'petition_title': signature.petition.title,
+                'petition_uuid': str(signature.petition.uuid),
+                'signer_name': signature.full_name,
+                'signed_at': signature.signed_at.isoformat() if signature.signed_at else None,
+                'verified_at': signature.verified_at.isoformat() if signature.verified_at else None,
+                'verification_hash': signature.verification_hash,
+                'integrity_verified': integrity_verified,
+                'certificate_url': signature.custody_certificate_url,
+                'certificate_generated_at': signature.certificate_generated_at.isoformat() if signature.certificate_generated_at else None,
+                'status': 'valid' if integrity_verified else 'integrity_check_failed',
+            })
+        
+        # Return HTML page for browser/QR code access
+        context = {
+            'signature': signature,
             'integrity_verified': integrity_verified,
-            'certificate_url': signature.custody_certificate_url,
-            'certificate_generated_at': signature.certificate_generated_at.isoformat() if signature.certificate_generated_at else None,
-            'status': 'valid' if integrity_verified else 'integrity_check_failed',
-        })
+        }
+        return render(request, 'signatures/verify_certificate.html', context)

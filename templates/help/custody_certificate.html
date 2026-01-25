@@ -3,100 +3,292 @@
 {% block title %}Certificado de Cadeia de Custódia - Ajuda{% endblock %}
 
 {% block content %}
-<div class="container max-w-4xl mx-auto py-8 px-4">
-    <h1 class="text-3xl font-bold mb-6">🔒 Certificado de Cadeia de Custódia</h1>
-    
-    <div class="prose max-w-none">
-        <h2>O que é o Certificado de Cadeia de Custódia?</h2>
-        <p>
-            O Certificado de Cadeia de Custódia é um documento oficial gerado 
-            automaticamente para cada assinatura verificada. Ele funciona como 
-            uma <strong>prova criptográfica e juridicamente válida</strong> de 
-            todo o processo de verificação da sua assinatura digital.
-        </p>
-        
-        <h2>O que o certificado comprova?</h2>
-        <ul>
-            <li><strong>Autenticidade:</strong> Sua assinatura foi verificada com certificado ICP-Brasil válido</li>
-            <li><strong>Integridade do Conteúdo:</strong> O texto da petição que você assinou não foi alterado</li>
-            <li><strong>Timeline Completa:</strong> Data e hora de cada etapa do processo</li>
-            <li><strong>Validações de Segurança:</strong> Todas as verificações realizadas</li>
-            <li><strong>Não-Repúdio:</strong> Hash criptográfico impede negação ou adulteração</li>
-        </ul>
-        
-        <h2>Informações incluídas no certificado</h2>
-        <div class="bg-gray-50 p-4 rounded-lg">
-            <ul class="space-y-2">
-                <li>✓ UUID único da assinatura</li>
-                <li>✓ Dados da petição (título, UUID)</li>
-                <li>✓ Informações do certificado digital ICP-Brasil</li>
-                <li>✓ Lista completa de verificações realizadas</li>
-                <li>✓ Cadeia de custódia cronológica</li>
-                <li>✓ Hash SHA-256 das evidências de verificação</li>
-                <li>✓ Hash SHA-256 do conteúdo da petição</li>
-                <li>✓ QR code para verificação instantânea</li>
-            </ul>
-        </div>
-        
-        <h2>Como verificar a autenticidade do certificado?</h2>
-        <ol>
-            <li>Acesse a URL de verificação no certificado ou escaneie o QR code</li>
-            <li>Compare o hash exibido com o hash impresso no certificado</li>
-            <li>Se coincidirem, o certificado é autêntico e não foi adulterado</li>
-        </ol>
-        
-        <h2>Valor Legal</h2>
-        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
-            <p>
-                <strong>Importante:</strong> O Certificado de Cadeia de Custódia possui 
-                validade jurídica como evidência eletrônica. Ele comprova que você 
-                participou da petição e assinou o texto exato publicado, sem alterações 
-                posteriores. Guarde-o em local seguro.
+<div class="bg-gradient-to-b from-blue-50 to-white min-h-screen">
+    <div class="container max-w-6xl mx-auto py-12 px-4">
+        <!-- Header -->
+        <div class="text-center mb-12">
+            <div class="inline-block p-4 bg-blue-100 rounded-full mb-4">
+                <svg class="w-16 h-16 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">Certificado de Cadeia de Custódia</h1>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Prova criptográfica e juridicamente válida de todo o processo de verificação da sua assinatura digital
             </p>
         </div>
-        
-        <h2>Perguntas Frequentes</h2>
-        
-        <h3>Quando recebo o certificado?</h3>
-        <p>
-            Imediatamente após a verificação da sua assinatura ser concluída com 
-            sucesso, você receberá um email com link para download.
-        </p>
-        
-        <h3>Posso baixar novamente se perder?</h3>
-        <p>
-            Sim, o certificado fica armazenado permanentemente e pode ser baixado 
-            a qualquer momento através do link no email de confirmação.
-        </p>
-        
-        <h3>O criador da petição tem acesso ao meu certificado?</h3>
-        <p>
-            Sim, quando o criador solicita o pacote completo de assinaturas, ele 
-            recebe todos os certificados junto com as assinaturas. Isso é necessário 
-            para fins legais e comprovação da petição. No entanto, seus dados pessoais 
-            sensíveis (como email e localização) não são compartilhados - apenas nome 
-            e CPF hash.
-        </p>
-        
-        <h3>O certificado pode ser adulterado?</h3>
-        <p>
-            Não. O certificado contém um hash criptográfico (SHA-256) que funciona 
-            como uma "impressão digital" única. Qualquer alteração, por menor que 
-            seja, mudaria completamente o hash, tornando a adulteração detectável.
-        </p>
-        
-        <h3>O que acontece se o texto da petição for modificado depois que assinei?</h3>
-        <p>
-            O certificado de custódia comprova exatamente qual texto você assinou. 
-            Se o criador tentar modificar o conteúdo da petição posteriormente, isso 
-            ficará evidente porque o hash do conteúdo não corresponderá mais ao hash 
-            registrado no seu certificado. Essa é uma proteção importante para os 
-            signatários.
-        </p>
-        
-        <div class="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
-            <h3 class="text-lg font-bold mb-2">Ainda tem dúvidas?</h3>
-            <p>Entre em contato conosco através do email: <a href="mailto:contato@peticaobrasil.com.br" class="text-blue-600 hover:underline">contato@peticaobrasil.com.br</a></p>
+
+        <!-- What is it -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-3">O que é?</h2>
+                    <p class="text-gray-700 leading-relaxed">
+                        O Certificado de Cadeia de Custódia é um documento oficial gerado automaticamente para cada assinatura verificada. 
+                        Ele funciona como uma <strong>prova criptográfica e juridicamente válida</strong> de todo o processo de verificação 
+                        da sua assinatura digital, garantindo transparência e segurança jurídica.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- What it proves -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">O que o certificado comprova?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Autenticidade</h3>
+                    <p class="text-gray-600 text-sm">Assinatura verificada com certificado ICP-Brasil válido</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Integridade</h3>
+                    <p class="text-gray-600 text-sm">Texto da petição não foi alterado após assinatura</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Timeline Completa</h3>
+                    <p class="text-gray-600 text-sm">Data e hora de cada etapa do processo registradas</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Validações</h3>
+                    <p class="text-gray-600 text-sm">Todas as verificações de segurança documentadas</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Não-Repúdio</h3>
+                    <p class="text-gray-600 text-sm">Hash criptográfico impede negação ou adulteração</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Hash SHA-256</h3>
+                    <p class="text-gray-600 text-sm">Impressão digital criptográfica única e verificável</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information included -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl shadow-lg p-8 mb-8 text-white">
+            <h2 class="text-3xl font-bold mb-6 text-center">Informações incluídas no certificado</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-blue-200 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>UUID único da assinatura</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-blue-200 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Dados da petição (título, UUID)</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-blue-200 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Informações do certificado ICP-Brasil</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-blue-200 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Lista completa de verificações</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-blue-200 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Cadeia de custódia cronológica</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-blue-200 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Hash SHA-256 das evidências</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-blue-200 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>Hash SHA-256 do conteúdo</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <svg class="w-6 h-6 text-blue-200 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>QR code para verificação instantânea</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- How to verify -->
+        <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div class="flex items-start space-x-4 mb-6">
+                <div class="flex-shrink-0">
+                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Como verificar a autenticidade?</h2>
+                    <p class="text-gray-600">Siga estes passos simples para confirmar que seu certificado é genuíno</p>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <div class="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">1</div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Acesse a URL de verificação</h3>
+                        <p class="text-gray-600 text-sm">Use a URL impressa no certificado ou escaneie o QR code com seu celular</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">2</div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Compare o hash exibido</h3>
+                        <p class="text-gray-600 text-sm">Verifique se o hash mostrado na tela corresponde ao impresso no certificado</p>
+                    </div>
+                </div>
+                <div class="flex items-start space-x-4 p-4 bg-gray-50 rounded-lg">
+                    <div class="flex-shrink-0 w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center font-bold">✓</div>
+                    <div>
+                        <h3 class="font-semibold text-gray-900 mb-1">Certificado autêntico!</h3>
+                        <p class="text-gray-600 text-sm">Se os hashes coincidirem, o certificado é válido e não foi adulterado</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legal value -->
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-8 mb-8">
+            <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0">
+                    <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-yellow-900 mb-2">⚖️ Valor Legal</h3>
+                    <p class="text-yellow-800">
+                        <strong>Importante:</strong> O Certificado de Cadeia de Custódia possui validade jurídica como 
+                        evidência eletrônica. Ele comprova que você participou da petição e assinou o texto exato publicado, 
+                        sem alterações posteriores. <strong>Guarde-o em local seguro.</strong>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-900 mb-6 text-center">Perguntas Frequentes</h2>
+            <div class="space-y-4">
+                <details class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <summary class="px-6 py-4 cursor-pointer font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
+                        Quando recebo o certificado?
+                    </summary>
+                    <div class="px-6 pb-4 text-gray-700">
+                        Imediatamente após a verificação da sua assinatura ser concluída com sucesso, você receberá um email 
+                        com link para download do certificado. O processo é totalmente automático.
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <summary class="px-6 py-4 cursor-pointer font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
+                        Posso baixar novamente se perder?
+                    </summary>
+                    <div class="px-6 pb-4 text-gray-700">
+                        Sim! O certificado fica armazenado permanentemente no sistema e pode ser baixado a qualquer momento 
+                        através do link no email de confirmação. Você também pode acessá-lo escaneando o QR code.
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <summary class="px-6 py-4 cursor-pointer font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
+                        O criador da petição tem acesso ao meu certificado?
+                    </summary>
+                    <div class="px-6 pb-4 text-gray-700">
+                        Sim, quando o criador solicita o pacote completo de assinaturas, ele recebe todos os certificados 
+                        junto com as assinaturas. Isso é necessário para fins legais e comprovação da petição. No entanto, 
+                        seus dados pessoais sensíveis (como email e localização) não são compartilhados - apenas nome e CPF hash.
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <summary class="px-6 py-4 cursor-pointer font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
+                        O certificado pode ser adulterado?
+                    </summary>
+                    <div class="px-6 pb-4 text-gray-700">
+                        Não! O certificado contém um hash criptográfico (SHA-256) que funciona como uma "impressão digital" única. 
+                        Qualquer alteração, por menor que seja, mudaria completamente o hash, tornando a adulteração imediatamente 
+                        detectável.
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <summary class="px-6 py-4 cursor-pointer font-semibold text-gray-900 hover:bg-gray-50 transition-colors">
+                        O que acontece se o texto da petição for modificado depois que assinei?
+                    </summary>
+                    <div class="px-6 pb-4 text-gray-700">
+                        O certificado de custódia comprova exatamente qual texto você assinou. Se o criador tentar modificar 
+                        o conteúdo da petição posteriormente, isso ficará evidente porque o hash do conteúdo não corresponderá 
+                        mais ao hash registrado no seu certificado. Essa é uma proteção importante para os signatários.
+                    </div>
+                </details>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg p-8 text-white text-center">
+            <h3 class="text-2xl font-bold mb-3">Ainda tem dúvidas?</h3>
+            <p class="mb-4 text-blue-100">Nossa equipe está pronta para ajudar!</p>
+            <a href="mailto:contato@peticaobrasil.com.br" 
+               class="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-semibold rounded-lg hover:bg-blue-50 transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                contato@peticaobrasil.com.br
+            </a>
         </div>
     </div>
 </div>

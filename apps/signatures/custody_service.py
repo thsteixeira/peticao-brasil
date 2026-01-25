@@ -426,7 +426,7 @@ class CustodyCertificatePDFGenerator:
         
         declarations = [
             "1. A assinatura digital foi verificada com sucesso utilizando certificado ICP-Brasil válido.",
-            "2. Todos os procedimentos de segurança foram cumpridos conforme especificado em: https://peticaobrasil.com.br/docs/verificacao",
+            "2. Todos os procedimentos de segurança foram cumpridos conforme as normas ICP-Brasil.",
             "3. O documento assinado não foi alterado após a assinatura digital.",
             "4. A identidade do signatário foi verificada através do certificado digital ICP-Brasil.",
             "5. Esta assinatura foi registrada e contabilizada para a petição especificada.",
