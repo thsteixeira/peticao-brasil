@@ -3,8 +3,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="{{ meta_description|default:'Petição Brasil - Plataforma de petições online para mudanças sociais. Crie e assine petições para causas que você acredita.' }}">
-<meta name="keywords" content="petição, petições online, mudança social, Brasil, democracia, ativismo">
-<meta name="author" content="Petição Brasil">
+<meta name="keywords" content="{% if meta_keywords %}{{ meta_keywords }}{% else %}petição, petições online, mudança social, Brasil, democracia, ativismo{% endif %}">
+<meta name="author" content="{% if meta_author %}{{ meta_author }}{% else %}Petição Brasil{% endif %}">
 
 {# Cache Control for HTML pages - don't cache HTML, only static assets #}
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -48,13 +48,31 @@
 {% else %}
 <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/social/og-image.png' %}">
 {% endif %}
+<meta property="og:image:secure_url" content="{% if og_image %}{{ og_image }}{% else %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/social/og-image.png' %}{% endif %}">
+<meta property="og:image:type" content="image/png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Petição Brasil - Democracia Digital">
+<meta property="og:image:alt" content="{% firstof og_image_alt 'Petição Brasil - Democracia Digital' %}">
 <meta property="og:locale" content="pt_BR">
+{% if article_published_time %}
+<meta property="article:published_time" content="{{ article_published_time }}">
+{% endif %}
+{% if article_modified_time %}
+<meta property="article:modified_time" content="{{ article_modified_time }}">
+{% endif %}
+{% if article_author %}
+<meta property="article:author" content="{{ article_author }}">
+{% endif %}
+{% if article_section %}
+<meta property="article:section" content="{{ article_section }}">
+{% endif %}
+{% if article_tag %}
+<meta property="article:tag" content="{{ article_tag }}">
+{% endif %}
 
 {# Twitter Card Meta Tags #}
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@PeticaoBrasil">
 <meta name="twitter:title" content="{% firstof twitter_title og_title meta_title 'Petição Brasil' %}">
 <meta name="twitter:description" content="{% firstof twitter_description og_description meta_description 'Plataforma de petições online para mudanças sociais no Brasil.' %}">
 {% if twitter_image %}
@@ -64,7 +82,13 @@
 {% else %}
 <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'images/social/twitter-card.png' %}">
 {% endif %}
-<meta name="twitter:image:alt" content="Petição Brasil - Plataforma de Democracia Digital">
+<meta name="twitter:image:alt" content="{% firstof twitter_image_alt og_image_alt 'Petição Brasil - Plataforma de Democracia Digital' %}">
+{% if twitter_creator %}
+<meta name="twitter:creator" content="{{ twitter_creator }}">
+{% endif %}
+
+{# WhatsApp Specific - uses Open Graph tags but we ensure they're complete #}
+{# WhatsApp uses og:title, og:description, og:image for preview #}
 
 {# Additional SEO Meta Tags #}
 <meta name="robots" content="{% if noindex %}noindex, nofollow{% else %}index, follow{% endif %}">

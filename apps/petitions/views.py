@@ -156,11 +156,30 @@ class PetitionDetailView(DetailView):
         # SEO meta tags
         context['meta_title'] = self.object.get_meta_title()
         context['meta_description'] = self.object.get_meta_description()
+        context['meta_keywords'] = f"petição, {self.object.category.name}, {self.object.title}, mudança social, Brasil, democracia"
+        
+        # Open Graph tags
         context['og_title'] = self.object.title
         context['og_description'] = self.object.get_meta_description()
         context['og_image'] = self.object.get_og_image_url()
+        context['og_image_alt'] = f"{self.object.title} - Petição Brasil"
         context['og_type'] = 'article'
         context['og_url'] = self.object.get_canonical_url()
+        
+        # Article-specific Open Graph tags
+        context['article_published_time'] = self.object.created_at.isoformat()
+        context['article_modified_time'] = self.object.updated_at.isoformat()
+        context['article_author'] = self.object.creator.get_full_name()
+        context['article_section'] = self.object.category.name
+        context['article_tag'] = self.object.category.name
+        
+        # Twitter Card tags
+        context['twitter_title'] = self.object.title
+        context['twitter_description'] = self.object.get_meta_description()
+        context['twitter_image'] = self.object.get_og_image_url()
+        context['twitter_image_alt'] = f"{self.object.title} - Petição Brasil"
+        
+        # Canonical URL
         context['canonical_url'] = self.object.get_canonical_url()
         
         return context

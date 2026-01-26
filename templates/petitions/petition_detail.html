@@ -10,14 +10,25 @@
   "name": "{{ petition.title }}",
   "description": "{{ petition.get_meta_description }}",
   "url": "{{ petition.get_canonical_url }}",
+  "image": "{{ petition.get_og_image_url }}",
   "datePublished": "{{ petition.created_at|date:'c' }}",
   "dateModified": "{{ petition.updated_at|date:'c' }}",
   "author": {
     "@type": "Person",
     "name": "{{ petition.creator.get_full_name }}"
   },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Petição Brasil",
+    "url": "{{ request.scheme }}://{{ request.get_host }}"
+  },
+  "about": {
+    "@type": "Thing",
+    "name": "{{ petition.category.name }}"
+  },
   "numberOfSignatures": {{ petition.signature_count }},
-  "targetSignatures": {{ petition.signature_goal }}
+  "targetSignatures": {{ petition.signature_goal }},
+  "inLanguage": "pt-BR"
 }
 </script>
 {% endblock %}

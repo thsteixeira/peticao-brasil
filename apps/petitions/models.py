@@ -338,10 +338,15 @@ class Petition(models.Model):
         return self.description[:157] + "..."
     
     def get_og_image_url(self):
-        """Get Open Graph image URL"""
-        # TODO: Upload og-default.jpg to S3 or create category-specific OG images
-        # For now, return None - OG image is optional
-        return None
+        """Get Open Graph image URL for social sharing"""
+        from django.conf import settings
+        
+        # If petition has a custom image, use it
+        # TODO: Add image field to petition model for custom OG images
+        
+        # For now, use the default social image with absolute URL
+        base_url = settings.SITE_URL.rstrip('/')
+        return f"{base_url}/static/images/social/og-image.png"
     
     def get_canonical_url(self):
         """Get canonical URL for SEO"""
