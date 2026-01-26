@@ -71,7 +71,8 @@ INTERNAL_IPS = [
 ]
 
 # Development email backend
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Use console backend by default, but allow override via .env for testing
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
 
 # Disable rate limiting in development
 RATELIMIT_ENABLE = False
