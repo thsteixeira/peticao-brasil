@@ -352,8 +352,18 @@ class RequestBulkDownloadView(LoginRequiredMixin, View):
     User will receive email with download link when ready.
     """
     
+    def get(self, request, uuid):
+        """Redirect GET requests to petition detail page."""
+        petition = get_object_or_404(Petition, uuid=uuid)
+        messages.info(
+            request, 
+            'Para solicitar o download do pacote de assinaturas, use o botão na página da petição.'
+        )
+        return redirect('petitions:detail', uuid=uuid, slug=petition.slug)
+    
     def post(self, request, uuid):
         """Queue async task to generate ZIP file."""
+        logger.info(f"POST method called for bulk download, uuid={uuid}, user={request.user}")
         from apps.petitions.tasks import generate_bulk_download_package
         
         # Get petition

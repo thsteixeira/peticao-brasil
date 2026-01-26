@@ -181,8 +181,22 @@ def generate_bulk_download_package(self, petition_id, user_id, user_email):
             # Process each signature
             for idx, signature in enumerate(signatures, 1):
                 try:
-                    # Download signed PDF
-                    if signature.signed_pdf_url:
+                    # Add signed PDF
+                    if signature.signed_pdf:
+                        signed_pdf_name = f"{idx:04d}_signed_{signature.uuid}.pdf"
+                        try:
+                            # Read from FileField
+                            signature.signed_pdf.open('rb')
+                            signed_pdf_data = signature.signed_pdf.read()
+                            signature.signed_pdf.close()
+                            zip_file.writestr(
+                                f"signed_pdfs/{signed_pdf_name}",
+                                signed_pdf_data
+                            )
+                        except Exception as e:
+                            logger.error(f"Error reading signed PDF for {signature.uuid}: {str(e)}")
+                    elif signature.signed_pdf_url:
+                        # Fallback to URL download (for S3 or external URLs)
                         signed_pdf_name = f"{idx:04d}_signed_{signature.uuid}.pdf"
                         signed_pdf_data = _download_file(signature.signed_pdf_url)
                         if signed_pdf_data:
@@ -191,8 +205,22 @@ def generate_bulk_download_package(self, petition_id, user_id, user_email):
                                 signed_pdf_data
                             )
                     
-                    # Download custody certificate
-                    if signature.custody_certificate_url:
+                    # Add custody certificate
+                    if signature.custody_certificate_pdf:
+                        cert_name = f"{idx:04d}_custody_{signature.uuid}.pdf"
+                        try:
+                            # Read from FileField
+                            signature.custody_certificate_pdf.open('rb')
+                            cert_data = signature.custody_certificate_pdf.read()
+                            signature.custody_certificate_pdf.close()
+                            zip_file.writestr(
+                                f"custody_certificates/{cert_name}",
+                                cert_data
+                            )
+                        except Exception as e:
+                            logger.error(f"Error reading custody certificate for {signature.uuid}: {str(e)}")
+                    elif signature.custody_certificate_url:
+                        # Fallback to URL download (for S3 or external URLs)
                         cert_name = f"{idx:04d}_custody_{signature.uuid}.pdf"
                         cert_data = _download_file(signature.custody_certificate_url)
                         if cert_data:

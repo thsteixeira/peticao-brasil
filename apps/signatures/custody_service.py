@@ -717,23 +717,24 @@ def generate_custody_certificate(signature, verification_result=None):
         generator = CustodyCertificatePDFGenerator(signature)
         pdf_bytes = generator.generate()
         
-        # Save to storage
-        storage = CUSTODY_CERTIFICATE_STORAGE
+        # Save to storage using FileField
         filename = f"custody_certificate_{signature.uuid}.pdf"
         filepath = f"signatures/custody_certificates/{filename}"
         
-        saved_path = storage.save(filepath, ContentFile(pdf_bytes))
+        # Save to the FileField (which will use the appropriate storage backend)
+        signature.custody_certificate_pdf.save(filename, ContentFile(pdf_bytes), save=False)
         
-        # Get URL
-        certificate_url = storage.url(saved_path)
+        # Get URL from the FileField
+        certificate_url = signature.custody_certificate_pdf.url
         
-        # Update signature
+        # Update signature with all fields
         signature.custody_certificate_url = certificate_url
         signature.save(update_fields=[
             'verification_evidence',
             'verification_hash',
             'chain_of_custody',
             'certificate_generated_at',
+            'custody_certificate_pdf',
             'custody_certificate_url'
         ])
         

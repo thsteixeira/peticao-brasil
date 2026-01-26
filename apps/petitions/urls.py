@@ -16,8 +16,9 @@ urlpatterns = [
     path('petitions/', views.PetitionListView.as_view(), name='list'),
     path('petitions/autocomplete/', views.petition_autocomplete, name='autocomplete'),
     path('petitions/create/', views.PetitionCreateView.as_view(), name='create'),
-    path('petitions/<uuid:uuid>/<slug:slug>/', views.PetitionDetailView.as_view(), name='detail'),
+    # More specific patterns must come before the general detail pattern
     path('petitions/<uuid:uuid>/edit/', views.PetitionUpdateView.as_view(), name='edit'),
     path('petitions/<uuid:uuid>/share/', views.petition_share, name='share'),
     path('petitions/<uuid:uuid>/request-bulk-download/', views.RequestBulkDownloadView.as_view(), name='request_bulk_download'),
+    path('petitions/<uuid:uuid>/<slug:slug>/', views.PetitionDetailView.as_view(), name='detail'),
 ]
