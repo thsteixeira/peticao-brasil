@@ -21,8 +21,15 @@ from reportlab.platypus import (
 )
 from reportlab.lib import colors
 
-from config.storage_backends import MediaStorage
 from apps.core.logging_utils import StructuredLogger
+
+# Conditional storage backend - use default storage in dev, S3 in production
+if settings.DEBUG:
+    from django.core.files.storage import default_storage
+    CUSTODY_CERTIFICATE_STORAGE = default_storage
+else:
+    from config.storage_backends import MediaStorage
+    CUSTODY_CERTIFICATE_STORAGE = MediaStorage()
 
 logger = StructuredLogger(__name__)
 
@@ -711,7 +718,7 @@ def generate_custody_certificate(signature, verification_result=None):
         pdf_bytes = generator.generate()
         
         # Save to storage
-        storage = MediaStorage()
+        storage = CUSTODY_CERTIFICATE_STORAGE
         filename = f"custody_certificate_{signature.uuid}.pdf"
         filepath = f"signatures/custody_certificates/{filename}"
         
