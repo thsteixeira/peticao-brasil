@@ -62,7 +62,10 @@ class SignatureSubmitView(CreateView):
                 form.instance.petition = self.petition
                 
                 # Hash CPF
-                cpf = form.cleaned_data['cpf']
+                cpf = form.cleaned_data.get('cpf')
+                if not cpf:
+                    raise ValueError('CPF cannot be None in form_valid')
+                
                 form.instance.cpf_hash = Signature.hash_cpf(cpf)
                 
                 # Store file hash

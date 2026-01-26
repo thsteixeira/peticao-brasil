@@ -12,9 +12,16 @@ from io import BytesIO, StringIO
 import csv
 import requests
 from apps.core.logging_utils import StructuredLogger, log_execution_time
-from config.storage_backends import MediaStorage
 
 logger = StructuredLogger(__name__)
+
+# Configure storage based on environment
+from django.core.files.storage import default_storage
+if settings.DEBUG:
+    BULK_DOWNLOAD_STORAGE = default_storage
+else:
+    from config.storage_backends import MediaStorage
+    BULK_DOWNLOAD_STORAGE = MediaStorage()
 
 
 @shared_task(bind=True, max_retries=3)
@@ -205,15 +212,19 @@ def generate_bulk_download_package(self, petition_id, user_id, user_email):
                         error_note
                     )
         
-        # Upload ZIP to S3
+        # Upload ZIP to storage (S3 in production, local filesystem in development)
         zip_buffer.seek(0)
-        storage = MediaStorage()
         
         filename = f"bulk_downloads/assinaturas_{petition.uuid}_{timezone.now().strftime('%Y%m%d_%H%M%S')}.zip"
-        saved_path = storage.save(filename, ContentFile(zip_buffer.getvalue()))
+        saved_path = BULK_DOWNLOAD_STORAGE.save(filename, ContentFile(zip_buffer.getvalue()))
         
-        # Generate pre-signed URL (valid for 7 days)
-        download_url = storage.url(saved_path, expire=604800)  # 7 days in seconds
+        # Generate URL (pre-signed for S3, direct path for local)
+        # For S3 (MediaStorage), pass expire parameter; for local storage, it's ignored
+        try:
+            download_url = BULK_DOWNLOAD_STORAGE.url(saved_path, expire=604800)  # 7 days in seconds
+        except TypeError:
+            # Local storage doesn't support expire parameter
+            download_url = BULK_DOWNLOAD_STORAGE.url(saved_path)
         
         logger.info(
             "Bulk download package generated",

@@ -343,12 +343,25 @@ class PDFSignatureVerifier:
         1. Searching in raw PDF bytes (faster, covers all PDF objects)
         2. Extracting and searching text from pages (more reliable for content)
         """
+        import logging
+        logger = logging.getLogger(__name__)
+        
         try:
+            if not petition:
+                logger.error('[VERIFY_PETITION_CONTENT] Petition is None!')
+                return False
+            
+            if not hasattr(petition, 'uuid') or petition.uuid is None:
+                logger.error(f'[VERIFY_PETITION_CONTENT] Petition has no UUID! petition={petition}')
+                return False
+            
             petition_uuid = str(petition.uuid)
+            logger.debug(f'[VERIFY_PETITION_CONTENT] Looking for UUID: {petition_uuid}')
             
             # Method 1: Search in raw bytes
             # This catches UUIDs in any part of the PDF structure
             if petition_uuid.encode('utf-8') in pdf_data:
+                logger.debug('[VERIFY_PETITION_CONTENT] UUID found in raw bytes')
                 return True
             
             # Method 2: Extract text from pages and search

@@ -12,6 +12,9 @@ def validate_cpf(cpf):
     """
     Validate Brazilian CPF number.
     """
+    if not cpf:
+        raise ValidationError('CPF é obrigatório.')
+    
     # Remove non-numeric characters
     cpf = re.sub(r'[^0-9]', '', cpf)
     
@@ -135,7 +138,8 @@ class SignatureSubmissionForm(forms.ModelForm):
     def clean_cpf(self):
         """Validate and clean CPF."""
         cpf = self.cleaned_data.get('cpf', '')
-        return validate_cpf(cpf)
+        validated_cpf = validate_cpf(cpf)
+        return validated_cpf
     
     def clean_full_name(self):
         """Clean and validate full name."""

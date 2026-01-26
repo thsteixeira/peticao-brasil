@@ -6,10 +6,16 @@ import hashlib
 from django.db import models
 from django.utils import timezone
 from django.core.validators import EmailValidator
+from django.conf import settings
 from apps.core.logging_utils import StructuredLogger, log_model_event
 
-# Import storage backend for S3
-from config.storage_backends import MediaStorage
+# Conditional storage backend - use default storage in dev, S3 in production
+if settings.DEBUG:
+    from django.core.files.storage import default_storage
+    SIGNATURE_STORAGE = default_storage
+else:
+    from config.storage_backends import MediaStorage
+    SIGNATURE_STORAGE = MediaStorage()
 
 logger = StructuredLogger(__name__)
 
@@ -102,7 +108,7 @@ class Signature(models.Model):
     # PDF file
     signed_pdf = models.FileField(
         upload_to='signatures/pdfs/',
-        storage=MediaStorage(),
+        storage=SIGNATURE_STORAGE,
         blank=True,
         null=True,
         verbose_name="PDF Assinado",
@@ -182,7 +188,7 @@ class Signature(models.Model):
     # Custody Chain Certificate
     custody_certificate_pdf = models.FileField(
         upload_to='signatures/custody_certificates/',
-        storage=MediaStorage(),
+        storage=SIGNATURE_STORAGE,
         blank=True,
         null=True,
         verbose_name="Certificado de Custódia",
@@ -315,6 +321,11 @@ class Signature(models.Model):
     @staticmethod
     def hash_cpf(cpf):
         """Hash a CPF for secure storage"""
+        if not cpf:
+            from django.conf import settings
+            if settings.DEBUG:
+                return ''  # Allow in development for testing
+            raise ValueError("CPF cannot be None or empty")
         # Remove formatting
         cpf_clean = ''.join(filter(str.isdigit, cpf))
         # Hash with SHA-256
@@ -323,6 +334,8 @@ class Signature(models.Model):
     @staticmethod
     def hash_ip(ip_address):
         """Hash an IP address for secure storage"""
+        if not ip_address:
+            raise ValueError("IP address cannot be None or empty")
         return hashlib.sha256(ip_address.encode()).hexdigest()
     
     @property
