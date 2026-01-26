@@ -150,6 +150,30 @@
                 {% endif %}
             </div>
 
+            <!-- Privacy Notice -->
+            <div class="bg-green-50 border-2 border-green-400 rounded-lg p-4 mb-4">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-bold text-green-900 mb-2">🔒 Proteção de Dados Pessoais</h3>
+                        <p class="text-sm text-gray-700">
+                            <strong>O criador da petição terá acesso APENAS ao seu nome completo e CPF</strong> (extraídos do certificado digital). 
+                            Seus dados de contato (email), localização (cidade/estado) e qualquer outra informação pessoal 
+                            <strong>NÃO serão compartilhados</strong> com o criador da petição.
+                        </p>
+                        <p class="text-xs text-gray-600 mt-2">
+                            Seus dados são protegidos conforme a LGPD. Consulte nossa 
+                            <a href="{% url 'petitions:privacy_policy' %}" target="_blank" class="text-green-700 hover:text-green-900 underline font-semibold">Política de Privacidade</a> 
+                            para mais informações.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Terms and Privacy Policy Acceptance -->
             <div class="bg-blue-50 border-2 border-blue-300 rounded-lg p-4">
                 <div class="flex items-start">

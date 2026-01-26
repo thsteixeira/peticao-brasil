@@ -193,20 +193,22 @@ class PetitionSignaturesView(ListView):
         """Add petition and statistics to context."""
         context = super().get_context_data(**kwargs)
         context['petition'] = self.petition
+        context['is_staff'] = self.request.user.is_staff
         
         # Add statistics
         signatures = self.get_queryset()
         context['total_signatures'] = signatures.count()
-        context['approved_signatures'] = signatures.filter(status='approved').count()
-        context['pending_signatures'] = signatures.filter(status='pending').count()
-        context['rejected_signatures'] = signatures.filter(status='rejected').count()
+        context['approved_signatures'] = signatures.filter(verification_status='approved').count()
+        context['pending_signatures'] = signatures.filter(verification_status='pending').count()
+        context['rejected_signatures'] = signatures.filter(verification_status='rejected').count()
         
-        # Signatures by state
-        context['signatures_by_state'] = signatures.values(
-            'state'
-        ).annotate(
-            count=models.Count('id')
-        ).order_by('-count')[:10]
+        # Signatures by state (only for staff)
+        if self.request.user.is_staff:
+            context['signatures_by_state'] = signatures.values(
+                'state'
+            ).annotate(
+                count=models.Count('id')
+            ).order_by('-count')[:10]
         
         return context
 

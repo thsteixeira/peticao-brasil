@@ -293,7 +293,8 @@ def _generate_manifest_csv(signatures):
         'URL Certificado de Custódia'
     ])
     
-    # Data rows
+    # Data rows - Only name and CPF hash exposed to petition creator
+    # Email, city, state are NOT included for privacy protection
     for idx, sig in enumerate(signatures, 1):
         writer.writerow([
             idx,

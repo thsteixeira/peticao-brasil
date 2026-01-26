@@ -175,10 +175,10 @@ class PetitionPDFGenerator:
         <b>2.</b> Acesse o sistema de assinatura digital Gov.br (https://gov.br/assinador)<br/>
         <b>3.</b> Faça login com sua conta Gov.br (nível prata ou ouro)<br/>
         <b>4.</b> Selecione este arquivo PDF para assinar<br/>
-        <b>5.</b> Escolha seu certificado digital ICP-Brasil<br/>
+        <b>5.</b> Posicione o melhor local da assinatura no documento<br/>
         <b>6.</b> Confirme a assinatura digital<br/>
         <b>7.</b> Baixe o arquivo PDF assinado<br/>
-        <b>8.</b> Retorne ao site e faça o upload do PDF assinado para validação<br/>
+        <b>8.</b> Retorne ao nosso site e faça o upload do PDF assinado para validação<br/>
         <br/>
         <i>IMPORTANTE: Não modifique o conteúdo deste PDF. Qualquer alteração invalidará a verificação.</i>
         """

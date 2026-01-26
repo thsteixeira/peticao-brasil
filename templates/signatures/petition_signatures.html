@@ -47,9 +47,11 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Nome
                             </th>
+                            {% if is_staff %}
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Localização
                             </th>
+                            {% endif %}
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Data
                             </th>
@@ -68,26 +70,28 @@
                                     <div class="text-sm font-medium text-gray-900">
                                         {{ signature.display_name }}
                                     </div>
-                                    {% if signature.email %}
+                                    {% if is_staff and signature.email %}
                                         <div class="text-sm text-gray-500">{{ signature.email }}</div>
                                     {% endif %}
                                 </td>
+                                {% if is_staff %}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     {{ signature.city }}, {{ signature.state }}
                                 </td>
+                                {% endif %}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                                     {{ signature.created_at|date:"d/m/Y H:i" }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    {% if signature.status == 'approved' %}
+                                    {% if signature.verification_status == 'approved' %}
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                             Aprovada
                                         </span>
-                                    {% elif signature.status == 'pending' %}
+                                    {% elif signature.verification_status == 'pending' %}
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                             Pendente
                                         </span>
-                                    {% elif signature.status == 'rejected' %}
+                                    {% elif signature.verification_status == 'rejected' %}
                                         <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                             Rejeitada
                                         </span>
