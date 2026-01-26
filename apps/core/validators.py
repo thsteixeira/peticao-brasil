@@ -275,18 +275,31 @@ def validate_turnstile_token(token, remote_ip=None):
     Raises:
         ValidationError: If validation fails
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info("=" * 60)
+    logger.info("TURNSTILE VALIDATION START")
+    logger.info(f"TURNSTILE_ENABLED: {settings.TURNSTILE_ENABLED}")
+    logger.info(f"Token received: {token[:20] if token else 'None'}...")
+    logger.info(f"Remote IP: {remote_ip}")
+    logger.info(f"Secret key configured: {bool(settings.TURNSTILE_SECRET_KEY)}")
+    
     # Skip validation if Turnstile is disabled (development mode)
     if not settings.TURNSTILE_ENABLED:
+        logger.warning("Turnstile is DISABLED - skipping validation")
         return True
     
     # Check if token is provided
     if not token:
+        logger.error("No token provided")
         raise ValidationError('Token de verificação ausente.')
     
     # Check if secret key is configured
     if not settings.TURNSTILE_SECRET_KEY:
         # In development with no key, allow through but log warning
         if settings.DEBUG:
+            logger.warning("TURNSTILE_SECRET_KEY not configured, skipping validation")
             print("WARNING: TURNSTILE_SECRET_KEY not configured, skipping validation")
             return True
         raise ValidationError('Configuração de segurança ausente.')
@@ -303,15 +316,23 @@ def validate_turnstile_token(token, remote_ip=None):
     
     try:
         # Send verification request to Cloudflare
+        logger.info(f"Sending verification request to: {verify_url}")
         response = requests.post(verify_url, data=data, timeout=5)
         result = response.json()
         
+        logger.info(f"API Response: {result}")
+        
         # Check if verification was successful
         if result.get('success'):
+            logger.info("✅ Turnstile validation PASSED")
+            logger.info("=" * 60)
             return True
         
         # Log error codes for debugging
         error_codes = result.get('error-codes', [])
+        logger.error(f"❌ Turnstile validation FAILED: {error_codes}")
+        logger.info("=" * 60)
+        
         if settings.DEBUG:
             print(f"Turnstile validation failed: {error_codes}")
         
@@ -323,6 +344,9 @@ def validate_turnstile_token(token, remote_ip=None):
         
     except requests.RequestException as e:
         # Network error - in production, fail closed; in development, allow through
+        logger.error(f"Network error during Turnstile validation: {e}")
+        logger.info("=" * 60)
+        
         if settings.DEBUG:
             print(f"WARNING: Turnstile validation failed due to network error: {e}")
             return True

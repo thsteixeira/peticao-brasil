@@ -193,6 +193,12 @@ class PetitionCreateView(LoginRequiredMixin, CreateView):
     form_class = PetitionForm
     template_name = 'petitions/petition_form.html'
     
+    def get_form_kwargs(self):
+        """Pass request to form for Turnstile validation."""
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+    
     def form_valid(self, form):
         # Set the creator to the current user
         form.instance.creator = self.request.user

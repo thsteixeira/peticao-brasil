@@ -4,8 +4,10 @@ Forms for petition creation and management.
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.conf import settings
 from datetime import timedelta
 from apps.core.security import validate_no_javascript, sanitize_html_input
+from apps.core.validators import validate_turnstile_token
 from .models import Petition
 from apps.core.models import Category
 
@@ -24,6 +26,11 @@ class PetitionForm(forms.ModelForm):
         widget=forms.CheckboxInput(attrs={
             'class': 'h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded'
         })
+    )
+    
+    turnstile_token = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False  # Will be set dynamically in __init__
     )
     
     class Meta:
@@ -57,6 +64,7 @@ class PetitionForm(forms.ModelForm):
         }
     
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
         
         # Update labels to Portuguese
@@ -78,6 +86,10 @@ class PetitionForm(forms.ModelForm):
         
         # Make deadline optional
         self.fields['deadline'].required = False
+        
+        # Make Turnstile token required if enabled
+        if settings.TURNSTILE_ENABLED:
+            self.fields['turnstile_token'].required = True
     
     def clean_title(self):
         """Clean and validate title."""
@@ -126,3 +138,20 @@ class PetitionForm(forms.ModelForm):
                 raise ValidationError('O prazo não pode ser superior a 1 ano.')
         
         return deadline
+    
+    def clean(self):
+        """Validate Turnstile token."""
+        cleaned_data = super().clean()
+        
+        # Validate Turnstile
+        turnstile_token = cleaned_data.get('turnstile_token')
+        remote_ip = None
+        if self.request:
+            remote_ip = self.request.META.get('REMOTE_ADDR')
+        
+        try:
+            validate_turnstile_token(turnstile_token, remote_ip)
+        except ValidationError as e:
+            self.add_error('turnstile_token', e)
+        
+        return cleaned_data

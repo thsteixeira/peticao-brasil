@@ -22,6 +22,12 @@ class RegisterView(CreateView):
     template_name = 'accounts/register.html'
     success_url = reverse_lazy('petitions:home')
     
+    def get_form_kwargs(self):
+        """Pass request to form for Turnstile validation."""
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+    
     def dispatch(self, request, *args, **kwargs):
         # Redirect if already logged in
         if request.user.is_authenticated:

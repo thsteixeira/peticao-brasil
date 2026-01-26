@@ -4,6 +4,9 @@ Forms for user authentication and registration.
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from apps.core.validators import validate_turnstile_token
 
 
 class UserRegistrationForm(UserCreationForm):
@@ -36,6 +39,11 @@ class UserRegistrationForm(UserCreationForm):
         })
     )
     
+    turnstile_token = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False  # Will be set dynamically in __init__
+    )
+    
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
@@ -47,6 +55,7 @@ class UserRegistrationForm(UserCreationForm):
         }
     
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
         # Apply Tailwind classes to password fields
         self.fields['password1'].widget.attrs.update({
@@ -82,6 +91,27 @@ class UserRegistrationForm(UserCreationForm):
             '</ul>'
         )
         self.fields['password1'].help_text = password_help
+        
+        # Make Turnstile token required if enabled
+        if settings.TURNSTILE_ENABLED:
+            self.fields['turnstile_token'].required = True
+    
+    def clean(self):
+        """Validate Turnstile token."""
+        cleaned_data = super().clean()
+        
+        # Validate Turnstile
+        turnstile_token = cleaned_data.get('turnstile_token')
+        remote_ip = None
+        if self.request:
+            remote_ip = self.request.META.get('REMOTE_ADDR')
+        
+        try:
+            validate_turnstile_token(turnstile_token, remote_ip)
+        except ValidationError as e:
+            self.add_error('turnstile_token', e)
+        
+        return cleaned_data
     
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -113,3 +143,33 @@ class UserLoginForm(AuthenticationForm):
         }),
         label='Senha'
     )
+    
+    turnstile_token = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=False  # Will be set dynamically in __init__
+    )
+    
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.get('request', None)
+        super().__init__(*args, **kwargs)
+        
+        # Make Turnstile token required if enabled
+        if settings.TURNSTILE_ENABLED:
+            self.fields['turnstile_token'].required = True
+    
+    def clean(self):
+        """Validate Turnstile token."""
+        cleaned_data = super().clean()
+        
+        # Validate Turnstile
+        turnstile_token = cleaned_data.get('turnstile_token')
+        remote_ip = None
+        if self.request:
+            remote_ip = self.request.META.get('REMOTE_ADDR')
+        
+        try:
+            validate_turnstile_token(turnstile_token, remote_ip)
+        except ValidationError as e:
+            self.add_error('turnstile_token', e)
+        
+        return cleaned_data

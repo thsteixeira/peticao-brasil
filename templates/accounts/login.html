@@ -36,6 +36,22 @@
                 {% endif %}
             </div>
             
+            <!-- Turnstile CAPTCHA -->
+            {% if TURNSTILE_ENABLED and TURNSTILE_SITE_KEY %}
+            <div class="flex justify-center pt-2">
+                <div class="cf-turnstile" 
+                     data-sitekey="{{ TURNSTILE_SITE_KEY }}" 
+                     data-callback="onTurnstileSuccess"
+                     data-error-callback="onTurnstileError"
+                     data-expired-callback="onTurnstileExpired">
+                </div>
+            </div>
+            {{ form.turnstile_token }}
+            {% if form.turnstile_token.errors %}
+                <p class="mt-1 text-sm text-red-600 text-center">{{ form.turnstile_token.errors.0 }}</p>
+            {% endif %}
+            {% endif %}
+            
             <div class="flex items-center justify-between">
                 <div class="flex items-center">
                     <input type="checkbox" name="remember" id="remember" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
@@ -65,4 +81,49 @@
         </div>
     </div>
 </div>
+
+{% if TURNSTILE_ENABLED and TURNSTILE_SITE_KEY %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script>
+// Global flag to track Turnstile status
+window.turnstileReady = false;
+
+window.onTurnstileSuccess = function(token) {
+    console.log('✅ Turnstile token received');
+    const field = document.getElementById('{{ form.turnstile_token.id_for_label }}');
+    if (field) {
+        field.value = token;
+        window.turnstileReady = true;
+        console.log('✅ Token set successfully');
+    } else {
+        console.error('❌ Token field not found');
+    }
+}
+
+window.onTurnstileError = function(error) {
+    console.error('❌ Turnstile error:', error);
+    alert('Erro ao carregar verificação de segurança. Por favor, recarregue a página.');
+}
+
+window.onTurnstileExpired = function() {
+    console.warn('⚠️ Turnstile token expired');
+    window.turnstileReady = false;
+    alert('Verificação expirou. Por favor, complete novamente.');
+}
+
+// Prevent form submission if Turnstile not ready
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!window.turnstileReady) {
+                e.preventDefault();
+                alert('Por favor, complete a verificação de segurança antes de entrar.');
+                return false;
+            }
+        });
+    }
+});
+</script>
+{% endif %}
 {% endblock %}

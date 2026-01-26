@@ -202,12 +202,22 @@
             <!-- Turnstile CAPTCHA -->
             {% if TURNSTILE_ENABLED and TURNSTILE_SITE_KEY %}
             <div class="flex justify-center">
-                <div class="cf-turnstile" data-sitekey="{{ TURNSTILE_SITE_KEY }}" data-callback="onTurnstileSuccess"></div>
+                <div class="cf-turnstile" 
+                     data-sitekey="{{ TURNSTILE_SITE_KEY }}" 
+                     data-callback="onTurnstileSuccess"
+                     data-error-callback="onTurnstileError"
+                     data-expired-callback="onTurnstileExpired">
+                </div>
             </div>
             {{ form.turnstile_token }}
             {% if form.turnstile_token.errors %}
                 <p class="mt-1 text-sm text-red-600 text-center">{{ form.turnstile_token.errors.0 }}</p>
             {% endif %}
+            {% else %}
+            <!-- DEBUG: Turnstile disabled -->
+            <div class="bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-3 rounded text-sm">
+                ⚠️ DEBUG: TURNSTILE_ENABLED={{ TURNSTILE_ENABLED }}, SITE_KEY={{ TURNSTILE_SITE_KEY|default:"(not set)" }}
+            </div>
             {% endif %}
 
             <!-- Submit Buttons -->
@@ -227,9 +237,60 @@
 {% if TURNSTILE_ENABLED and TURNSTILE_SITE_KEY %}
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script>
-function onTurnstileSuccess(token) {
-    document.getElementById('{{ form.turnstile_token.id_for_label }}').value = token;
+// Global flag to track Turnstile status
+window.turnstileReady = false;
+
+window.onTurnstileSuccess = function(token) {
+    console.log('✅ Turnstile token received:', token.substring(0, 20) + '...');
+    const field = document.getElementById('{{ form.turnstile_token.id_for_label }}');
+    console.log('🔍 Looking for field with ID:', '{{ form.turnstile_token.id_for_label }}');
+    
+    if (field) {
+        field.value = token;
+        window.turnstileReady = true;
+        console.log('✅ Token set successfully in field');
+    } else {
+        console.error('❌ Token field not found! ID:', '{{ form.turnstile_token.id_for_label }}');
+        // Try to find any hidden input with turnstile in name
+        const allInputs = document.querySelectorAll('input[type="hidden"]');
+        console.log('📋 Available hidden inputs:', Array.from(allInputs).map(i => i.id || i.name));
+    }
 }
+
+window.onTurnstileError = function(error) {
+    console.error('❌ Turnstile error:', error);
+    alert('Erro ao carregar verificação de segurança. Por favor, recarregue a página.');
+}
+
+window.onTurnstileExpired = function() {
+    console.warn('⚠️ Turnstile token expired');
+    window.turnstileReady = false;
+    alert('Verificação expirou. Por favor, complete novamente.');
+}
+
+// Prevent form submission if Turnstile not ready
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('📝 Form submission attempt, Turnstile ready:', window.turnstileReady);
+            if (!window.turnstileReady) {
+                e.preventDefault();
+                alert('Por favor, complete a verificação de segurança antes de enviar.');
+                return false;
+            }
+        });
+    }
+    
+    // Debug: Log when widget container is found
+    const widgetContainer = document.querySelector('.cf-turnstile');
+    if (widgetContainer) {
+        console.log('✅ Turnstile widget container found');
+        console.log('🔑 Site key:', widgetContainer.getAttribute('data-sitekey'));
+    } else {
+        console.error('❌ Turnstile widget container NOT found');
+    }
+});
 </script>
 {% endif %}
 
