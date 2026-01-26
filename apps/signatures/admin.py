@@ -161,10 +161,11 @@ class SignatureAdmin(admin.ModelAdmin):
         """Bulk approve signatures with moderation log"""
         count = 0
         for signature in queryset.filter(verification_status='pending'):
-            signature.verification_status = 'verified'
-            signature.verified_at = timezone.now()
             signature.verification_notes = f"Aprovado manualmente por {request.user.username}"
             signature.save()
+            
+            # Use approve() method to ensure count is incremented
+            signature.approve()
             
             # Log the action
             ModerationLog.log_action(

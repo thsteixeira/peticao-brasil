@@ -111,14 +111,13 @@ class SignatureSubmitView(CreateView):
                         result = verifier.verify_pdf_signature(sig.signed_pdf, sig.petition)
                         
                         if result['verified']:
-                            sig.verification_status = Signature.STATUS_APPROVED
                             sig.verified = True
-                            sig.verified_at = timezone.now()
                             sig.certificate_subject = result['certificate_info'].get('subject', '')[:500]
                             sig.certificate_issuer = result['certificate_info'].get('issuer', '')[:500]
                             sig.certificate_serial = result['certificate_info'].get('serial_number', '')[:100]
                             sig.save()
-                            sig.petition.increment_signature_count()
+                            # Approve signature (this increments the petition count)
+                            sig.approve()
                             messages.info(self.request, 'Certificado digital verificado com sucesso!')
                         else:
                             sig.verification_status = Signature.STATUS_REJECTED

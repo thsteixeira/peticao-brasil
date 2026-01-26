@@ -54,12 +54,6 @@ def verify_signature(self, signature_id):
         )
         
         if result['verified']:
-            # Signature is valid
-            signature.verification_status = Signature.STATUS_APPROVED
-            signature.verified = True
-            signature.verified_at = timezone.now()
-            signature.processing_completed_at = timezone.now()
-            
             # Store certificate information
             if result['certificate_info']:
                 cert_info = result['certificate_info']
@@ -69,10 +63,12 @@ def verify_signature(self, signature_id):
                 signature.certificate_serial = cert_info.get('serial_number', '')
                 signature.verified_cpf_from_certificate = result.get('cpf_verified', False)
             
+            signature.verified = True
+            signature.processing_completed_at = timezone.now()
             signature.save()
             
-            # Increment petition signature count
-            signature.petition.increment_signature_count()
+            # Approve signature (this increments the petition count)
+            signature.approve()
             
             # Generate custody chain certificate
             try:
