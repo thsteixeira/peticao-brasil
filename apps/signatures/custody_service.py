@@ -248,11 +248,10 @@ class CustodyCertificatePDFGenerator:
         
         elements.append(Paragraph("DADOS DA ASSINATURA", self.styles['SectionHeader']))
         
+        # Only include name and CPF hash - email, city, and state are private per LGPD
         data = [
             ["Assinante:", self.signature.full_name],
             ["CPF (hash):", self.signature.cpf_hash[:16] + "..."],
-            ["Email:", self.signature.email],
-            ["Localização:", f"{self.signature.city}/{self.signature.state}"],
             ["", ""],
             ["Petição:", self.signature.petition.title],
             ["UUID da Petição:", str(self.signature.petition.uuid)],
