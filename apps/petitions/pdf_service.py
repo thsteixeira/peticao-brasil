@@ -172,13 +172,15 @@ class PetitionPDFGenerator:
         
         instructions = """
         <b>1.</b> Salve este arquivo PDF em seu computador<br/>
-        <b>2.</b> Acesse o sistema de assinatura digital Gov.br (https://gov.br/assinador)<br/>
+        <b>2.</b> Acesse o sistema de assinatura digital Gov.br (https://assinador.iti.br/assinatura/)<br/>
         <b>3.</b> Faça login com sua conta Gov.br (nível prata ou ouro)<br/>
         <b>4.</b> Selecione este arquivo PDF para assinar<br/>
         <b>5.</b> Posicione o melhor local da assinatura no documento<br/>
-        <b>6.</b> Confirme a assinatura digital<br/>
-        <b>7.</b> Baixe o arquivo PDF assinado<br/>
-        <b>8.</b> Retorne ao nosso site e faça o upload do PDF assinado para validação<br/>
+        <b>6.</b> Confirme a assinatura digital com o código enviado para o aplicativo no seu celular<br/>
+        <b>7.</b> Baixe o arquivo PDF assinado do Gov.br<br/>
+        <b>8.</b> <font color="red"><b>⚠️ RETORNE À PLATAFORMA PETIÇÃO BRASIL</b></font> e faça o upload do PDF assinado<br/>
+        <br/>
+        <font color="red"><b>🚨 ATENÇÃO: Assinar no Gov.br NÃO é suficiente! Você PRECISA voltar ao nosso site e enviar o PDF assinado para que sua assinatura seja validada e contabilizada.</b></font><br/>
         <br/>
         <i>IMPORTANTE: Não modifique o conteúdo deste PDF. Qualquer alteração invalidará a verificação.</i>
         """
