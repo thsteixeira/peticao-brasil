@@ -1,0 +1,41 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<div class="success">
+    <h2>✅ Petição Criada com Sucesso!</h2>
+</div>
+
+<p>Olá, {{ creator_name }}!</p>
+
+<p>Sua petição <strong>{{ petition.title }}</strong> foi criada com sucesso e já está disponível para receber assinaturas!</p>
+
+<h3>Detalhes da Petição:</h3>
+<ul>
+    <li><strong>Título:</strong> {{ petition.title }}</li>
+    <li><strong>Categoria:</strong> {{ petition.category.name }}</li>
+    <li><strong>Meta de assinaturas:</strong> {{ petition.signature_goal }}</li>
+    {% if petition.deadline %}
+    <li><strong>Prazo:</strong> {{ petition.deadline|date:"d/m/Y" }}</li>
+    {% endif %}
+    <li><strong>PDF gerado:</strong> ✓ Disponível para download</li>
+</ul>
+
+<div style="background-color: #dbeafe; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <p style="margin: 0;"><strong>Próximos Passos:</strong></p>
+    <ul style="margin: 10px 0 0 0;">
+        <li>Compartilhe sua petição nas redes sociais</li>
+        <li>Envie para amigos e familiares interessados no tema</li>
+        <li>Acompanhe o progresso de assinaturas</li>
+    </ul>
+</div>
+
+<a href="{{ site_url }}{{ petition_url }}" class="button">Ver Minha Petição</a>
+
+<h3>Compartilhe Agora:</h3>
+<p>Quanto mais pessoas souberem da sua petição, maior será a chance de alcançar sua meta e gerar impacto!</p>
+
+<p>
+    Atenciosamente,<br>
+    Equipe {{ site_name }}
+</p>
+{% endblock %}

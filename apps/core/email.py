@@ -143,3 +143,47 @@ def send_petition_milestone_email(petition, milestone_percentage):
         context=context,
         recipient_list=[petition.created_by.email]
     )
+
+
+def send_petition_created_success_email(petition):
+    """
+    Send notification to petition creator when petition is successfully created
+    and PDF is generated.
+    """
+    if not petition.creator or not petition.creator.email:
+        return 0
+    
+    context = {
+        'petition': petition,
+        'creator_name': petition.creator.get_full_name() or petition.creator.username,
+        'petition_url': petition.get_absolute_url(),
+    }
+    
+    return send_template_email(
+        subject=f'Petição Criada com Sucesso - {petition.title}',
+        template_name='petition_created_success',
+        context=context,
+        recipient_list=[petition.creator.email]
+    )
+
+
+def send_petition_created_failure_email(petition):
+    """
+    Send notification to petition creator when petition is created
+    but PDF generation failed.
+    """
+    if not petition.creator or not petition.creator.email:
+        return 0
+    
+    context = {
+        'petition': petition,
+        'creator_name': petition.creator.get_full_name() or petition.creator.username,
+        'petition_url': petition.get_absolute_url(),
+    }
+    
+    return send_template_email(
+        subject=f'Petição Criada - Problema na Geração do PDF - {petition.title}',
+        template_name='petition_created_failure',
+        context=context,
+        recipient_list=[petition.creator.email]
+    )

@@ -28,11 +28,13 @@ else:
 def generate_petition_pdf(self, petition_id):
     """
     Async task to generate PDF for a petition.
+    Sends email notification to creator upon completion (success or failure).
     """
     start_time = time.time()
     try:
         from apps.petitions.models import Petition
         from apps.petitions.pdf_service import PetitionPDFGenerator
+        from apps.core.email import send_petition_created_success_email
         
         # Get petition
         petition = Petition.objects.get(id=petition_id)
@@ -56,6 +58,22 @@ def generate_petition_pdf(self, petition_id):
             duration_seconds=duration,
             task_id=self.request.id
         )
+        
+        # Send success email to creator
+        try:
+            send_petition_created_success_email(petition)
+            logger.info(
+                "Success email sent to petition creator",
+                petition_id=petition_id,
+                creator_email=petition.creator.email if petition.creator else None
+            )
+        except Exception as email_error:
+            logger.error(
+                "Failed to send success email to creator",
+                petition_id=petition_id,
+                error=str(email_error),
+                error_type=type(email_error).__name__
+            )
         
         return {
             'success': True,
@@ -82,6 +100,28 @@ def generate_petition_pdf(self, petition_id):
             retry_count=self.request.retries,
             task_id=self.request.id
         )
+        
+        # If this is the last retry, send failure email
+        if self.request.retries >= self.max_retries - 1:
+            try:
+                from apps.petitions.models import Petition
+                from apps.core.email import send_petition_created_failure_email
+                
+                petition = Petition.objects.get(id=petition_id)
+                send_petition_created_failure_email(petition)
+                logger.info(
+                    "Failure email sent to petition creator",
+                    petition_id=petition_id,
+                    creator_email=petition.creator.email if petition.creator else None
+                )
+            except Exception as email_error:
+                logger.error(
+                    "Failed to send failure email to creator",
+                    petition_id=petition_id,
+                    error=str(email_error),
+                    error_type=type(email_error).__name__
+                )
+        
         # Retry the task
         raise self.retry(exc=exc, countdown=60)
 

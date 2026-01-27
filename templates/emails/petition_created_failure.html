@@ -1,0 +1,35 @@
+{% extends "emails/base.html" %}
+
+{% block content %}
+<div style="background-color: #ef4444; color: white; padding: 15px; border-radius: 6px; margin: 20px 0;">
+    <h2>⚠️ Problema na Geração do PDF</h2>
+</div>
+
+<p>Olá, {{ creator_name }}!</p>
+
+<p>Sua petição <strong>{{ petition.title }}</strong> foi criada, mas encontramos um problema ao gerar o arquivo PDF.</p>
+
+<h3>O que fazer agora?</h3>
+
+<div style="background-color: #fef3c7; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+    <p style="margin: 0;"><strong>Não se preocupe!</strong></p>
+    <p style="margin: 10px 0 0 0;">Nossa equipe foi notificada automaticamente e está trabalhando para resolver o problema. Você receberá outro email assim que o PDF estiver disponível.</p>
+</div>
+
+<h3>Status Atual:</h3>
+<ul>
+    <li><strong>Petição:</strong> Criada e ativa ✓</li>
+    <li><strong>Disponível online:</strong> Sim ✓</li>
+    <li><strong>Aceitando assinaturas:</strong> Sim ✓</li>
+    <li><strong>PDF:</strong> Em processamento...</li>
+</ul>
+
+<a href="{{ site_url }}{{ petition_url }}" class="button">Ver Minha Petição</a>
+
+<p><small>Se o PDF não estiver disponível em 24 horas, entre em contato conosco através do suporte.</small></p>
+
+<p>
+    Atenciosamente,<br>
+    Equipe {{ site_name }}
+</p>
+{% endblock %}
