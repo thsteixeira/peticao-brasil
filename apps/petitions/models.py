@@ -300,6 +300,23 @@ class Petition(models.Model):
         from django.urls import reverse
         return reverse('petitions:detail', kwargs={'uuid': str(self.uuid), 'slug': self.slug})
     
+    def get_full_url(self):
+        """Get absolute URL with domain for emails and external links."""
+        from django.conf import settings
+        base_url = settings.SITE_URL.rstrip('/')
+        return f"{base_url}{self.get_absolute_url()}"
+    
+    def get_sign_url(self):
+        """Get the URL for signing this petition (relative path)."""
+        from django.urls import reverse
+        return reverse('petitions:sign', kwargs={'uuid': str(self.uuid), 'slug': self.slug})
+    
+    def get_full_sign_url(self):
+        """Get absolute URL for signing with domain for emails and external links."""
+        from django.conf import settings
+        base_url = settings.SITE_URL.rstrip('/')
+        return f"{base_url}{self.get_sign_url()}"
+    
     @property
     def progress_percentage(self):
         """Calculate percentage of goal reached"""

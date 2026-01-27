@@ -90,7 +90,7 @@ def send_signature_verified_email(signature):
         'signature': signature,
         'petition': signature.petition,
         'signer_name': signature.full_name,
-        'site_url': settings.SITE_URL,
+        'petition_url': signature.petition.get_full_url(),
     }
     
     return send_template_email(
@@ -113,6 +113,8 @@ def send_signature_rejected_email(signature):
         'petition': signature.petition,
         'signer_name': signature.full_name,
         'reason': signature.rejection_reason,
+        'petition_url': signature.petition.get_full_url(),
+        'sign_url': signature.petition.get_full_sign_url(),
     }
     
     return send_template_email(
@@ -135,6 +137,7 @@ def send_petition_milestone_email(petition, milestone_percentage):
         'milestone': milestone_percentage,
         'current_signatures': petition.current_signatures,
         'signature_goal': petition.signature_goal,
+        'petition_url': petition.get_full_url(),
     }
     
     return send_template_email(
@@ -156,7 +159,7 @@ def send_petition_created_success_email(petition):
     context = {
         'petition': petition,
         'creator_name': petition.creator.get_full_name() or petition.creator.username,
-        'petition_url': petition.get_absolute_url(),
+        'petition_url': petition.get_full_url(),
     }
     
     return send_template_email(
@@ -178,7 +181,7 @@ def send_petition_created_failure_email(petition):
     context = {
         'petition': petition,
         'creator_name': petition.creator.get_full_name() or petition.creator.username,
-        'petition_url': petition.get_absolute_url(),
+        'petition_url': petition.get_full_url(),
     }
     
     return send_template_email(

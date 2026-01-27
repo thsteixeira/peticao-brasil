@@ -308,7 +308,7 @@ def generate_bulk_download_package(self, petition_id, user_id, user_email):
             'signature_count': signatures.count(),
             'download_url': download_url,
             'expiration_days': 7,
-            'site_url': settings.SITE_URL,
+            'petition_url': petition.get_full_url(),
         }
         
         send_template_email(
