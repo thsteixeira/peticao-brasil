@@ -10,10 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Mobile-specific CSS -->
-    <link rel="stylesheet" href="{% static 'css/mobile.css' %}?v={{ CACHE_VERSION }}">
-    
-    <!-- PWA-specific CSS -->
-    <link rel="stylesheet" href="{% static 'css/pwa.css' %}?v={{ CACHE_VERSION }}">
+    <link rel="stylesheet" href="{% static 'css/mobile.css' %}">
     
     {% block extra_css %}{% endblock %}
 </head>
@@ -141,9 +138,6 @@
     </footer>
     
     {% block extra_js %}{% endblock %}
-    
-    <!-- PWA Service Worker Registration -->
-    <script src="{% static 'js/pwa-register.js' %}?v={{ CACHE_VERSION }}"></script>
     
     <!-- Mobile Menu Script -->
     <script>

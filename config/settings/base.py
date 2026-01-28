@@ -3,7 +3,6 @@ Django settings for Petição Brasil project.
 Base settings shared across all environments.
 """
 import os
-import subprocess
 from pathlib import Path
 from decouple import config, Csv
 
@@ -174,27 +173,6 @@ CELERY_TIMEZONE = TIME_ZONE
 # Application Settings
 SITE_NAME = config('SITE_NAME', default='Petição Brasil')
 SITE_URL = config('SITE_URL', default='https://peticaobrasil.com.br')
-
-# Cache busting version - automatically uses git commit hash
-def get_cache_version():
-    """
-    Get cache version from git commit hash.
-    Falls back to timestamp in development or if git is unavailable.
-    """
-    try:
-        # Get short git commit hash (e.g., 'a3f8c2b')
-        git_hash = subprocess.check_output(
-            ['git', 'rev-parse', '--short', 'HEAD'],
-            cwd=BASE_DIR,
-            stderr=subprocess.DEVNULL
-        ).decode('ascii').strip()
-        return git_hash
-    except:
-        # Fallback for development or when git is not available
-        import time
-        return f"dev-{int(time.time())}"
-
-CACHE_VERSION = get_cache_version()
 
 # File Upload Settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
