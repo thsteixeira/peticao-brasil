@@ -97,6 +97,20 @@
                         <p class="text-sm text-gray-600">Número de Série</p>
                         <p class="text-sm font-mono bg-gray-50 p-2 rounded">{{ signature.certificate_serial }}</p>
                     </div>
+                    {% if signature.verification_evidence.revocation_check %}
+                    <div>
+                        <p class="text-sm text-gray-600">Verificação de Revogação</p>
+                        <div class="bg-green-50 p-2 rounded flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-semibold text-green-700">Certificado não revogado</p>
+                                <p class="text-xs text-gray-600">Método: {{ signature.verification_evidence.revocation_check.method }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
 

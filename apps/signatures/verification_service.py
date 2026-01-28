@@ -241,6 +241,12 @@ class PDFSignatureVerifier:
                 result['verified'] = True
                 result['certificate_info'] = cert_info
                 
+                # Add revocation check details if available
+                if hasattr(self, 'revocation_details') and self.revocation_details:
+                    result['revocation_method'] = self.revocation_details.get('method')
+                    result['revocation_checked_at'] = self.revocation_details.get('checked_at')
+                    result['revocation_status'] = self.revocation_details.get('status')
+                
             except Exception as e:
                 result['error'] = f'Erro na validação do certificado: {str(e)}'
                 return result
@@ -266,6 +272,9 @@ class PDFSignatureVerifier:
         
         logger = logging.getLogger(__name__)
         
+        # Store revocation details for custody certificate
+        self.revocation_details = None
+        
         # Check certificate revocation status FIRST
         try:
             # Find issuer certificate in chain for OCSP fallback
@@ -279,6 +288,9 @@ class PDFSignatureVerifier:
             
             # Check revocation status
             is_revoked, revocation_details = revocation_checker.is_revoked()
+            
+            # Store for custody certificate
+            self.revocation_details = revocation_details
             
             # Log the check
             logger.info(
