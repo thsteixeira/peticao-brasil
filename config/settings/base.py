@@ -174,6 +174,9 @@ CELERY_TIMEZONE = TIME_ZONE
 SITE_NAME = config('SITE_NAME', default='Petição Brasil')
 SITE_URL = config('SITE_URL', default='https://peticaobrasil.com.br')
 
+# Cache busting version - update this when deploying changes to static files
+CACHE_VERSION = 'v3.0.0'
+
 # File Upload Settings
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10 MB

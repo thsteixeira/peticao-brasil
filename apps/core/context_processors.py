@@ -2,6 +2,7 @@
 Context processors for making settings available in templates.
 """
 from django.conf import settings
+import time
 
 
 def site_settings(request):
@@ -13,4 +14,5 @@ def site_settings(request):
         'SITE_URL': settings.SITE_URL,
         'TURNSTILE_SITE_KEY': settings.TURNSTILE_SITE_KEY,
         'TURNSTILE_ENABLED': settings.TURNSTILE_ENABLED,
+        'CACHE_VERSION': getattr(settings, 'CACHE_VERSION', 'v3.0.0'),
     }
