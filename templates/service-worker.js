@@ -1,7 +1,7 @@
 // Service Worker for Petição Brasil PWA
 // IMPORTANT: Update this version on every deploy to invalidate old caches
-// Last updated: 2026-01-27 - Portuguese URLs
-const CACHE_VERSION = 'v3.0.0-portuguese-urls';
+// Last updated: 2026-01-27 - CSS Network-Only Fix
+const CACHE_VERSION = 'v3.1.0-css-fix';
 const CACHE_NAME = `peticao-brasil-${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline/';
 
@@ -9,16 +9,20 @@ const OFFLINE_URL = '/offline/';
 const STATIC_CACHE_URLS = [
   '/',
   '/offline/',
-  // Don't pre-cache CSS files - let them be cached on first request
-  // This prevents caching old versions
   '/static/manifest.json',
 ];
 
 // Dynamic cache configuration
 const CACHE_STRATEGIES = {
-  // Network first for CSS to always get latest styles (with fallback to cache when offline)
+  // Network only for CSS - NEVER cache CSS to avoid stale styles
+  networkOnly: [
+    '/admin/',
+    '/api/',
+    'chrome-extension://',
+    '/static/css/',  // CSS must always be fresh
+  ],
+  // Network first for dynamic JS
   networkFirst: [
-    '/static/css/',
     '/static/js/pwa',
     '/static/js/share',
   ],
@@ -34,12 +38,6 @@ const CACHE_STRATEGIES = {
     '/contas/',
     '/assinaturas/',
   ],
-  // Network only (don't cache)
-  networkOnly: [
-    '/admin/',
-    '/api/',
-    'chrome-extension://',
-  ]
 };
 
 // Install event - cache essential files
