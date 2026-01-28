@@ -201,6 +201,15 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'apps.petitions.tasks.cleanup_expired_petitions',
         'schedule': crontab(hour=2, minute=0),  # Daily at 2 AM
     },
+    # Daily CRL download and certificate updates
+    'download-and-cache-crls': {
+        'task': 'apps.signatures.tasks.download_and_cache_crls',
+        'schedule': crontab(hour=3, minute=0),  # Daily at 3 AM UTC
+    },
+    'update-icp-brasil-certificates': {
+        'task': 'apps.signatures.tasks.update_icp_brasil_certificates',
+        'schedule': crontab(hour=3, minute=30),  # Daily at 3:30 AM UTC
+    },
 }
 
 # Sentry Error Tracking

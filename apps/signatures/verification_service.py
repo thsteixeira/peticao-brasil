@@ -261,6 +261,55 @@ class PDFSignatureVerifier:
         Returns:
             bool: True if chain is valid, False otherwise
         """
+        import logging
+        from apps.signatures.revocation_checker import CertificateRevocationChecker, RevocationCheckError
+        
+        logger = logging.getLogger(__name__)
+        
+        # Check certificate revocation status FIRST
+        try:
+            # Find issuer certificate in chain for OCSP fallback
+            issuer_cert = self._find_issuer_certificate(certificate, certificate_chain)
+            
+            # Create revocation checker
+            revocation_checker = CertificateRevocationChecker(
+                certificate=certificate,
+                issuer_certificate=issuer_cert
+            )
+            
+            # Check revocation status
+            is_revoked, revocation_details = revocation_checker.is_revoked()
+            
+            # Log the check
+            logger.info(
+                f"Certificate revocation check for serial {certificate.serial_number}: "
+                f"revoked={is_revoked}, method={revocation_details['method']}"
+            )
+            
+            if is_revoked:
+                # Certificate is revoked - REJECT
+                logger.warning(
+                    f"REVOKED certificate detected! Serial: {certificate.serial_number}, "
+                    f"Reason: {revocation_details.get('reason')}, "
+                    f"Revocation date: {revocation_details.get('revocation_date')}"
+                )
+                return False
+            
+        except RevocationCheckError as e:
+            # Revocation check failed
+            logger.error(f"Revocation check error: {str(e)}")
+            
+            if getattr(settings, 'SIGNATURE_VERIFICATION_STRICT', True):
+                # Strict mode: reject if we can't verify revocation status
+                logger.error("Rejecting signature due to failed revocation check (strict mode)")
+                return False
+            else:
+                # Permissive mode: allow if we can't verify (with warning)
+                logger.warning(
+                    "Allowing signature despite revocation check failure "
+                    "(SIGNATURE_VERIFICATION_STRICT=False)"
+                )
+        
         # Known ICP-Brasil intermediate CAs (Gov.br chain)
         # These are common intermediate CAs under ICP-Brasil roots
         known_intermediates = [
@@ -302,6 +351,31 @@ class PDFSignatureVerifier:
                     return True
         
         return False
+    
+    def _find_issuer_certificate(self, certificate, certificate_chain):
+        """
+        Find the issuer's certificate in the chain.
+        
+        Args:
+            certificate: Certificate whose issuer we're looking for
+            certificate_chain: List of certificates from PKCS#7
+            
+        Returns:
+            Issuer certificate or None
+        """
+        issuer_name = certificate.issuer
+        
+        for cert in certificate_chain:
+            if cert.subject == issuer_name:
+                return cert
+        
+        # Not found in chain - try loaded trusted certs
+        for trusted_cert_info in self.trusted_certs:
+            trusted_cert = trusted_cert_info['certificate']
+            if trusted_cert.subject == issuer_name:
+                return trusted_cert
+        
+        return None
     
     def _extract_certificate_info(self, certificate):
         """Extract relevant information from certificate."""

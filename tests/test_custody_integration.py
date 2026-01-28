@@ -313,7 +313,7 @@ class TestCertificateVerificationAPI:
         signature.refresh_from_db()
         
         url = reverse('signatures:verify_custody_certificate', kwargs={'uuid': signature.uuid})
-        response = api_client.get(url)
+        response = api_client.get(url, {'format': 'json'})
         
         assert response.status_code == 200
         
@@ -347,7 +347,7 @@ class TestCertificateVerificationAPI:
         signature.save()
         
         url = reverse('signatures:verify_custody_certificate', kwargs={'uuid': signature.uuid})
-        response = api_client.get(url)
+        response = api_client.get(url, {'format': 'json'})
         
         assert response.status_code == 200
         
@@ -421,7 +421,8 @@ class TestCertificateEmailNotifications:
         
         # Verify certificate URL is set
         assert signature.custody_certificate_url is not None
-        assert 'cert.pdf' in signature.custody_certificate_url
+        assert 'custody_certificate' in signature.custody_certificate_url
+        assert signature.custody_certificate_url.endswith('.pdf')
     
     @patch('apps.petitions.tasks._download_file')
     @patch('config.storage_backends.MediaStorage.save')

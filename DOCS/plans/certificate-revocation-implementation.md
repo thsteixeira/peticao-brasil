@@ -74,18 +74,121 @@ http://repositorio.iti.br/lcr/acitiv5/acitiv5.crl
 
 ## Recommended Implementation
 
-### Strategy: Hybrid CRL + OCSP
+### Strategy: OCSP-First with Dynamic CRL Discovery & Caching
+
+**Architecture Decision: Real-time OCSP with Intelligent CRL Fallback**
+
+Priority order for revocation checking:
+
+1. **Cached CRL First** (~10ms): Fastest method using pre-downloaded CRLs from Redis
+2. **OCSP Fallback** (2-5s): Real-time check when cached CRL unavailable
+3. **Dynamic CRL Discovery** (5-10s): Extract CRL URLs from certificate and download on-demand
+4. **Daily CRL Sync**: Background task to refresh cached CRLs from discovered endpoints
 
 ```python
-1. Extract CRL/OCSP URLs from certificate
-2. Try OCSP first (fast, real-time)
-   └─> If OCSP fails/unavailable → fallback to CRL
-3. Cache results to avoid repeated queries
-4. Handle network failures gracefully
+Daily Task (3 AM):
+1. Download CRLs from previously discovered endpoints
+2. Parse and cache in Redis (25-hour TTL)
+3. Check for new ICP-Brasil root certificates
+4. Prune unused CRL cache entries
+
+Signature Verification (real-time):
+1. Extract certificate serial number and issuer info
+2. Check cached CRL first (~10ms, instant)
+3. If no cached CRL → Try OCSP (2-5s, real-time)
+4. If OCSP fails → Extract CRL URL from cert, download & cache (5-10s)
+5. Add discovered CRL endpoint to daily sync list
+6. Handle failures gracefully based on STRICT mode
 ```
 
 ### Architecture
 
+#### Cached CRL with OCSP and Dynamic Discovery Fallback
+```
+┌─────────────────────────────────────────────────────────┐
+│     Signature Verification (Real-time)                  │
+└─────────────────────────────────────────────────────────┘
+                        │
+                        ▼
+          ┌─────────────────────────┐
+          │  Extract Serial Number  │
+          │  and Issuer Info        │
+          └─────────────────────────┘
+                        │
+                        ▼
+          ┌─────────────────────────┐
+          │  Check Cached CRL       │
+          │  (~10ms)                │
+          └─────────────────────────┘
+                        │
+              ┌─────────┴─────────┐
+              │                   │
+          Found CRL           No CRL Cache
+              │                   │
+              ▼                   ▼
+       ┌──────────┐      ┌──────────────┐
+       │ Return   │      │ Try OCSP     │
+       │ Status   │      │ (2-5s)       │
+       └──────────┘      └──────────────┘
+                                  │
+                        ┌─────────┴─────────┐
+                        │                   │
+                   Found CRL           No CRL Cache
+                        │                   │
+                        ▼                   ▼
+                 ┌──────────┐      ┌──────────────┐
+                 │ Return   │      │ Extract CRL  │
+                 │ Status   │      │ URL from Cert│
+                 └──────────┘      └──────────────┘
+                                           │
+                                           ▼
+                                  ┌──────────────┐
+                                  │ Download CRL │
+                                  │ & Cache      │
+                                  └──────────────┘
+                                           │
+                                           ▼
+                                  ┌──────────────┐
+                                  │ Add to Daily │
+                                  │ Sync List    │
+                                  └──────────────┘
+                                           │
+                                           ▼
+                                  ┌──────────────┐
+                                  │ Return Status│
+                                  └──────────────┘
+
+┌─────────────────────────────────────────────────────────┐
+│     Daily CRL Refresh Task (3 AM UTC)                   │
+│     Celery Beat → Background Task                       │
+└─────────────────────────────────────────────────────────┘
+                        │
+                        ▼
+          ┌─────────────────────────┐
+          │  Load Discovered CRL    │
+          │  Endpoints from Cache   │
+          └─────────────────────────┘
+                        │
+                        ▼
+          ┌─────────────────────────┐
+          │  Download CRL Files     │
+          │  (AC-Raiz + discovered) │
+          └─────────────────────────┘
+                        │
+                        ▼
+          ┌─────────────────────────┐
+          │  Parse & Update Cache   │
+          │  TTL: 25 hours          │
+          └─────────────────────────┘
+                        │
+                        ▼
+          ┌─────────────────────────┐
+          │  Check for New Root     │
+          │  Certificates (v14,v15) │
+          └─────────────────────────┘
+```
+
+#### Real-time Signature Verification Flow
 ```
 ┌─────────────────────────────────────────────────────────┐
 │         Certificate Validation Flow                     │
@@ -103,33 +206,29 @@ http://repositorio.iti.br/lcr/acitiv5/acitiv5.crl
                         │
                         ▼
           ┌─────────────────────────┐
-          │  Extract Revocation URLs│
-          │  from Certificate       │
+          │  Extract Serial Number  │
+          │  and Issuer Info        │
           └─────────────────────────┘
                         │
                         ▼
           ┌─────────────────────────┐
-          │  Check OCSP?            │
+          │  Check Cached CRL       │
+          │  (Redis Lookup)         │
           └─────────────────────────┘
                     │         │
-              Yes   │         │   No OCSP URL
+              Found │         │   CRL Missing/Stale
                     ▼         └──────┐
           ┌──────────────┐           │
-          │ Query OCSP   │           │
-          │ Responder    │           │
+          │ Check Serial │           │
+          │ in CRL       │           │
+          │ (~10ms)      │           │
           └──────────────┘           │
                     │                │
-              Success │    Timeout/  │
-                      │    Error     │
-                      ▼         ▼    ▼
+          Found     │    Not Found   │
+                    ▼         ▼      ▼
           ┌─────────────────────────┐
-          │  Download & Parse CRL   │
-          └─────────────────────────┘
-                        │
-                        ▼
-          ┌─────────────────────────┐
-          │  Check Serial Number    │
-          │  in CRL/OCSP Response   │
+          │  Fallback: Query OCSP   │
+          │  (Only if CRL failed)   │
           └─────────────────────────┘
                         │
               ┌─────────┴─────────┐
@@ -147,14 +246,241 @@ http://repositorio.iti.br/lcr/acitiv5/acitiv5.crl
 
 ## Implementation Details
 
-### 1. New Service Class: `CertificateRevocationChecker`
+### 1. Daily CRL Download Task (Celery + Heroku Scheduler)
 
 ```python
-# apps/signatures/revocation_checker.py
+# apps/signatures/tasks.py
 
 import hashlib
 import logging
 from datetime import datetime, timedelta
+from typing import Dict, List, Set
+
+import requests
+from celery import shared_task
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
+from django.core.cache import cache
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
+
+
+@shared_task(bind=True, max_retries=3)
+def download_and_cache_crls(self):
+    """
+    Daily task to download all ICP-Brasil CRL files and cache them.
+    
+    This runs as a scheduled task via Heroku Scheduler.
+    Downloads CRLs from all known ICP-Brasil CAs and caches the
+    revoked certificate serial numbers in Redis.
+    """
+    logger.info("Starting daily CRL download task")
+    
+    # ICP-Brasil CRL Distribution Points
+    CRL_ENDPOINTS = {
+        'AC-Raiz': 'http://acraiz.icpbrasil.gov.br/LCRacraiz.crl',
+        'AC-SERPROv5': 'http://repositorio.serpro.gov.br/lcr/acserpro/acserprov5.crl',
+        'AC-Serasa-JUS-v5': 'http://www.serasa.com.br/acjus/lcr/ac-serasa-jus-v5.crl',
+        'AC-VALID-v5': 'http://ccd.valid.com.br/lcr/ac-valid-v5.crl',
+        'AC-Certisign-G7': 'http://lcr.certisign.com.br/ac-certisign-g7.crl',
+        'AC-SOLUTI-v5': 'http://lcr.soluti.com.br/ac-soluti-v5.crl',
+        'AC-SINCOR-v5': 'http://repositorio.sincor.com.br/lcr/ac-sincor-v5.crl',
+        # Add more ICP-Brasil CAs as needed
+    }
+    
+    results = {
+        'success': [],
+        'failed': [],
+        'total_revoked_certs': 0,
+        'timestamp': datetime.utcnow().isoformat()
+    }
+    
+    for ca_name, crl_url in CRL_ENDPOINTS.items():
+        try:
+            logger.info(f"Downloading CRL for {ca_name} from {crl_url}")
+            
+            # Download CRL
+            response = requests.get(crl_url, timeout=60)
+            response.raise_for_status()
+            crl_data = response.content
+            
+            # Parse CRL
+            try:
+                crl = x509.load_der_x509_crl(crl_data, default_backend())
+            except Exception:
+                # Try PEM format
+                crl = x509.load_pem_x509_crl(crl_data, default_backend())
+            
+            # Extract revoked certificate serial numbers
+            revoked_serials = set()
+            revoked_details = {}
+            
+            for revoked_cert in crl:
+                serial = revoked_cert.serial_number
+                revoked_serials.add(serial)
+                
+                # Store additional details
+                revoked_details[str(serial)] = {
+                    'revocation_date': revoked_cert.revocation_date.isoformat(),
+                    'reason': self._get_revocation_reason(revoked_cert),
+                }
+            
+            # Cache in Redis
+            cache_key_serials = f"crl:{ca_name}:serials"
+            cache_key_details = f"crl:{ca_name}:details"
+            cache_key_meta = f"crl:{ca_name}:meta"
+            
+            # Cache for 25 hours (gives 1-hour overlap before next daily run)
+            cache_timeout = 25 * 3600
+            
+            cache.set(cache_key_serials, revoked_serials, cache_timeout)
+            cache.set(cache_key_details, revoked_details, cache_timeout)
+            cache.set(cache_key_meta, {
+                'this_update': crl.last_update.isoformat(),
+                'next_update': crl.next_update.isoformat() if crl.next_update else None,
+                'issuer': crl.issuer.rfc4514_string(),
+                'count': len(revoked_serials),
+                'cached_at': datetime.utcnow().isoformat(),
+            }, cache_timeout)
+            
+            results['success'].append(ca_name)
+            results['total_revoked_certs'] += len(revoked_serials)
+            
+            logger.info(
+                f"CRL cached for {ca_name}: {len(revoked_serials)} revoked certificates"
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to download/cache CRL for {ca_name}: {str(e)}")
+            results['failed'].append({
+                'ca': ca_name,
+                'error': str(e)
+            })
+    
+    # Log summary
+    logger.info(
+        f"CRL download task completed: "
+        f"{len(results['success'])} successful, "
+        f"{len(results['failed'])} failed, "
+        f"{results['total_revoked_certs']} total revoked certificates cached"
+    )
+    
+    return results
+
+def _get_revocation_reason(self, revoked_cert):
+    """Extract revocation reason from certificate."""
+    try:
+        from cryptography.x509.oid import CRLEntryExtensionOID
+        reason_ext = revoked_cert.extensions.get_extension_for_oid(
+            CRLEntryExtensionOID.CRL_REASON
+        )
+        return str(reason_ext.value.reason)
+    except:
+        return 'unspecified'
+
+
+@shared_task(bind=True, max_retries=3)
+def update_icp_brasil_certificates(self):
+    """
+    Daily task to check for new ICP-Brasil root certificates.
+    
+    Checks the official ICP-Brasil repository for new root certificates
+    and downloads them if they don't already exist locally.
+    """
+    logger.info("Checking for ICP-Brasil certificate updates")
+    
+    import os
+    import urllib.request
+    from django.conf import settings
+    
+    # ICP-Brasil root certificates (keep updated)
+    CERTIFICATE_URLS = {
+        'ICP-Brasilv4.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv4.crt',
+        'ICP-Brasilv5.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv5.crt',
+        'ICP-Brasilv6.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv6.crt',
+        'ICP-Brasilv7.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv7.crt',
+        'ICP-Brasilv10.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv10.crt',
+        'ICP-Brasilv11.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv11.crt',
+        'ICP-Brasilv12.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv12.crt',
+        'ICP-Brasilv13.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv13.crt',
+        # Check periodically for v14, v15, etc.
+        'ICP-Brasilv14.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv14.crt',
+        'ICP-Brasilv15.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv15.crt',
+    }
+    
+    cert_dir = os.path.join(
+        settings.BASE_DIR,
+        'apps',
+        'signatures',
+        'icp_certificates'
+    )
+    
+    os.makedirs(cert_dir, exist_ok=True)
+    
+    results = {
+        'downloaded': [],
+        'skipped': [],
+        'failed': [],
+        'timestamp': datetime.utcnow().isoformat()
+    }
+    
+    for filename, url in CERTIFICATE_URLS.items():
+        filepath = os.path.join(cert_dir, filename)
+        
+        # Skip if file already exists
+        if os.path.exists(filepath):
+            results['skipped'].append(filename)
+            continue
+        
+        try:
+            logger.info(f"Downloading new ICP-Brasil certificate: {filename}")
+            
+            with urllib.request.urlopen(url, timeout=30) as response:
+                cert_data = response.read()
+            
+            # Verify it's a valid certificate before saving
+            try:
+                x509.load_der_x509_certificate(cert_data, default_backend())
+            except:
+                x509.load_pem_x509_certificate(cert_data, default_backend())
+            
+            # Save certificate
+            with open(filepath, 'wb') as f:
+                f.write(cert_data)
+            
+            results['downloaded'].append(filename)
+            logger.info(f"Downloaded new certificate: {filename}")
+            
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                # Certificate doesn't exist yet (future version)
+                pass
+            else:
+                results['failed'].append({
+                    'filename': filename,
+                    'error': str(e)
+                })
+        except Exception as e:
+            logger.error(f"Failed to download {filename}: {str(e)}")
+            results['failed'].append({
+                'filename': filename,
+                'error': str(e)
+            })
+    
+    if results['downloaded']:
+        logger.info(f"Downloaded {len(results['downloaded'])} new ICP-Brasil certificates")
+    
+    return results
+```
+
+### 2. Lightweight CRL Checker Service
+
+```python
+# apps/signatures/revocation_checker.py
+
+import logging
+from datetime import datetime
 from typing import Optional, Dict, Tuple
 
 import requests
@@ -176,21 +502,14 @@ class RevocationCheckError(Exception):
 
 class CertificateRevocationChecker:
     """
-    Check certificate revocation status using CRL and OCSP.
+    Check certificate revocation status using cached CRL data.
     
-    Implements hybrid approach:
-    1. Try OCSP first (fast, real-time)
-    2. Fallback to CRL if OCSP unavailable
-    3. Cache results to minimize network calls
+    Primary method: Check against pre-cached CRL data (instant)
+    Fallback method: Query OCSP if CRL unavailable (slower)
     """
     
-    # Cache timeouts
-    OCSP_CACHE_TIMEOUT = 3600  # 1 hour
-    CRL_CACHE_TIMEOUT = 21600  # 6 hours
-    
-    # Network timeouts
+    # Network timeouts (only for OCSP fallback)
     OCSP_TIMEOUT = 10  # seconds
-    CRL_TIMEOUT = 30   # seconds
     
     def __init__(self, certificate: x509.Certificate, issuer_certificate: Optional[x509.Certificate] = None):
         """
@@ -198,7 +517,7 @@ class CertificateRevocationChecker:
         
         Args:
             certificate: The certificate to check
-            issuer_certificate: The issuer's certificate (required for OCSP)
+            issuer_certificate: The issuer's certificate (required for OCSP fallback)
         """
         self.certificate = certificate
         self.issuer_certificate = issuer_certificate
@@ -220,73 +539,154 @@ class CertificateRevocationChecker:
             'status': None,
             'reason': None,
             'revocation_date': None,
-            'cached': False
         }
         
-        # Check cache first
-        cache_key = self._get_cache_key()
-        cached_result = cache.get(cache_key)
-        if cached_result:
-            cached_result['cached'] = True
-            logger.debug(f"Revocation status from cache: {cached_result}")
-            return cached_result['is_revoked'], cached_result
-        
-        # Try OCSP first
+        # Primary method: Check cached CRL
         try:
-            is_revoked, ocsp_details = self._check_ocsp()
-            result.update(ocsp_details)
-            result['method'] = 'OCSP'
-            result['is_revoked'] = is_revoked
-            
-            # Cache successful result
-            cache.set(cache_key, result, self.OCSP_CACHE_TIMEOUT)
-            
-            return is_revoked, result
-            
-        except Exception as e:
-            logger.warning(f"OCSP check failed, falling back to CRL: {str(e)}")
-        
-        # Fallback to CRL
-        try:
-            is_revoked, crl_details = self._check_crl()
+            is_revoked, crl_details = self._check_cached_crl()
             result.update(crl_details)
-            result['method'] = 'CRL'
-            result['is_revoked'] = is_revoked
-            
-            # Cache successful result
-            cache.set(cache_key, result, self.CRL_CACHE_TIMEOUT)
+            result['method'] = 'CACHED_CRL'
             
             return is_revoked, result
             
         except Exception as e:
-            logger.error(f"CRL check also failed: {str(e)}")
-            
-            # Both methods failed
-            if settings.SIGNATURE_VERIFICATION_STRICT:
-                # Strict mode: reject if we can't verify
-                raise RevocationCheckError(
-                    "Unable to verify certificate revocation status. "
-                    f"OCSP and CRL checks both failed: {str(e)}"
-                )
-            else:
-                # Permissive mode: allow if we can't verify (log warning)
-                logger.warning(
-                    f"Certificate revocation check failed for serial {self.serial_number}. "
-                    "Allowing signature due to SIGNATURE_VERIFICATION_STRICT=False. "
-                    "This is a security risk!"
-                )
-                result['method'] = 'FAILED'
-                result['is_revoked'] = False
-                result['reason'] = 'Unable to verify - defaulting to not revoked (permissive mode)'
-                return False, result
+            logger.warning(f"Cached CRL check failed, falling back to OCSP: {str(e)}")
+        
+        # Fallback: OCSP real-time check
+        if self.issuer_certificate:
+            try:
+                is_revoked, ocsp_details = self._check_ocsp()
+                result.update(ocsp_details)
+                result['method'] = 'OCSP_FALLBACK'
+                
+                return is_revoked, result
+                
+            except Exception as e:
+                logger.error(f"OCSP fallback also failed: {str(e)}")
+        
+        # Both methods failed
+        if settings.SIGNATURE_VERIFICATION_STRICT:
+            # Strict mode: reject if we can't verify
+            raise RevocationCheckError(
+                "Unable to verify certificate revocation status. "
+                f"CRL and OCSP checks both failed."
+            )
+        else:
+            # Permissive mode: allow if we can't verify (log warning)
+            logger.warning(
+                f"Certificate revocation check failed for serial {self.serial_number}. "
+                "Allowing signature due to SIGNATURE_VERIFICATION_STRICT=False. "
+                "This is a security risk!"
+            )
+            result['method'] = 'FAILED'
+            result['status'] = 'UNKNOWN'
+            result['reason'] = 'Unable to verify - defaulting to not revoked (permissive mode)'
+            return False, result
     
-    def _get_cache_key(self) -> str:
-        """Generate cache key for this certificate."""
-        return f"cert_revocation:{self.serial_number}"
+    def _check_cached_crl(self) -> Tuple[bool, Dict]:
+        """
+        Check revocation status against cached CRL data.
+        
+        Returns:
+            Tuple of (is_revoked: bool, details: dict)
+        """
+        # Determine which CA issued this certificate
+        issuer_cn = self._get_issuer_common_name()
+        
+        # Try to find matching cached CRL
+        # We may need to check multiple CAs if issuer is ambiguous
+        ca_names = self._get_potential_ca_names(issuer_cn)
+        
+        for ca_name in ca_names:
+            cache_key_serials = f"crl:{ca_name}:serials"
+            cache_key_details = f"crl:{ca_name}:details"
+            cache_key_meta = f"crl:{ca_name}:meta"
+            
+            revoked_serials = cache.get(cache_key_serials)
+            
+            if revoked_serials is not None:
+                # Found cached CRL for this CA
+                meta = cache.get(cache_key_meta, {})
+                
+                if self.serial_number in revoked_serials:
+                    # Certificate is revoked
+                    details_dict = cache.get(cache_key_details, {})
+                    cert_details = details_dict.get(str(self.serial_number), {})
+                    
+                    return True, {
+                        'status': 'REVOKED',
+                        'revocation_date': cert_details.get('revocation_date'),
+                        'reason': cert_details.get('reason', 'unspecified'),
+                        'crl_issuer': meta.get('issuer'),
+                        'crl_this_update': meta.get('this_update'),
+                        'crl_next_update': meta.get('next_update'),
+                    }
+                else:
+                    # Certificate not in CRL (good)
+                    return False, {
+                        'status': 'GOOD',
+                        'crl_issuer': meta.get('issuer'),
+                        'crl_this_update': meta.get('this_update'),
+                        'crl_next_update': meta.get('next_update'),
+                        'revoked_count': meta.get('count', 0),
+                    }
+        
+        # No cached CRL found for this certificate's issuer
+        raise RevocationCheckError(
+            f"No cached CRL found for certificate issuer: {issuer_cn}"
+        )
+    
+    def _get_issuer_common_name(self) -> str:
+        """Extract Common Name from certificate issuer."""
+        from cryptography.x509.oid import NameOID
+        
+        try:
+            cn_attrs = self.certificate.issuer.get_attributes_for_oid(NameOID.COMMON_NAME)
+            if cn_attrs:
+                return cn_attrs[0].value
+        except:
+            pass
+        
+        return self.certificate.issuer.rfc4514_string()
+    
+    def _get_potential_ca_names(self, issuer_cn: str) -> list:
+        """
+        Map certificate issuer to potential cached CRL CA names.
+        
+        This is needed because the issuer CN in the certificate may not
+        exactly match our CRL cache key names.
+        """
+        # Normalize issuer name
+        issuer_lower = issuer_cn.lower()
+        
+        # Map common ICP-Brasil issuers to our cache keys
+        ca_mapping = {
+            'serpro': ['AC-SERPROv5'],
+            'serasa': ['AC-Serasa-JUS-v5'],
+            'valid': ['AC-VALID-v5'],
+            'certisign': ['AC-Certisign-G7'],
+            'soluti': ['AC-SOLUTI-v5'],
+            'sincor': ['AC-SINCOR-v5'],
+            'raiz': ['AC-Raiz'],
+        }
+        
+        # Find matching CAs
+        potential_cas = []
+        for keyword, ca_names in ca_mapping.items():
+            if keyword in issuer_lower:
+                potential_cas.extend(ca_names)
+        
+        # Always check AC-Raiz as fallback
+        if 'AC-Raiz' not in potential_cas:
+            potential_cas.append('AC-Raiz')
+        
+        return potential_cas
     
     def _check_ocsp(self) -> Tuple[bool, Dict]:
         """
-        Check revocation status via OCSP.
+        Fallback: Check revocation status via OCSP.
+        
+        Only used when cached CRL is unavailable.
         
         Returns:
             Tuple of (is_revoked: bool, details: dict)
@@ -355,98 +755,6 @@ class CertificateRevocationChecker:
             # Unknown status
             raise RevocationCheckError(f"Unknown OCSP certificate status: {cert_status}")
     
-    def _check_crl(self) -> Tuple[bool, Dict]:
-        """
-        Check revocation status via CRL.
-        
-        Returns:
-            Tuple of (is_revoked: bool, details: dict)
-        """
-        # Extract CRL URLs from certificate
-        crl_urls = self._get_crl_urls()
-        if not crl_urls:
-            raise RevocationCheckError("No CRL distribution points found in certificate")
-        
-        # Try each CRL URL until one works
-        last_error = None
-        for crl_url in crl_urls:
-            try:
-                logger.debug(f"Downloading CRL from {crl_url}")
-                return self._check_crl_url(crl_url)
-            except Exception as e:
-                logger.warning(f"CRL check failed for {crl_url}: {str(e)}")
-                last_error = e
-                continue
-        
-        # All CRL URLs failed
-        raise RevocationCheckError(f"All CRL URLs failed. Last error: {last_error}")
-    
-    def _check_crl_url(self, crl_url: str) -> Tuple[bool, Dict]:
-        """
-        Download and check a specific CRL.
-        
-        Args:
-            crl_url: URL of the CRL to download
-            
-        Returns:
-            Tuple of (is_revoked: bool, details: dict)
-        """
-        # Check if CRL is cached
-        crl_cache_key = f"crl:{hashlib.sha256(crl_url.encode()).hexdigest()}"
-        crl_data = cache.get(crl_cache_key)
-        
-        if not crl_data:
-            # Download CRL
-            try:
-                response = requests.get(crl_url, timeout=self.CRL_TIMEOUT)
-                response.raise_for_status()
-                crl_data = response.content
-                
-                # Cache the CRL data
-                cache.set(crl_cache_key, crl_data, self.CRL_CACHE_TIMEOUT)
-                
-            except requests.RequestException as e:
-                raise RevocationCheckError(f"Failed to download CRL: {str(e)}")
-        
-        # Parse CRL
-        try:
-            crl = x509.load_der_x509_crl(crl_data, default_backend())
-        except Exception:
-            # Try PEM format
-            try:
-                crl = x509.load_pem_x509_crl(crl_data, default_backend())
-            except Exception as e:
-                raise RevocationCheckError(f"Failed to parse CRL: {str(e)}")
-        
-        # Check if our certificate is in the CRL
-        revoked_cert = crl.get_revoked_certificate_by_serial_number(self.serial_number)
-        
-        details = {
-            'crl_url': crl_url,
-            'crl_this_update': crl.last_update.isoformat(),
-            'crl_next_update': crl.next_update.isoformat() if crl.next_update else None,
-        }
-        
-        if revoked_cert:
-            # Certificate is revoked
-            details['status'] = 'REVOKED'
-            details['revocation_date'] = revoked_cert.revocation_date.isoformat()
-            
-            # Extract revocation reason if available
-            try:
-                reason_ext = revoked_cert.extensions.get_extension_for_oid(
-                    x509.oid.CRLEntryExtensionOID.CRL_REASON
-                )
-                details['reason'] = str(reason_ext.value.reason)
-            except:
-                details['reason'] = 'unspecified'
-            
-            return True, details
-        else:
-            # Certificate not in CRL (good)
-            details['status'] = 'GOOD'
-            return False, details
-    
     def _get_ocsp_url(self) -> Optional[str]:
         """Extract OCSP URL from certificate's Authority Information Access extension."""
         try:
@@ -462,9 +770,285 @@ class CertificateRevocationChecker:
             pass
         
         return None
+```
+
+### 3. Update Celery Beat Schedule
+
+```python
+# config/settings/production.py
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    'verify-pending-signatures': {
+        'task': 'apps.signatures.tasks.verify_pending_signatures',
+        'schedule': crontab(minute='*/5'),  # Every 5 minutes
+    },
+    'cleanup-expired-petitions': {
+        'task': 'apps.petitions.tasks.cleanup_expired_petitions',
+        'schedule': crontab(hour=2, minute=0),  # Daily at 2 AM
+    },
+    # NEW: Daily CRL download
+    'download-and-cache-crls': {
+        'task': 'apps.signatures.tasks.download_and_cache_crls',
+        'schedule': crontab(hour=3, minute=0),  # Daily at 3 AM UTC
+    },
+    # NEW: Daily ICP-Brasil certificate update check
+    'update-icp-brasil-certificates': {
+        'task': 'apps.signatures.tasks.update_icp_brasil_certificates',
+        'schedule': crontab(hour=3, minute=30),  # Daily at 3:30 AM UTC
+    },
+}
+```
+
+### 4. Create Management Command for Manual Execution
+
+**Location**: `apps/signatures/management/commands/update_crl_and_certificates.py`
+
+**Purpose**: 
+- Manual execution for initial setup
+- Testing before deploying scheduled tasks
+- Emergency updates when needed
+- Troubleshooting
+
+**Command**: `python manage.py update_crl_and_certificates`
+
+**Options**:
+- `--crl-only`: Only download and cache CRLs
+- `--certs-only`: Only check for new ICP-Brasil certificates
+- `--force`: Force re-download even if cached
+
+**Implementation**:
+- Calls the same Celery tasks (`download_and_cache_crls` and `update_icp_brasil_certificates`)
+- Executes synchronously (waits for completion)
+- Displays progress and results
+- Returns success/failure summary
+
+**Usage Examples**:
+```bash
+# First-time setup - download everything
+python manage.py update_crl_and_certificates
+
+# Only update CRLs
+python manage.py update_crl_and_certificates --crl-only
+
+# Only check for new certificates
+python manage.py update_crl_and_certificates --certs-only
+
+# On Heroku
+heroku run python manage.py update_crl_and_certificates
+```
+
+### 5. Deploy Celery Beat Configuration
+
+**No additional dynos needed** - You already have a `beat` dyno running (confirmed from your Heroku setup).
+
+The new CRL download tasks will automatically be picked up by the existing beat worker when you:
+1. Update `CELERY_BEAT_SCHEDULE` in production settings (see section 3 above)
+2. Deploy the new code to Heroku
+3. Restart the beat dyno: `heroku restart beat`
+
+**Verification**:
+- Check beat logs: `heroku logs --dyno beat --tail`
+- Should see new scheduled tasks registered
+- Wait for 3:00 AM UTC to see first execution (or manually trigger for testing)
+
+### 5. Update Verification Service
+
+```python
+# apps/signatures/verification_service.py
+
+from apps.signatures.revocation_checker import CertificateRevocationChecker, RevocationCheckError
+
+class PDFSignatureVerifier:
+    # ... existing code ...
     
-    def _get_crl_urls(self) -> list:
-        """Extract CRL URLs from certificate's CRL Distribution Points extension."""
+    def _verify_certificate_chain(self, certificate, certificate_chain):
+        """
+        Verify that the certificate chain leads to an ICP-Brasil root.
+        
+        Args:
+            certificate: The signer's certificate (end entity)
+            certificate_chain: Full chain from PKCS#7 (may only include end cert)
+        
+        Returns:
+            bool: True if chain is valid, False otherwise
+        """
+        # ... existing chain validation code ...
+        
+        # NEW: Check certificate revocation status
+        try:
+            # Find issuer certificate in chain for OCSP fallback
+            issuer_cert = self._find_issuer_certificate(certificate, certificate_chain)
+            
+            # Create revocation checker
+            revocation_checker = CertificateRevocationChecker(
+                certificate=certificate,
+                issuer_certificate=issuer_cert
+            )
+            
+            # Check revocation status
+            is_revoked, revocation_details = revocation_checker.is_revoked()
+            
+            # Log the check
+            logger.info(
+                f"Certificate revocation check for serial {certificate.serial_number}: "
+                f"revoked={is_revoked}, method={revocation_details['method']}"
+            )
+            
+            if is_revoked:
+                # Certificate is revoked - REJECT
+                logger.warning(
+                    f"REVOKED certificate detected! Serial: {certificate.serial_number}, "
+                    f"Reason: {revocation_details.get('reason')}, "
+                    f"Revocation date: {revocation_details.get('revocation_date')}"
+                )
+                return False
+            
+        except RevocationCheckError as e:
+            # Revocation check failed
+            logger.error(f"Revocation check error: {str(e)}")
+            
+            if settings.SIGNATURE_VERIFICATION_STRICT:
+                # Strict mode: reject if we can't verify revocation status
+                return False
+            else:
+                # Permissive mode: allow if we can't verify (with warning)
+                logger.warning(
+                    "Allowing signature despite revocation check failure "
+                    "(SIGNATURE_VERIFICATION_STRICT=False)"
+                )
+        
+        # ... rest of existing validation ...
+        return True
+    
+    def _find_issuer_certificate(self, certificate, certificate_chain):
+        """
+        Find the issuer's certificate in the chain.
+        
+        Args:
+            certificate: Certificate whose issuer we're looking for
+            certificate_chain: List of certificates from PKCS#7
+            
+        Returns:
+            Issuer certificate or None
+        """
+        issuer_name = certificate.issuer
+        
+        for cert in certificate_chain:
+            if cert.subject == issuer_name:
+                return cert
+        
+        # Not found in chain - try loaded trusted certs
+        for trusted_cert_info in self.trusted_certs:
+            trusted_cert = trusted_cert_info['certificate']
+            if trusted_cert.subject == issuer_name:
+                return trusted_cert
+        
+        return None
+```
+
+### 6. Store Revocation Check Evidence
+
+```python
+# apps/signatures/views.py
+
+# When creating verification evidence, include revocation check results:
+
+verification_evidence = {
+    # ... existing fields ...
+    'revocation_check': {
+        'performed': True,
+        'method': revocation_details['method'],  # 'CACHED_CRL', 'OCSP_FALLBACK', or 'FAILED'
+        'checked_at': revocation_details['checked_at'],
+        'is_revoked': is_revoked,
+        'status': revocation_details.get('status'),
+        'reason': revocation_details.get('reason'),
+        'revocation_date': revocation_details.get('revocation_date'),
+        'crl_issuer': revocation_details.get('crl_issuer'),
+        'crl_this_update': revocation_details.get('crl_this_update'),
+        'crl_next_update': revocation_details.get('crl_next_update'),
+    }
+}
+```
+
+---
+
+## Deployment Checklist
+
+### 1. Run Initial Setup
+
+**First-time setup**:
+```bash
+# Download ICP-Brasil root certificates (if not already done)
+python manage.py download_icp_certificates
+
+# Download and cache all CRLs + check for certificate updates
+python manage.py update_crl_and_certificates
+```
+
+**On Heroku**:
+```bash
+heroku run python manage.py download_icp_certificates
+heroku run python manage.py update_crl_and_certificates
+```
+
+This populates Redis cache before enabling revocation checking.
+
+### 2. Install Dependencies
+
+Dependencies already installed in requirements.txt:
+- `cryptography>=44.0.0` ✅
+- `requests>=2.31.0` ✅
+
+No additional installations needed.
+
+### 3. Update Settings
+
+```python
+# .env (production)
+SIGNATURE_VERIFICATION_STRICT=True
+
+# .env (development - can be permissive for testing)
+SIGNATURE_VERIFICATION_STRICT=False
+```
+
+### 4. Configure Redis Cache
+
+Ensure Redis is configured via `REDIS_URL` environment variable (Heroku Redis addon or standalone Redis).
+
+### 5. Test CRL Download
+
+Test the new command before deployment:
+```bash
+# Local
+python manage.py update_crl_and_certificates
+
+# Check Redis contains CRL data
+python manage.py shell
+>>> from django.core.cache import cache
+>>> cache.keys('crl:*')  # Should show multiple keys
+>>> cache.get('crl:AC-Raiz:meta')  # Should show metadata
+```
+
+### 6. Monitor Performance
+
+Add monitoring for:
+- CRL download task success rate
+- Cached CRL hit rate
+- Average revocation check time (~10ms vs 2-5s)
+- Failed revocation checks
+
+### 7. Update Documentation
+
+Update user-facing documentation:
+- Explain that revoked certificates are rejected
+- Document instant verification (~10ms) with cached CRLs
+- Explain network requirements for OCSP fallback
+
+---
+
+## Performance Considerations
         urls = []
         
         try:
@@ -694,22 +1278,32 @@ Update user-facing documentation:
 
 ## Performance Considerations
 
-### Expected Impact
+### Expected Impact with Daily CRL Pre-fetching
 
-**With Caching (99% of requests):**
-- Additional time: ~50ms (cache lookup)
+**Standard Verification (99.9% of requests):**
+- Additional time: ~5-10ms (Redis lookup of serial number in cached CRL)
 - Network calls: 0
+- User experience: No perceptible delay
 
-**Without Cache (1% of requests):**
-- OCSP: ~2-5 seconds
-- CRL: ~5-15 seconds (depends on CRL size)
+**OCSP Fallback (0.1% of requests):**
+- Only triggered when CRL cache is unavailable or stale
+- Additional time: ~2-5 seconds
+- Network calls: 1 (OCSP query)
+
+**Daily Background Task:**
+- Runs at 3:00 AM UTC (off-peak hours)
+- Downloads all ICP-Brasil CRLs (~5-10 MB total)
+- Parses and caches in Redis
+- Duration: ~2-5 minutes
+- No impact on user-facing requests
 
 ### Optimization Strategies
 
-1. **Aggressive Caching**: Cache OCSP responses for 1 hour, CRLs for 6 hours
-2. **Async Checks**: Consider background tasks for non-critical validations
-3. **Connection Pooling**: Reuse HTTP connections for multiple checks
-4. **Fallback Gracefully**: Allow signatures if revocation check fails (with logging)
+1. **Pre-cached CRL Data**: Daily download eliminates real-time CRL fetching
+2. **Redis Storage**: In-memory cache for instant serial number lookups
+3. **25-hour Cache TTL**: Provides 1-hour overlap before next daily run
+4. **OCSP Fallback**: Only used when cached CRL unavailable
+5. **Heroku Scheduler**: Runs during low-traffic hours (3 AM UTC)
 
 ---
 
@@ -741,65 +1335,37 @@ OCSP queries reveal which certificates you're validating to the CA. This is gene
 
 ### Unit Tests
 
-```python
-# tests/test_revocation_checker.py
+**File**: `tests/test_revocation_checker.py`
 
-import pytest
-from cryptography import x509
-from apps.signatures.revocation_checker import CertificateRevocationChecker
-
-def test_ocsp_check_good_certificate():
-    """Test OCSP check for valid certificate"""
-    # Load test certificate
-    cert = load_test_certificate('valid_icp_brasil.crt')
-    issuer = load_test_certificate('issuer.crt')
-    
-    checker = CertificateRevocationChecker(cert, issuer)
-    is_revoked, details = checker.is_revoked()
-    
-    assert is_revoked is False
-    assert details['method'] == 'OCSP'
-    assert details['status'] == 'GOOD'
-
-def test_crl_check_revoked_certificate():
-    """Test CRL check for revoked certificate"""
-    cert = load_test_certificate('revoked_icp_brasil.crt')
-    
-    checker = CertificateRevocationChecker(cert)
-    is_revoked, details = checker.is_revoked()
-    
-    assert is_revoked is True
-    assert details['method'] == 'CRL'
-    assert 'revocation_date' in details
-
-def test_cache_hit():
-    """Test that repeated checks use cache"""
-    cert = load_test_certificate('valid_icp_brasil.crt')
-    issuer = load_test_certificate('issuer.crt')
-    
-    checker1 = CertificateRevocationChecker(cert, issuer)
-    is_revoked1, details1 = checker1.is_revoked()
-    
-    checker2 = CertificateRevocationChecker(cert, issuer)
-    is_revoked2, details2 = checker2.is_revoked()
-    
-    assert details2['cached'] is True
-```
+Test cases needed:
+1. **Cached CRL check for valid certificate** - Should return not revoked
+2. **Cached CRL check for revoked certificate** - Should return revoked with details
+3. **OCSP fallback when CRL unavailable** - Should use OCSP successfully
+4. **Cache hit verification** - Second check should use cached data
+5. **Invalid/missing CRL handling** - Should fallback gracefully
+6. **Strict mode enforcement** - Should reject when verification fails
+7. **Permissive mode behavior** - Should allow with warning when verification fails
 
 ### Integration Tests
 
-```python
-# tests/test_signature_verification_with_revocation.py
+**File**: `tests/test_signature_verification_with_revocation.py`
 
-def test_reject_revoked_certificate_signature(client, petition):
-    """Signatures with revoked certificates should be rejected"""
-    # Upload PDF signed with revoked certificate
-    # ...
-    
-    # Should be rejected with specific error
-    assert signature.verification_status == 'rejected'
-    assert 'revoked' in signature.rejection_reason.lower()
-```
+Test scenarios:
+1. **Signature with valid certificate** - Should be accepted
+2. **Signature with revoked certificate** - Should be rejected
+3. **Signature when CRL cache is available** - Fast verification
+4. **Signature when CRL cache is stale** - Fallback to OCSP
+5. **Network failure handling** - Respect strict/permissive mode
+6. **Verification evidence logging** - Ensure revocation check data stored
+
+### CRL Download Task Tests
+
+Test cases:
+1. **Successful CRL download** - All CAs downloaded and cached
+2. **Partial failure** - Some CAs fail, others succeed
+3. **Redis caching** - Verify keys, TTL, data structure
+4. **Parse CRL correctly** - Extract serial numbers and metadata
+5. **Certificate update check** - Download only new certificates
 
 ---
 

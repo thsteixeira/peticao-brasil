@@ -194,3 +194,219 @@ def verify_pending_signatures():
         logger.error(f'Error queuing pending signature verifications: {str(e)}')
         raise
 
+
+@shared_task(bind=True, max_retries=3)
+def download_and_cache_crls(self):
+    """
+    Daily task to download CRLs from discovered endpoints and AC-Raiz.
+    
+    Downloads CRLs from:
+    1. AC-Raiz (always)
+    2. Previously discovered intermediate CA endpoints
+    """
+    import requests
+    from datetime import datetime
+    from cryptography import x509
+    from cryptography.hazmat.backends import default_backend
+    from django.core.cache import cache
+    
+    logger.info("Starting daily CRL download task")
+    
+    # Always include AC-Raiz
+    CRL_ENDPOINTS = {
+        'AC-Raiz': 'http://acraiz.icpbrasil.gov.br/LCRacraiz.crl',
+    }
+    
+    # Load discovered endpoints from cache
+    discovered_endpoints = cache.get('discovered_crl_endpoints', {})
+    if discovered_endpoints:
+        logger.info(f"Found {len(discovered_endpoints)} discovered CRL endpoints")
+        CRL_ENDPOINTS.update(discovered_endpoints)
+    
+    results = {
+        'success': [],
+        'failed': [],
+        'total_revoked_certs': 0,
+        'timestamp': datetime.utcnow().isoformat()
+    }
+    
+    for ca_name, crl_url in CRL_ENDPOINTS.items():
+        try:
+            logger.info(f"Downloading CRL for {ca_name} from {crl_url}")
+            
+            # Download CRL
+            response = requests.get(crl_url, timeout=60)
+            response.raise_for_status()
+            crl_data = response.content
+            
+            # Parse CRL
+            try:
+                crl = x509.load_der_x509_crl(crl_data, default_backend())
+            except Exception:
+                # Try PEM format
+                crl = x509.load_pem_x509_crl(crl_data, default_backend())
+            
+            # Extract revoked certificate serial numbers
+            revoked_serials = set()
+            revoked_details = {}
+            
+            for revoked_cert in crl:
+                serial = revoked_cert.serial_number
+                revoked_serials.add(serial)
+                
+                # Store additional details
+                revoked_details[str(serial)] = {
+                    'revocation_date': revoked_cert.revocation_date_utc.isoformat(),
+                    'reason': _get_revocation_reason(revoked_cert),
+                }
+            
+            # Cache in Redis
+            cache_key_serials = f"crl:{ca_name}:serials"
+            cache_key_details = f"crl:{ca_name}:details"
+            cache_key_meta = f"crl:{ca_name}:meta"
+            
+            # Cache for 25 hours (gives 1-hour overlap before next daily run)
+            cache_timeout = 25 * 3600
+            
+            cache.set(cache_key_serials, revoked_serials, cache_timeout)
+            cache.set(cache_key_details, revoked_details, cache_timeout)
+            cache.set(cache_key_meta, {
+                'this_update': crl.last_update_utc.isoformat(),
+                'next_update': crl.next_update_utc.isoformat() if crl.next_update_utc else None,
+                'issuer': crl.issuer.rfc4514_string(),
+                'count': len(revoked_serials),
+                'cached_at': datetime.utcnow().isoformat(),
+            }, cache_timeout)
+            
+            results['success'].append(ca_name)
+            results['total_revoked_certs'] += len(revoked_serials)
+            
+            logger.info(
+                f"CRL cached for {ca_name}: {len(revoked_serials)} revoked certificates"
+            )
+            
+        except Exception as e:
+            logger.error(f"Failed to download/cache CRL for {ca_name}: {str(e)}")
+            results['failed'].append({
+                'ca': ca_name,
+                'error': str(e)
+            })
+    
+    # Log summary
+    logger.info(
+        f"CRL download task completed: "
+        f"{len(results['success'])} successful, "
+        f"{len(results['failed'])} failed, "
+        f"{results['total_revoked_certs']} total revoked certificates cached"
+    )
+    
+    return results
+
+
+def _get_revocation_reason(revoked_cert):
+    """Extract revocation reason from certificate."""
+    try:
+        from cryptography.x509.oid import CRLEntryExtensionOID
+        reason_ext = revoked_cert.extensions.get_extension_for_oid(
+            CRLEntryExtensionOID.CRL_REASON
+        )
+        return str(reason_ext.value.reason)
+    except:
+        return 'unspecified'
+
+
+@shared_task(bind=True, max_retries=3)
+def update_icp_brasil_certificates(self):
+    """
+    Daily task to check for new ICP-Brasil root certificates.
+    
+    Checks the official ICP-Brasil repository for new root certificates
+    and downloads them if they don't already exist locally.
+    """
+    import os
+    import urllib.request
+    from datetime import datetime
+    from django.conf import settings
+    from cryptography import x509
+    from cryptography.hazmat.backends import default_backend
+    
+    logger.info("Checking for ICP-Brasil certificate updates")
+    
+    # ICP-Brasil root certificates (keep updated)
+    CERTIFICATE_URLS = {
+        'ICP-Brasilv4.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv4.crt',
+        'ICP-Brasilv5.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv5.crt',
+        'ICP-Brasilv6.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv6.crt',
+        'ICP-Brasilv7.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv7.crt',
+        'ICP-Brasilv10.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv10.crt',
+        'ICP-Brasilv11.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv11.crt',
+        'ICP-Brasilv12.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv12.crt',
+        'ICP-Brasilv13.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv13.crt',
+        # Check periodically for v14, v15, etc.
+        'ICP-Brasilv14.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv14.crt',
+        'ICP-Brasilv15.crt': 'https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-Brasilv15.crt',
+    }
+    
+    cert_dir = os.path.join(
+        settings.BASE_DIR,
+        'apps',
+        'signatures',
+        'icp_certificates'
+    )
+    
+    os.makedirs(cert_dir, exist_ok=True)
+    
+    results = {
+        'downloaded': [],
+        'skipped': [],
+        'failed': [],
+        'timestamp': datetime.utcnow().isoformat()
+    }
+    
+    for filename, url in CERTIFICATE_URLS.items():
+        filepath = os.path.join(cert_dir, filename)
+        
+        # Skip if file already exists
+        if os.path.exists(filepath):
+            results['skipped'].append(filename)
+            continue
+        
+        try:
+            logger.info(f"Downloading new ICP-Brasil certificate: {filename}")
+            
+            with urllib.request.urlopen(url, timeout=30) as response:
+                cert_data = response.read()
+            
+            # Verify it's a valid certificate before saving
+            try:
+                x509.load_der_x509_certificate(cert_data, default_backend())
+            except:
+                x509.load_pem_x509_certificate(cert_data, default_backend())
+            
+            # Save certificate
+            with open(filepath, 'wb') as f:
+                f.write(cert_data)
+            
+            results['downloaded'].append(filename)
+            logger.info(f"Downloaded new certificate: {filename}")
+            
+        except urllib.error.HTTPError as e:
+            if e.code == 404:
+                # Certificate doesn't exist yet (future version)
+                pass
+            else:
+                results['failed'].append({
+                    'filename': filename,
+                    'error': str(e)
+                })
+        except Exception as e:
+            logger.error(f"Failed to download {filename}: {str(e)}")
+            results['failed'].append({
+                'filename': filename,
+                'error': str(e)
+            })
+    
+    if results['downloaded']:
+        logger.info(f"Downloaded {len(results['downloaded'])} new ICP-Brasil certificates")
+    
+    return results

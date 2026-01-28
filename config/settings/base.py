@@ -187,6 +187,11 @@ TURNSTILE_ENABLED = config('TURNSTILE_ENABLED', default=True, cast=bool)
 PETITION_PDF_STORAGE_PATH = config('PETITION_PDF_STORAGE_PATH', default='petitions/pdfs/')
 SIGNATURE_PDF_STORAGE_PATH = config('SIGNATURE_PDF_STORAGE_PATH', default='signatures/pdfs/')
 
+# Signature Verification Settings
+SIGNATURE_VERIFICATION_STRICT = config('SIGNATURE_VERIFICATION_STRICT', default=True, cast=bool)
+# If True: Reject signatures if revocation check fails
+# If False: Allow signatures if revocation check fails (log warning)
+
 # Rate Limiting
 RATELIMIT_ENABLE = True
 RATELIMIT_USE_CACHE = 'default'
