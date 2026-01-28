@@ -114,7 +114,7 @@ class CustodyCertificatePDFGenerator:
             import qrcode
             
             # Verification URL
-            verification_url = f"{settings.SITE_URL}/assinaturas/verify-certificate/{self.signature.uuid}/"
+            verification_url = f"{settings.SITE_URL}/assinaturas/verificar-certificado/{self.signature.uuid}/"
             
             # Generate QR code
             qr = qrcode.QRCode(
@@ -464,7 +464,7 @@ class CustodyCertificatePDFGenerator:
         
         elements.append(Paragraph(
             f"<b>Para verificar a autenticidade deste certificado, acesse:</b><br/>"
-            f"https://peticaobrasil.com.br/assinaturas/verify-certificate/{self.signature.uuid}/",
+            f"https://peticaobrasil.com.br/assinaturas/verificar-certificado/{self.signature.uuid}/",
             self.styles['BodyText']
         ))
         
