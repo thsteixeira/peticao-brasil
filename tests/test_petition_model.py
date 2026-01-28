@@ -30,7 +30,7 @@ class TestPetitionModel:
         """Test petition URL generation"""
         petition = PetitionFactory()
         url = petition.get_absolute_url()
-        assert f'/petitions/{petition.uuid}/' in url
+        assert f'/peticoes/{petition.uuid}/' in url
     
     def test_progress_percentage(self):
         """Test progress percentage calculation"""

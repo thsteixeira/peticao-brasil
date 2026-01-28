@@ -49,7 +49,7 @@ class TestPetitionViews:
         
         # Should redirect to login
         assert response.status_code == 302
-        assert '/accounts/login/' in response.url
+        assert '/contas/entrar/' in response.url
     
     def test_create_petition_authenticated(self, authenticated_client, category):
         """Test authenticated user can access create form"""
@@ -151,7 +151,7 @@ startxref
         response = api_client.get(url)
         
         assert response.status_code == 302
-        assert '/accounts/login/' in response.url
+        assert '/contas/entrar/' in response.url
 
 
 @pytest.mark.integration

@@ -31,8 +31,8 @@ const CACHE_STRATEGIES = {
   // Network first, fallback to cache
   dynamic: [
     '/peticoes/',
-    '/accounts/',
-    '/signatures/',
+    '/contas/',
+    '/assinaturas/',
   ],
   // Network only (don't cache)
   networkOnly: [
@@ -94,13 +94,13 @@ self.addEventListener('fetch', (event) => {
   if (!url.protocol.startsWith('http')) {
     return;
   }
-  Network first for CSS and dynamic JS
+  
+  // Network first for CSS and dynamic JS
   if (shouldUseNetworkFirst(url.pathname)) {
     event.respondWith(networkFirst(request));
     return;
   }
   
-  // Static resources - Cache First strategy (images, fonts)
   // Network only strategy for specific paths
   if (shouldUseNetworkOnly(url.pathname)) {
     event.respondWith(fetch(request));
@@ -116,12 +116,12 @@ self.addEventListener('fetch', (event) => {
   // Dynamic content - Network First strategy
   event.respondWith(networkFirst(request));
 });
-network-first strategy
+
+// Check if URL should use network-first strategy
 function shouldUseNetworkFirst(pathname) {
   return CACHE_STRATEGIES.networkFirst.some(pattern => pathname.startsWith(pattern));
 }
 
-// Check if URL should use 
 // Check if URL should use network-only strategy
 function shouldUseNetworkOnly(pathname) {
   return CACHE_STRATEGIES.networkOnly.some(pattern => pathname.startsWith(pattern));

@@ -23,8 +23,8 @@ sitemaps = {
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('apps.accounts.urls')),
-    path('signatures/', include('apps.signatures.urls')),
+    path('contas/', include('apps.accounts.urls')),
+    path('assinaturas/', include('apps.signatures.urls')),
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('robots.txt', include('robots.urls')),
     

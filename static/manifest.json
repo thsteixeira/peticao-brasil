@@ -42,7 +42,7 @@
       "name": "Criar Petição",
       "short_name": "Criar",
       "description": "Criar uma nova petição",
-      "url": "/criar/",
+      "url": "/peticoes/criar/",
       "icons": [
         {
           "src": "/static/images/favicon_io/android-chrome-192x192.png",
@@ -54,7 +54,7 @@
       "name": "Minhas Assinaturas",
       "short_name": "Assinaturas",
       "description": "Ver minhas assinaturas",
-      "url": "/signatures/minhas-assinaturas/",
+      "url": "/assinaturas/minhas-assinaturas/",
       "icons": [
         {
           "src": "/static/images/favicon_io/android-chrome-192x192.png",

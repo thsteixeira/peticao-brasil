@@ -190,7 +190,7 @@ class PetitionShare {
      */
     async getShareUrls() {
         try {
-            const response = await fetch(`/petitions/${this.petitionUuid}/share/`);
+            const response = await fetch(`/peticoes/${this.petitionUuid}/compartilhar/`);
             if (!response.ok) {
                 throw new Error('Failed to fetch share URLs');
             }
@@ -206,7 +206,7 @@ class PetitionShare {
      */
     async trackShare() {
         try {
-            await fetch(`/petitions/${this.petitionUuid}/share/`);
+            await fetch(`/peticoes/${this.petitionUuid}/compartilhar/`);
         } catch (error) {
             console.error('Error tracking share:', error);
         }

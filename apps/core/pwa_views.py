@@ -60,7 +60,7 @@ def manifest_view(request):
                 "name": "Criar Petição",
                 "short_name": "Criar",
                 "description": "Criar uma nova petição",
-                "url": "/criar/",
+                "url": "/peticoes/criar/",
                 "icons": [
                     {
                         "src": request.build_absolute_uri(settings.STATIC_URL + "images/favicon_io/android-chrome-192x192.png"),
@@ -72,7 +72,7 @@ def manifest_view(request):
                 "name": "Minhas Assinaturas",
                 "short_name": "Assinaturas",
                 "description": "Ver minhas assinaturas",
-                "url": "/signatures/minhas-assinaturas/",
+                "url": "/assinaturas/minhas-assinaturas/",
                 "icons": [
                     {
                         "src": request.build_absolute_uri(settings.STATIC_URL + "images/favicon_io/android-chrome-192x192.png"),
