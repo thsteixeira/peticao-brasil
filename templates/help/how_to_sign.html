@@ -1,33 +1,61 @@
 {% extends "base.html" %}
 
-{% block title %}Como Assinar com Gov.br - {{ SITE_NAME }}{% endblock %}
+{% block title %}Como Assinar Digitalmente - {{ SITE_NAME }}{% endblock %}
 
 {% block content %}
 <div class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-12 mb-12">
     <div class="container mx-auto px-4">
         <h1 class="text-4xl md:text-5xl font-bold mb-4 text-center">Como Assinar Digitalmente</h1>
-        <p class="text-xl text-blue-100 text-center max-w-3xl mx-auto">
-            Guia completo para assinar petições usando o Assinador Gov.br
+        <p class="text-xl text-blue-100 text-center max-w-3xl mx-auto mb-4">
+            Guia completo para assinar petições com certificados ICP-Brasil
         </p>
+        <div class="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-4 max-w-4xl mx-auto">
+            <p class="text-sm md:text-base text-blue-50 text-center">
+                ✅ <strong>Aceitamos qualquer certificado digital ICP-Brasil:</strong> Gov.br, e-CPF, certificados A1, A3 e mais.<br/>
+                <span class="text-blue-100">Este guia demonstra o processo com Gov.br (gratuito e recomendado), mas você pode usar qualquer certificado válido.</span>
+            </p>
+        </div>
     </div>
 </div>
 
 <div class="container mx-auto px-4 max-w-4xl mb-16">
     
     <!-- Prerequisites -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-6 mb-8 rounded-r-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <span class="text-3xl">ℹ️</span>
+            </div>
+            <div class="ml-4">
+                <h3 class="text-lg font-bold text-blue-900 mb-2">Opções de Assinatura Aceitas</h3>
+                <p class="text-blue-800 mb-3">
+                    Nossa plataforma aceita <strong>qualquer certificado digital ICP-Brasil válido</strong>. Você pode escolher:
+                </p>
+                <ul class="text-blue-700 space-y-2 ml-4">
+                    <li>🆓 <strong>Gov.br</strong> - Gratuito, recomendado para pessoas físicas (nível prata ou ouro)</li>
+                    <li>💳 <strong>e-CPF</strong> - Certificado digital de pessoa física (A1 ou A3)</li>
+                    <li>📄 <strong>Outros certificados ICP-Brasil</strong> - Emitidos por Autoridades Certificadoras credenciadas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 mb-12 rounded-r-lg">
         <div class="flex">
             <div class="flex-shrink-0">
                 <span class="text-3xl">⚠️</span>
             </div>
             <div class="ml-4">
-                <h3 class="text-lg font-bold text-yellow-800 mb-2">Antes de começar</h3>
+                <h3 class="text-lg font-bold text-yellow-800 mb-2">Antes de começar (usando Gov.br - gratuito)</h3>
                 <ul class="text-yellow-700 space-y-2">
                     <li>✓ Você precisa ter uma <strong>conta Gov.br</strong> (nível prata ou ouro)</li>
                     <li>✓ É necessário ter o <strong>aplicativo Gov.br</strong> instalado no celular</li>
                     <li>✓ Certifique-se de que seu celular está com internet</li>
                     <li>✓ Todo o processo acontece <strong>no navegador</strong> - não precisa instalar nada no computador</li>
                 </ul>
+                <p class="text-sm text-yellow-600 mt-3">
+                    💡 <em>Se você possui e-CPF ou outro certificado ICP-Brasil, pode usá-lo diretamente no Assinador Gov.br ou em outras ferramentas compatíveis.</em>
+                </p>
             </div>
         </div>
     </div>
@@ -286,6 +314,15 @@
             </div>
 
             <div class="bg-white rounded-lg p-6 shadow-sm">
+                <h3 class="font-bold text-gray-900 mb-2">❓ Posso usar e-CPF em vez de Gov.br?</h3>
+                <p class="text-gray-700">
+                    Sim! Nossa plataforma aceita <strong>qualquer certificado digital ICP-Brasil válido</strong>, incluindo e-CPF e certificados A1/A3. 
+                    Você pode usar o Assinador Gov.br (que também suporta certificados ICP-Brasil) ou qualquer outra ferramenta de assinatura digital compatível. 
+                    Recomendamos o Gov.br por ser gratuito e não exigir instalação de software.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 shadow-sm">
                 <h3 class="font-bold text-gray-900 mb-2">❓ Não recebi a notificação no celular. O que fazer?</h3>
                 <p class="text-gray-700">
                     Verifique se: (1) o app Gov.br está instalado e atualizado, (2) já tenha logado ao menos uma vez pelo app, (3) seu celular está conectado à internet, 
@@ -336,7 +373,7 @@
                 <strong>Certificado de Cadeia de Custódia</strong> que comprova:
             </p>
             <ul class="list-disc ml-6 space-y-1 text-gray-700">
-                <li>Que você assinou digitalmente a petição com certificado ICP-Brasil válido</li>
+                <li>Que você assinou digitalmente a petição com <strong>certificado ICP-Brasil válido</strong> (Gov.br, e-CPF ou outro)</li>
                 <li>A <strong>integridade do texto da petição</strong> que você assinou</li>
                 <li>A data e hora exatas de cada etapa da verificação</li>
                 <li>Todas as validações de segurança realizadas</li>
