@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assinatura Rejeitada - Certificado CNPJ</title>
+</head>
+<body style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
+    <div style="background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <!-- Header -->
+        <div style="background-color: #dc2626; color: white; padding: 30px 20px; text-align: center;">
+            <h1 style="margin: 0; font-size: 24px;">⚠️ Assinatura Rejeitada</h1>
+        </div>
+        
+        <!-- Body -->
+        <div style="padding: 30px 20px;">
+            <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                Olá <strong>{{ signer_name }}</strong>,
+            </p>
+            
+            <p style="font-size: 16px; color: #333; margin-bottom: 20px;">
+                Sua assinatura para a petição <strong>"{{ petition_title }}"</strong> foi rejeitada automaticamente.
+            </p>
+            
+            <!-- Rejection Reason Box -->
+            <div style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; margin: 25px 0; border-radius: 4px;">
+                <h2 style="margin: 0 0 10px 0; font-size: 18px; color: #856404;">
+                    📋 Motivo da Rejeição
+                </h2>
+                <p style="margin: 0; color: #856404; font-size: 15px;">
+                    O certificado digital utilizado é de <strong>pessoa jurídica (CNPJ)</strong>.
+                </p>
+                <p style="margin: 10px 0 0 0; color: #856404; font-size: 15px;">
+                    Nossa plataforma aceita apenas certificados de <strong>pessoa física (CPF)</strong>.
+                </p>
+                {% if certificate_issuer %}
+                <p style="margin: 10px 0 0 0; color: #856404; font-size: 13px;">
+                    <em>Emissor do certificado: {{ certificate_issuer }}</em>
+                </p>
+                {% endif %}
+            </div>
+            
+            <!-- Solution Box -->
+            <div style="background-color: #d4edda; border-left: 4px solid #28a745; padding: 20px; margin: 25px 0; border-radius: 4px;">
+                <h2 style="margin: 0 0 15px 0; font-size: 18px; color: #155724;">
+                    ✅ Como Resolver
+                </h2>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #155724; font-size: 15px;">1. Gov.br (GRATUITO - Recomendado)</strong>
+                    <p style="margin: 5px 0 0 0; color: #155724; font-size: 14px;">
+                        → Acesse <a href="https://gov.br" style="color: #0066cc;">gov.br</a><br>
+                        → Crie ou ative sua conta<br>
+                        → Eleve para nível Prata ou Ouro
+                    </p>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <strong style="color: #155724; font-size: 15px;">2. e-CPF</strong>
+                    <p style="margin: 5px 0 0 0; color: #155724; font-size: 14px;">
+                        → Adquira um certificado e-CPF em uma Autoridade Certificadora credenciada
+                    </p>
+                </div>
+                
+                <div>
+                    <strong style="color: #155724; font-size: 15px;">3. Certificado A1/A3 de Pessoa Física</strong>
+                    <p style="margin: 5px 0 0 0; color: #155724; font-size: 14px;">
+                        → Se você possui, use-o no lugar do certificado CNPJ
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Next Steps Box -->
+            <div style="background-color: #e7f3ff; border-left: 4px solid #007bff; padding: 20px; margin: 25px 0; border-radius: 4px;">
+                <h2 style="margin: 0 0 15px 0; font-size: 18px; color: #004085;">
+                    📖 Próximos Passos
+                </h2>
+                <ol style="margin: 0; padding-left: 20px; color: #004085; font-size: 14px;">
+                    <li style="margin-bottom: 8px;">Obtenha um certificado de pessoa física (CPF)</li>
+                    <li style="margin-bottom: 8px;">Acesse a petição: <a href="{{ petition_url }}" style="color: #0066cc;">{{ petition_title }}</a></li>
+                    <li style="margin-bottom: 8px;">Baixe o PDF novamente</li>
+                    <li style="margin-bottom: 8px;">Assine com seu certificado CPF</li>
+                    <li style="margin-bottom: 8px;">Envie o arquivo assinado</li>
+                </ol>
+            </div>
+            
+            <!-- CTA Button -->
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ help_url }}" 
+                   style="display: inline-block; background-color: #007bff; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-size: 16px; font-weight: bold;">
+                    📚 Ver Guia Completo de Assinatura
+                </a>
+            </div>
+            
+            <!-- Explanation -->
+            <div style="background-color: #f8f9fa; padding: 15px; margin: 25px 0; border-radius: 4px; border: 1px solid #dee2e6;">
+                <p style="margin: 0; font-size: 13px; color: #6c757d; text-align: center;">
+                    💡 <strong>Por que esta política?</strong><br>
+                    Esta política garante que cada assinatura represente um cidadão brasileiro<br>
+                    exercendo seu direito de participação democrática.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #dee2e6;">
+            <p style="margin: 0 0 10px 0; font-size: 14px; color: #6c757d;">
+                <strong>{{ site_name }}</strong>
+            </p>
+            <p style="margin: 0; font-size: 12px; color: #6c757d;">
+                Data da rejeição: {{ rejection_date|date:"d/m/Y H:i" }}
+            </p>
+        </div>
+    </div>
+</body>
+</html>

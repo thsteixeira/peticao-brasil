@@ -190,3 +190,67 @@ def send_petition_created_failure_email(petition):
         context=context,
         recipient_list=[petition.creator.email]
     )
+
+
+def send_cnpj_rejection_email(signature, petition, certificate_info):
+    """
+    Send email notification for CNPJ certificate rejection.
+    
+    Args:
+        signature: Signature object with contact info
+        petition: Petition object
+        certificate_info: Dictionary with certificate details
+    """
+    if not signature.email:
+        logger.warning(f'Cannot send CNPJ rejection email - no email for signature {signature.id}')
+        return 0
+    
+    from django.utils import timezone
+    
+    context = {
+        'signer_name': signature.full_name or 'Assinante',
+        'petition_title': petition.title,
+        'petition_url': petition.get_full_url() if hasattr(petition, 'get_full_url') else f"{settings.SITE_URL}/peticao/{petition.slug}/",
+        'certificate_issuer': certificate_info.get('issuer', 'Desconhecido'),
+        'rejection_date': timezone.now(),
+        'help_url': f"{settings.SITE_URL}/ajuda/como-assinar/",
+        'site_name': settings.SITE_NAME,
+        'site_url': settings.SITE_URL,
+    }
+    
+    try:
+        # Try to use HTML template first
+        html_content = render_to_string('emails/signature_rejected_cnpj.html', context)
+        
+        # Try to get plain text version
+        try:
+            text_content = render_to_string('emails/signature_rejected_cnpj.txt', context)
+        except:
+            # Fallback to stripped HTML
+            text_content = strip_tags(html_content)
+        
+        # Create email
+        email = EmailMultiAlternatives(
+            subject='Assinatura Rejeitada - Certificado CNPJ Não Aceito',
+            body=text_content,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to=[signature.email]
+        )
+        
+        # Attach HTML version
+        email.attach_alternative(html_content, "text/html")
+        
+        # Send email
+        result = email.send(fail_silently=False)
+        
+        if result:
+            logger.info(f'CNPJ rejection email sent to {signature.email} for signature {signature.id}')
+        else:
+            logger.warning(f'CNPJ rejection email not sent for signature {signature.id}')
+        
+        return result
+        
+    except Exception as e:
+        logger.error(f'Error sending CNPJ rejection email for signature {signature.id}: {str(e)}')
+        return 0
+

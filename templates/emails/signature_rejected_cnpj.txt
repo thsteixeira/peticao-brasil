@@ -1,0 +1,60 @@
+═══════════════════════════════════════════════════════════════
+ASSINATURA REJEITADA - CERTIFICADO CNPJ NÃO ACEITO
+═══════════════════════════════════════════════════════════════
+
+Olá {{ signer_name }},
+
+Sua assinatura para a petição "{{ petition_title }}" foi rejeitada automaticamente.
+
+═══════════════════════════════════════════════════════════════
+📋 MOTIVO DA REJEIÇÃO
+═══════════════════════════════════════════════════════════════
+
+O certificado digital utilizado é de PESSOA JURÍDICA (CNPJ).
+Nossa plataforma aceita apenas certificados de PESSOA FÍSICA (CPF).
+{% if certificate_issuer %}
+Emissor do certificado: {{ certificate_issuer }}
+{% endif %}
+
+═══════════════════════════════════════════════════════════════
+✅ COMO RESOLVER
+═══════════════════════════════════════════════════════════════
+
+1. Gov.br (GRATUITO - Recomendado)
+   → Acesse https://gov.br
+   → Crie ou ative sua conta
+   → Eleve para nível Prata ou Ouro
+
+2. e-CPF
+   → Adquira certificado e-CPF em uma AC credenciada
+
+3. Certificado A1/A3 de Pessoa Física
+   → Use seu certificado CPF no lugar do CNPJ
+
+═══════════════════════════════════════════════════════════════
+📖 PRÓXIMOS PASSOS
+═══════════════════════════════════════════════════════════════
+
+1. Obtenha um certificado de pessoa física (CPF)
+2. Acesse a petição: {{ petition_url }}
+3. Baixe o PDF novamente
+4. Assine com seu certificado CPF
+5. Envie o arquivo assinado
+
+═══════════════════════════════════════════════════════════════
+📚 PRECISA DE AJUDA?
+═══════════════════════════════════════════════════════════════
+
+Acesse o guia completo de assinatura:
+{{ help_url }}
+
+═══════════════════════════════════════════════════════════════
+💡 POR QUE ESTA POLÍTICA?
+═══════════════════════════════════════════════════════════════
+
+Esta política garante que cada assinatura represente um cidadão
+brasileiro exercendo seu direito de participação democrática.
+
+---
+{{ site_name }}
+Data da rejeição: {{ rejection_date|date:"d/m/Y H:i" }}

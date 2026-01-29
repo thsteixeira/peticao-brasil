@@ -17,6 +17,15 @@ from cryptography.hazmat.primitives.serialization import pkcs7
 from pypdf import PdfReader
 
 
+# ICP-Brasil OID Constants
+# Reference: DOC-ICP-04 - Requisitos Mínimos para as PC ICP-Brasil
+OID_CPF = x509.ObjectIdentifier("2.16.76.1.3.1")   # Natural Person (CPF) - ACCEPTED
+OID_CNPJ = x509.ObjectIdentifier("2.16.76.1.3.3")  # Legal Entity (CNPJ) - REJECTED
+OID_PIS_PASEP = x509.ObjectIdentifier("2.16.76.1.3.5")
+OID_RG = x509.ObjectIdentifier("2.16.76.1.3.2")
+OID_CEI = x509.ObjectIdentifier("2.16.76.1.3.7")  # Company ID - ALSO REJECTED
+
+
 class SignatureVerificationError(Exception):
     """Base exception for signature verification errors."""
     pass
@@ -210,7 +219,60 @@ class PDFSignatureVerifier:
             
             # Now validate the certificate (for both PKCS#7 and /Cert formats)
             try:
-                # Verify certificate chain against ICP-Brasil roots
+                # STEP 1: Check certificate type (CPF vs CNPJ) - MUST BE FIRST
+                cert_type, cert_value = self._extract_certificate_type(certificate)
+                
+                if cert_type == 'CNPJ':
+                    # CNPJ certificate detected - REJECT immediately
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    
+                    logger.warning(
+                        f"CNPJ certificate rejected: {cert_value or 'unknown'}",
+                        extra={
+                            'certificate_serial': certificate.serial_number,
+                            'petition_id': petition.id if petition else None,
+                            'rejection_reason': 'CNPJ_NOT_ACCEPTED'
+                        }
+                    )
+                    
+                    result['verified'] = False
+                    result['error'] = (
+                        'Certificado CNPJ detectado. Esta plataforma aceita '
+                        'apenas certificados de pessoa física (CPF). '
+                        'Por favor, utilize certificado Gov.br, e-CPF ou A1/A3 de pessoa física.'
+                    )
+                    result['certificate_info'] = {
+                        'certificate_type': 'CNPJ',
+                        'cnpj': cert_value,
+                        'serial_number': str(certificate.serial_number),
+                        'issuer': certificate.issuer.rfc4514_string(),
+                    }
+                    result['rejection_code'] = 'CNPJ_NOT_ACCEPTED'
+                    return result
+                
+                elif cert_type == 'UNKNOWN':
+                    # Unknown certificate type - flag for manual review
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    
+                    logger.warning(
+                        f"Unknown certificate type - requires manual review",
+                        extra={
+                            'certificate_serial': certificate.serial_number,
+                            'petition_id': petition.id if petition else None,
+                        }
+                    )
+                    
+                    result['verified'] = False
+                    result['error'] = 'Tipo de certificado não identificado. Sua assinatura está em análise manual.'
+                    result['requires_manual_review'] = True
+                    result['certificate_info'] = self._extract_certificate_info(certificate)
+                    return result
+                
+                # CPF certificate - continue with normal validation
+                
+                # STEP 2: Verify certificate chain against ICP-Brasil roots
                 chain_valid = self._verify_certificate_chain(certificate, certificate_chain)
                 
                 if not chain_valid:
@@ -403,6 +465,15 @@ class PDFSignatureVerifier:
             'version': certificate.version.name,
         }
         
+        # Extract certificate type (CPF or CNPJ) and value
+        cert_type, cert_value = self._extract_certificate_type(certificate)
+        info['certificate_type'] = cert_type
+        if cert_value:
+            if cert_type == 'CPF':
+                info['cpf'] = cert_value
+            elif cert_type == 'CNPJ':
+                info['cnpj'] = cert_value
+        
         # Extract common name if available
         try:
             cn_list = subject.get_attributes_for_oid(x509.NameOID.COMMON_NAME)
@@ -420,6 +491,87 @@ class PDFSignatureVerifier:
             pass
         
         return info
+    
+    def _extract_certificate_type(self, certificate):
+        """
+        Extract certificate type (CPF or CNPJ) from ICP-Brasil certificate.
+        
+        Args:
+            certificate: x509.Certificate object
+            
+        Returns:
+            tuple: (cert_type, value)
+                cert_type: 'CPF', 'CNPJ', or 'UNKNOWN'
+                value: The extracted CPF/CNPJ number (or None)
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        try:
+            # Check Subject Alternative Name extension for OtherName entries
+            try:
+                san_ext = certificate.extensions.get_extension_for_oid(
+                    x509.ExtensionOID.SUBJECT_ALTERNATIVE_NAME
+                )
+                
+                # Parse Other Name entries
+                for name in san_ext.value:
+                    if isinstance(name, x509.OtherName):
+                        # Check for CNPJ (MUST REJECT)
+                        if name.type_id == OID_CNPJ:
+                            try:
+                                cnpj_value = name.value.decode('utf-8')
+                                logger.info(f'CNPJ certificate detected: {cnpj_value}')
+                                return ('CNPJ', cnpj_value)
+                            except:
+                                logger.warning('CNPJ OID found but value could not be decoded')
+                                return ('CNPJ', None)
+                        
+                        # Check for CEI (Company ID - also reject)
+                        elif name.type_id == OID_CEI:
+                            try:
+                                cei_value = name.value.decode('utf-8')
+                                logger.info(f'CEI certificate detected (company): {cei_value}')
+                                return ('CNPJ', cei_value)  # Treat as CNPJ
+                            except:
+                                return ('CNPJ', None)
+                        
+                        # Check for CPF (ACCEPTED)
+                        elif name.type_id == OID_CPF:
+                            try:
+                                cpf_value = name.value.decode('utf-8')
+                                logger.info(f'CPF certificate detected: {cpf_value}')
+                                return ('CPF', cpf_value)
+                            except:
+                                logger.warning('CPF OID found but value could not be decoded')
+                                return ('CPF', None)
+            
+            except x509.ExtensionNotFound:
+                # No SAN extension
+                pass
+            
+            # Fallback: check certificate Subject for CNPJ/CPF keywords
+            subject_str = certificate.subject.rfc4514_string().upper()
+            issuer_str = certificate.issuer.rfc4514_string().upper()
+            
+            # Check for CNPJ in subject or issuer
+            if 'CNPJ' in subject_str or 'CNPJ' in issuer_str:
+                logger.warning('CNPJ keyword found in certificate subject/issuer')
+                return ('CNPJ', None)
+            
+            # Check for company-related keywords
+            company_keywords = ['EMPRESA', 'LTDA', 'S.A.', 'S/A', 'ME', 'EPP', 'EIRELI']
+            for keyword in company_keywords:
+                if keyword in subject_str:
+                    logger.warning(f'Company keyword "{keyword}" found in certificate')
+                    return ('CNPJ', None)
+            
+            logger.info('Certificate type could not be determined')
+            return ('UNKNOWN', None)
+            
+        except Exception as e:
+            logger.error(f'Error extracting certificate type: {e}')
+            return ('UNKNOWN', None)
     
     def _verify_pdf_content(self, pdf_data, petition):
         """

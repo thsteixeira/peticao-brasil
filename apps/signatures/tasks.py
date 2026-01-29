@@ -128,12 +128,25 @@ def verify_signature(self, signature_id):
                 task_id=self.request.id
             )
             
-            # Send rejection email notification
-            try:
-                from apps.core.tasks import send_signature_rejected_notification
-                send_signature_rejected_notification.delay(signature.id)
-            except Exception as e:
-                logger.error(f"Failed to queue rejection email: {str(e)}")
+            # Check if this is a CNPJ rejection - send specific email
+            if result.get('rejection_code') == 'CNPJ_NOT_ACCEPTED':
+                try:
+                    from apps.core.email import send_cnpj_rejection_email
+                    send_cnpj_rejection_email(
+                        signature=signature,
+                        petition=signature.petition,
+                        certificate_info=result.get('certificate_info', {})
+                    )
+                    logger.info(f"CNPJ rejection email sent for signature {signature.id}")
+                except Exception as e:
+                    logger.error(f"Failed to send CNPJ rejection email: {str(e)}")
+            else:
+                # Send generic rejection email notification
+                try:
+                    from apps.core.tasks import send_signature_rejected_notification
+                    send_signature_rejected_notification.delay(signature.id)
+                except Exception as e:
+                    logger.error(f"Failed to queue rejection email: {str(e)}")
             
             return {
                 'success': False,

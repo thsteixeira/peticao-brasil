@@ -52,7 +52,7 @@ class SignatureSubmissionForm(forms.ModelForm):
     cpf = forms.CharField(
         max_length=14,
         label='CPF',
-        help_text='Seu CPF (utilizado no certificado digital)',
+        help_text='Seu CPF (utilizado no certificado digital). Apenas certificados de pessoa física são aceitos.',
         widget=forms.TextInput(attrs={
             'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent',
             'placeholder': '000.000.000-00',
