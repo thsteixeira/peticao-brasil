@@ -42,12 +42,16 @@
             <h4 class="font-bold text-gray-900 mb-2">Ao assinar uma petição:</h4>
             <ul class="list-disc list-inside space-y-1 ml-4">
                 <li>Nome completo</li>
-                <li>CPF (validado e armazenado de forma criptografada)</li>
+                <li><strong>CPF de pessoa física</strong> (validado e armazenado de forma criptografada)</li>
                 <li>Email</li>
                 <li>Cidade e Estado</li>
-                <li>Arquivo PDF com assinatura digital Gov.br</li>
-                <li>Dados do certificado digital (extraídos da assinatura)</li>
+                <li>Arquivo PDF com assinatura digital Gov.br ou e-CPF</li>
+                <li>Dados do certificado digital de pessoa física (extraídos da assinatura)</li>
             </ul>
+            <p class="text-sm text-blue-800 font-semibold mt-3 bg-blue-50 p-2 rounded">
+                ℹ️ Importante: Aceitamos apenas certificados de <strong>pessoa física (CPF)</strong>. 
+                Certificados CNPJ (pessoa jurídica) são rejeitados automaticamente.
+            </p>
         </div>
 
         <h3 class="text-xl font-bold text-gray-900 mt-6 mb-3">2.2. Dados Coletados Automaticamente</h3>
@@ -61,15 +65,23 @@
 
         <h3 class="text-xl font-bold text-gray-900 mt-6 mb-3">2.3. Dados de Terceiros</h3>
         <p>
-            Ao utilizar a assinatura digital Gov.br, coletamos dados fornecidos pelo sistema oficial do governo:
+            Ao utilizar a assinatura digital Gov.br ou e-CPF, coletamos dados fornecidos pelo sistema oficial:
         </p>
         <ul class="list-disc list-inside space-y-2 ml-4">
-            <li>Informações do certificado digital ICP-Brasil</li>
+            <li>Informações do certificado digital ICP-Brasil <strong>de pessoa física</strong></li>
             <li>Nome do signatário (conforme certificado)</li>
-            <li>CPF vinculado ao certificado</li>
+            <li><strong>CPF</strong> vinculado ao certificado (apenas pessoa física)</li>
             <li>Data e hora da assinatura digital</li>
             <li>Hash criptográfico da assinatura</li>
         </ul>
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 my-4">
+            <p class="text-sm text-gray-800">
+                <strong>⚠️ Política de Dados:</strong> Esta plataforma coleta e processa exclusivamente dados de 
+                <strong>pessoas físicas (CPF)</strong>. Não coletamos, processamos ou armazenamos dados de 
+                pessoas jurídicas (CNPJ). Certificados empresariais são rejeitados automaticamente durante o 
+                processo de verificação.
+            </p>
+        </div>
 
         <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">3. Finalidade do Tratamento de Dados</h2>
         <p>Utilizamos seus dados pessoais para:</p>
@@ -107,14 +119,19 @@
         </div>
 
         <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">4. Base Legal para o Tratamento</h2>
-        <p>Fundamentamos o tratamento de dados pessoais nas seguintes bases legais (Art. 7º da LGPD):</p>
+        <p>Fundamentamos o tratamento de dados pessoais de <strong>pessoas físicas</strong> nas seguintes bases legais (Art. 7º da LGPD):</p>
         <ul class="list-disc list-inside space-y-2 ml-4">
             <li><strong>Execução de contrato:</strong> Operação da plataforma e serviços solicitados por você</li>
-            <li><strong>Cumprimento de obrigação legal:</strong> Armazenamento de assinaturas digitais conforme legislação</li>
+            <li><strong>Cumprimento de obrigação legal:</strong> Armazenamento de assinaturas digitais de cidadãos conforme legislação</li>
             <li><strong>Exercício regular de direitos:</strong> Defesa em processos judiciais ou administrativos</li>
-            <li><strong>Legítimo interesse:</strong> Segurança da plataforma, prevenção de fraudes</li>
+            <li><strong>Legítimo interesse:</strong> Segurança da plataforma, prevenção de fraudes, validação de identidade individual</li>
             <li><strong>Consentimento:</strong> Quando aplicável, para finalidades específicas</li>
         </ul>
+        <p class="mt-4 text-sm bg-blue-50 p-4 rounded">
+            <strong>Nota:</strong> O tratamento de dados está restrito a <strong>pessoas físicas (cidadãos)</strong>. 
+            Não processamos dados de pessoas jurídicas (CNPJ) em conformidade com a missão da plataforma de 
+            promover a participação cívica individual.
+        </p>
 
         <h2 class="text-2xl font-bold text-gray-900 mt-8 mb-4">5. Compartilhamento de Dados</h2>
         
