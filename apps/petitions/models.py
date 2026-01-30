@@ -408,8 +408,8 @@ class Petition(models.Model):
         self.refresh_from_db()
         
         # Check if we hit a milestone (25%, 50%, 75%, 100%)
-        old_progress = int((old_count / self.signature_goal) * 100)
-        new_progress = int((self.signature_count / self.signature_goal) * 100)
+        old_progress = int((old_count / self.signature_goal) * 100) if self.signature_goal > 0 else 0
+        new_progress = int((self.signature_count / self.signature_goal) * 100) if self.signature_goal > 0 else 0
         
         milestones = [25, 50, 75, 100]
         for milestone in milestones:
@@ -422,6 +422,26 @@ class Petition(models.Model):
                     import logging
                     logger = logging.getLogger(__name__)
                     logger.error(f"Failed to queue milestone email: {str(e)}")
+                
+                # Track milestone in Google Analytics
+                try:
+                    from apps.core.google_tracking import get_ga_tracking_code
+                    # This generates tracking code but we can't inject it into a page from here
+                    # Instead, we'll log it for potential server-side tracking via Measurement Protocol
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.info(
+                        f"Petition milestone reached",
+                        extra={
+                            'petition_id': str(self.uuid),
+                            'milestone': f'{milestone}_percent',
+                            'signature_count': self.signature_count,
+                            'category': self.category.name if self.category else 'uncategorized',
+                            'event_type': 'petition_milestone'
+                        }
+                    )
+                except Exception as e:
+                    pass  # Don't fail if analytics tracking fails
     
     def increment_view_count(self):
         """Safely increment view count (atomic operation)"""

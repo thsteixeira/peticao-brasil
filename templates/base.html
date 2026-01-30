@@ -142,6 +142,11 @@
     
     {% block extra_js %}{% endblock %}
     
+    <!-- Google Analytics Event Tracking -->
+    {% if ga_tracking_code %}
+        {{ ga_tracking_code|safe }}
+    {% endif %}
+    
     <!-- Mobile Menu Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {

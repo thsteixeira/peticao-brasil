@@ -15,6 +15,7 @@ from django.http import JsonResponse
 from django.views.generic import View
 from django.core.exceptions import PermissionDenied
 from apps.core.logging_utils import StructuredLogger
+from apps.core.google_tracking import GoogleAnalyticsEventMixin
 
 logger = StructuredLogger(__name__)
 
@@ -24,7 +25,7 @@ from .search import PetitionSearchForm
 from apps.core.models import Category
 
 
-class PetitionListView(ListView):
+class PetitionListView(GoogleAnalyticsEventMixin, ListView):
     """
     Public view listing all active petitions with advanced search and filters.
     """
@@ -32,6 +33,22 @@ class PetitionListView(ListView):
     template_name = 'petitions/petition_list.html'
     context_object_name = 'petitions'
     paginate_by = 20
+    
+    def get_ga_event_name(self):
+        """Only track search events, not regular list views."""
+        if self.request.GET.get('q'):
+            return 'search'
+        return None
+    
+    def get_ga_event_params(self):
+        """Track search queries and results."""
+        search_query = self.request.GET.get('q', '')
+        if search_query:
+            return {
+                'search_term': search_query[:100],  # Limit length for privacy
+                'results_count': self.get_queryset().count()
+            }
+        return {}
     
     def get_queryset(self):
         queryset = Petition.objects.filter(
@@ -125,7 +142,7 @@ class PetitionListView(ListView):
         return context
 
 
-class PetitionDetailView(DetailView):
+class PetitionDetailView(GoogleAnalyticsEventMixin, DetailView):
     """
     Public view showing petition details.
     """
@@ -133,6 +150,17 @@ class PetitionDetailView(DetailView):
     template_name = 'petitions/petition_detail.html'
     context_object_name = 'petition'
     slug_field = 'slug'
+    ga_event_name = 'petition_viewed'
+    
+    def get_ga_event_params(self):
+        """Track petition views with engagement metrics."""
+        return {
+            'petition_id': str(self.object.uuid),
+            'category': self.object.category.name if self.object.category else 'uncategorized',
+            'signature_count': self.object.signature_count,
+            'signature_goal': self.object.signature_goal,
+            'completion_percentage': int((self.object.signature_count / self.object.signature_goal * 100)) if self.object.signature_goal > 0 else 0
+        }
     
     def get_object(self, queryset=None):
         # Get by UUID instead of pk
@@ -185,19 +213,30 @@ class PetitionDetailView(DetailView):
         return context
 
 
-class PetitionCreateView(LoginRequiredMixin, CreateView):
+class PetitionCreateView(GoogleAnalyticsEventMixin, LoginRequiredMixin, CreateView):
     """
     View for creating a new petition (requires authentication).
     """
     model = Petition
     form_class = PetitionForm
     template_name = 'petitions/petition_form.html'
+    ga_event_name = 'petition_created'
     
     def get_form_kwargs(self):
         """Pass request to form for Turnstile validation."""
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
+    
+    def get_ga_event_params(self):
+        """Track petition creation with category and goal."""
+        if hasattr(self, 'object') and self.object:
+            return {
+                'category': self.object.category.name if self.object.category else 'uncategorized',
+                'signature_goal': self.object.signature_goal,
+                'petition_id': str(self.object.uuid)
+            }
+        return {}
     
     def form_valid(self, form):
         # Set the creator to the current user
@@ -371,11 +410,19 @@ def petition_share(request, uuid):
     })
 
 
-class RequestBulkDownloadView(LoginRequiredMixin, View):
+class RequestBulkDownloadView(GoogleAnalyticsEventMixin, LoginRequiredMixin, View):
     """
     Request async generation of bulk download package.
     User will receive email with download link when ready.
     """
+    ga_event_name = 'file_download'
+    
+    def get_ga_event_params(self):
+        """Track bulk download requests."""
+        return {
+            'file_type': 'zip',
+            'content_type': 'bulk_signatures'
+        }
     
     def get(self, request, uuid):
         """Redirect GET requests to petition detail page."""

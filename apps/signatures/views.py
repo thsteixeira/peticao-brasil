@@ -12,18 +12,20 @@ from django.utils.decorators import method_decorator
 
 from apps.petitions.models import Petition
 from apps.core.rate_limiting import rate_limit
+from apps.core.google_tracking import GoogleAnalyticsEventMixin
 from .models import Signature
 from .forms import SignatureSubmissionForm
 
 
 @method_decorator(rate_limit(max_requests=10, window=3600), name='post')  # 10 uploads per hour
-class SignatureSubmitView(CreateView):
+class SignatureSubmitView(GoogleAnalyticsEventMixin, CreateView):
     """
     View for submitting a signed PDF with rate limiting.
     """
     model = Signature
     form_class = SignatureSubmissionForm
     template_name = 'signatures/signature_submit.html'
+    ga_event_name = 'signature_submitted'
     
     def dispatch(self, request, *args, **kwargs):
         """Get petition and validate it can receive signatures."""
@@ -40,6 +42,14 @@ class SignatureSubmitView(CreateView):
             return redirect('petitions:detail', uuid=self.petition.uuid)
         
         return super().dispatch(request, *args, **kwargs)
+    
+    def get_ga_event_params(self):
+        """Track signature submission with petition details."""
+        return {
+            'petition_id': str(self.petition.uuid),
+            'petition_category': self.petition.category.name if self.petition.category else 'uncategorized',
+            'petition_signature_count': self.petition.signature_count + 1  # Include the new signature
+        }
     
     def get_context_data(self, **kwargs):
         """Add petition to context."""
@@ -223,8 +233,16 @@ import hashlib
 import json
 
 
-class DownloadCustodyCertificateView(View):
+class DownloadCustodyCertificateView(GoogleAnalyticsEventMixin, View):
     """Allow users to download their custody certificate."""
+    ga_event_name = 'file_download'
+    
+    def get_ga_event_params(self):
+        """Track custody certificate downloads."""
+        return {
+            'file_type': 'pdf',
+            'content_type': 'custody_certificate'
+        }
     
     def get(self, request, uuid):
         """Serve the custody certificate PDF."""

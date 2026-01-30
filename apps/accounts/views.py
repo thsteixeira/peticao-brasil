@@ -12,15 +12,23 @@ from django.utils.decorators import method_decorator
 
 from .forms import UserRegistrationForm, UserLoginForm
 from apps.core.rate_limiting import rate_limit, RateLimiters
+from apps.core.google_tracking import GoogleAnalyticsEventMixin
 
 
-class RegisterView(CreateView):
+class RegisterView(GoogleAnalyticsEventMixin, CreateView):
     """
     User registration view.
     """
     form_class = UserRegistrationForm
     template_name = 'accounts/register.html'
     success_url = reverse_lazy('petitions:home')
+    ga_event_name = 'sign_up'
+    
+    def get_ga_event_params(self):
+        """Track user registration."""
+        return {
+            'method': 'email'
+        }
     
     def get_form_kwargs(self):
         """Pass request to form for Turnstile validation."""
@@ -58,13 +66,20 @@ class RegisterView(CreateView):
         return super().form_invalid(form)
 
 
-class LoginView(DjangoLoginView):
+class LoginView(GoogleAnalyticsEventMixin, DjangoLoginView):
     """
     User login view with rate limiting.
     """
     form_class = UserLoginForm
     template_name = 'accounts/login.html'
     redirect_authenticated_user = True
+    ga_event_name = 'login'
+    
+    def get_ga_event_params(self):
+        """Track user login."""
+        return {
+            'method': 'password'
+        }
     
     @method_decorator(rate_limit(max_requests=5, window=300))
     def dispatch(self, request, *args, **kwargs):
