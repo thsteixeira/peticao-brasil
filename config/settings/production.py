@@ -48,11 +48,32 @@ PERMISSIONS_POLICY = {
 
 # Content Security Policy (CSP)
 CSP_DEFAULT_SRC = ("'self'",)
-CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com", "https://challenges.cloudflare.com")
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "https://cdn.tailwindcss.com",
+    "https://challenges.cloudflare.com",
+    "https://www.googletagmanager.com",  # Google Analytics
+    "https://www.google-analytics.com",  # Google Analytics
+)
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://cdn.tailwindcss.com")
-CSP_IMG_SRC = ("'self'", "data:", "https:", "blob:")
+CSP_IMG_SRC = (
+    "'self'",
+    "data:",
+    "https:",
+    "blob:",
+    "https://www.google-analytics.com",  # Google Analytics
+    "https://www.googletagmanager.com",  # Google Tag Manager
+)
 CSP_FONT_SRC = ("'self'", "https:", "data:")
-CSP_CONNECT_SRC = ("'self'", "https:")
+CSP_CONNECT_SRC = (
+    "'self'",
+    "https:",
+    "https://www.google-analytics.com",  # Google Analytics
+    "https://analytics.google.com",  # Google Analytics 4
+    "https://www.googletagmanager.com",  # Google Tag Manager
+    "https://region1.google-analytics.com",  # Google Analytics (regional)
+)
 CSP_FRAME_SRC = ("'self'", "https://challenges.cloudflare.com")
 CSP_OBJECT_SRC = ("'none'",)
 CSP_BASE_URI = ("'self'",)

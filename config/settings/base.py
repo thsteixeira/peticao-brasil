@@ -183,6 +183,10 @@ TURNSTILE_SITE_KEY = config('TURNSTILE_SITE_KEY', default='')
 TURNSTILE_SECRET_KEY = config('TURNSTILE_SECRET_KEY', default='')
 TURNSTILE_ENABLED = config('TURNSTILE_ENABLED', default=True, cast=bool)
 
+# Google Analytics
+GOOGLE_ANALYTICS_ID = config('GOOGLE_ANALYTICS_ID', default='')  # Format: G-XXXXXXXXXX
+GOOGLE_ANALYTICS_ENABLED = config('GOOGLE_ANALYTICS_ENABLED', default=True, cast=bool)
+
 # Petition Settings
 PETITION_PDF_STORAGE_PATH = config('PETITION_PDF_STORAGE_PATH', default='petitions/pdfs/')
 SIGNATURE_PDF_STORAGE_PATH = config('SIGNATURE_PDF_STORAGE_PATH', default='signatures/pdfs/')

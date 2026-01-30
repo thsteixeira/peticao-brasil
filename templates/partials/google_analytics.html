@@ -1,0 +1,21 @@
+{% comment %}
+Google Analytics 4 (GA4) Integration
+This partial should be included in the <head> section of base.html
+{% endcomment %}
+
+{% if GOOGLE_ANALYTICS_ENABLED and GOOGLE_ANALYTICS_ID %}
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS_ID }}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', '{{ GOOGLE_ANALYTICS_ID }}', {
+    'cookie_flags': 'SameSite=None;Secure',
+    'anonymize_ip': true,  // GDPR/LGPD compliance
+    'allow_google_signals': false,  // Disable advertising features for privacy
+    'allow_ad_personalization_signals': false
+  });
+</script>
+{% endif %}

@@ -13,4 +13,6 @@ def site_settings(request):
         'SITE_URL': settings.SITE_URL,
         'TURNSTILE_SITE_KEY': settings.TURNSTILE_SITE_KEY,
         'TURNSTILE_ENABLED': settings.TURNSTILE_ENABLED,
+        'GOOGLE_ANALYTICS_ID': settings.GOOGLE_ANALYTICS_ID,
+        'GOOGLE_ANALYTICS_ENABLED': settings.GOOGLE_ANALYTICS_ENABLED,
     }
