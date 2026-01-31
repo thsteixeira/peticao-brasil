@@ -19,11 +19,17 @@ class SecurityHeadersMiddleware(MiddlewareMixin):
         # Content Security Policy
         response['Content-Security-Policy'] = (
             "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://challenges.cloudflare.com; "
+            "script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://challenges.cloudflare.com "
+            "https://www.googletagmanager.com https://www.google-analytics.com "
+            "https://googleads.g.doubleclick.net https://www.googleadservices.com; "
             "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; "
-            "img-src 'self' data: https:; "
+            "img-src 'self' data: https: blob: https://www.google-analytics.com https://www.googletagmanager.com "
+            "https://googleads.g.doubleclick.net; "
             "font-src 'self' data:; "
-            "connect-src 'self' https://challenges.cloudflare.com; "
+            "connect-src 'self' https://challenges.cloudflare.com "
+            "https://www.google-analytics.com https://analytics.google.com "
+            "https://www.googletagmanager.com https://region1.google-analytics.com "
+            "https://stats.g.doubleclick.net; "
             "frame-src 'self' https://challenges.cloudflare.com; "
             "frame-ancestors 'none';"
         )
